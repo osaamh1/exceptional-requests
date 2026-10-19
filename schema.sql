@@ -64,7 +64,7 @@ create table if not exists public.request_counters (
 -- ---------------------------------------------------------------------
 create table if not exists public.requests (
   id              uuid primary key default gen_random_uuid(),
-  ref_no          text unique not null,
+  ref_no          text unique not null,   -- مثل 1448/0001
 
   -- بيانات الطالب
   student_name    text not null,
@@ -329,3 +329,7 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 --   النص الكامل للدالتين: انظر migration «part7_one_open_request_per_student»
 --   في Supabase → Database → Migrations
 -- =====================================================================
+
+-- تحديث: صيغة رقم الطلب صارت أرقاماً فقط 1448/0001 (بدل EX-1448-0001)
+--   normalize_ref() تقبل: 1448/0001 · 1448-1 · 14480001 · EX-1448-0001
+--   انظر migration «part9_numeric_reference_numbers»

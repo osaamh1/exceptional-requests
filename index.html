@@ -166,7 +166,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 @keyframes draw{to{stroke-dashoffset:0}}
 .ref{margin:18px auto;max-width:360px;border:2px solid var(--gold);border-radius:18px;padding:16px;background:linear-gradient(180deg,#fff,var(--gold-soft));position:relative}
 .ref small{color:var(--gold);font-weight:600}
-.ref .num{font-family:"Noto Kufi Arabic";font-size:30px;font-weight:800;color:var(--green);direction:ltr;letter-spacing:1px}
+.ref .num{font-family:"IBM Plex Sans Arabic",sans-serif;font-size:32px;font-weight:700;color:var(--green);direction:ltr;letter-spacing:1px}
 .ref .btn{margin-top:6px;padding:8px 14px;font-size:14px}
 .next{text-align:right;background:#f6f8fb;border-radius:14px;padding:14px 16px;margin:16px 0;font-size:14.5px}
 .next ol{margin:6px 0 0;padding-inline-start:20px}
@@ -179,7 +179,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 @media (max-width:560px){.trk-form{grid-template-columns:1fr 1fr}.trk-form .btn{grid-column:1/-1;margin-top:4px}}
 .res{margin-top:18px}
 .res-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
-.res-head .num{font-family:"Noto Kufi Arabic";font-weight:800;font-size:20px;direction:ltr;color:var(--green)}
+.res-head .num{font-family:"IBM Plex Sans Arabic",sans-serif;font-weight:700;font-size:20px;direction:ltr;color:var(--green)}
 .pill{padding:5px 14px;border-radius:999px;font-weight:700;font-size:13.5px}
 .t-info{background:var(--info-soft);color:var(--info)}
 .t-warn{background:var(--warn-soft);color:var(--warn)}
@@ -245,7 +245,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
 
   <div id="demoNote" class="demo" hidden>
     <span>🧪</span>
-    <div><b>وضع العرض التجريبي</b> — لم تُربط قاعدة البيانات بعد، فالبيانات تُحفظ مؤقتاً في هذا المتصفح فقط. لتجربة التتبع استخدم الرقم <b dir="ltr">EX-1448-0007</b> وآخر أربعة أرقام <b dir="ltr">1234</b>.</div>
+    <div><b>وضع العرض التجريبي</b> — لم تُربط قاعدة البيانات بعد، فالبيانات تُحفظ مؤقتاً في هذا المتصفح فقط. لتجربة التتبع استخدم الرقم <b dir="ltr">1448/0007</b> وآخر أربعة أرقام <b dir="ltr">1234</b>.</div>
   </div>
 
   <!-- ============ NEW REQUEST ============ -->
@@ -507,7 +507,7 @@ const sb = DEMO ? null : window.supabase.createClient(CONFIG.SUPABASE_URL, CONFI
 
 const api = DEMO ? (() => {
   const mem = store.get('exreq_demo_db', null) || {seq:7, rows:[{
-    ref_no:'EX-1448-0007', mobile:'0550001234', status:'at_dean', category:'registration',
+    ref_no:'1448/0007', mobile:'0550001234', status:'at_dean', category:'registration',
     summary:'إضافة مقرر فقه المعاملات (2) بعد انتهاء فترة الحذف والإضافة',
     student_message:null, created_at:new Date(Date.now()-3*864e5).toISOString(),
     events:[
@@ -521,7 +521,7 @@ const api = DEMO ? (() => {
     async upload(file){ await wait(450); return {path:`incoming/${uuid()}/${Date.now()}`, name:file.name, size:file.size, mime:file.type}; },
     async submit(p){
       await wait(700); mem.seq++;
-      const ref = `EX-1448-${String(mem.seq).padStart(4,'0')}`, now = new Date().toISOString();
+      const ref = `1448/${String(mem.seq).padStart(4,'0')}`, now = new Date().toISOString();
       const OPEN = ['new','in_review','needs_info','at_dean','referred'];
       if (mem.rows.some(x => x.uid===p.university_id && OPEN.includes(x.status))) throw new Error('OPEN_REQUEST');
       mem.rows.push({ref_no:ref, uid:p.university_id, mobile:p.mobile, status:'new', category:p.category, summary:p.summary, student_message:null, created_at:now,
@@ -904,18 +904,18 @@ $('#t_ref').addEventListener('input', e => e.target.value = toLatin(e.target.val
 $('#trkForm').addEventListener('submit', e => { e.preventDefault(); doTrack(); });
 
 /* يقبل رقم الطلب بأي شكل يكتبه الطالب، أو رقمه الجامعي:
-   EX-1448-0001 · ex 1448 1 · 1448-1 · 0001 · 1 · ١ · 441234567 */
+   1448/0001 · 1448-1 · 14480001 · 0001 · 1 · ١ · 441234567 */
 function currentHijriYear(){
   try { return +new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{year:'numeric'}).format(new Date()).replace(/\D/g,''); }
   catch { return 1448; }
 }
 function normalizeLookup(raw){
-  const v = toLatin(raw).toUpperCase().replace(/[\s‐-―−_\/]+/g,'-').replace(/^-+|-+$/g,'');
+  const v = toLatin(raw).toUpperCase().replace(/[\s‐-―−_\/\\]+/g,'-').replace(/^-+|-+$/g,'');
   const digits = v.replace(/\D/g,'');
+  let m = v.match(/^(?:EX-?)?(14\d{2})-?(\d{1,4})$/);                    // سنة + تسلسل: 1448/0001
+  if (m && (v.includes('-') || v.startsWith('EX') || /^14\d{6}$/.test(v))) return `${m[1]}/${m[2].padStart(4,'0')}`;
   if (/^\d{6,10}$/.test(v)) return v;                                   // رقم جامعي
-  let m = v.match(/^(?:EX-?)?(14\d{2})-?(\d{1,4})$/);                    // سنة + تسلسل
-  if (m && (v.includes('-') || v.startsWith('EX'))) return `EX-${m[1]}-${m[2].padStart(4,'0')}`;
-  if (/^(?:EX-?)?\d{1,4}$/.test(v)) return `EX-${currentHijriYear()}-${digits.padStart(4,'0')}`; // تسلسل فقط
+  if (/^(?:EX-?)?\d{1,4}$/.test(v)) return `${currentHijriYear()}/${digits.padStart(4,'0')}`; // التسلسل فقط
   return null;
 }
 
@@ -924,8 +924,8 @@ async function doTrack(){
   const out = $('#trkRes');
   if (!raw) { toast('اكتب رقمك الجامعي','error'); $('#t_ref').focus(); return; }
   const ref = normalizeLookup(raw);
-  if (!ref) { toast('اكتب رقمك الجامعي (أو رقم الطلب مثل EX-1448-0001)','error'); $('#t_ref').focus(); return; }
-  if (/^EX-/.test(ref)) $('#t_ref').value = ref;
+  if (!ref) { toast('اكتب رقمك الجامعي (أو رقم الطلب مثل 1448/0001)','error'); $('#t_ref').focus(); return; }
+  if (ref.includes('/')) $('#t_ref').value = ref;
   if (!/^\d{4}$/.test(l4)) { toast('أدخل آخر 4 أرقام من الجوال','error'); $('#t_last4').focus(); return; }
   out.innerHTML = '<div class="empty"><div class="spin"></div>جاري الاستعلام…</div>';
   try {
@@ -955,8 +955,8 @@ go(0, false); restoreDraft(); updateMail();
 store.del('exreq_mine');   // أُلغيت قائمة الطلبات المحفوظة على الجهاز
 if (location.hash.startsWith('#track')) {
   switchTab('track');
-  const m = location.hash.match(/ref=([A-Z0-9-]+)/i);
-  if (m) $('#t_ref').value = m[1].toUpperCase();
+  const m = location.hash.match(/ref=([A-Z0-9\/%-]+)/i);
+  if (m) $('#t_ref').value = decodeURIComponent(m[1]).toUpperCase();
 }
 window.addEventListener('beforeunload', e => {
   if (S.files.length && !$('#wizard').hidden && S.step>0) { e.preventDefault(); e.returnValue=''; }
