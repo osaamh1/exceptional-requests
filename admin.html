@@ -335,7 +335,7 @@ const PHRASES = {
 };
 const EVENT = {
   submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب',
-  forward:'رُفع إلى فضيلة العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
+  forward:'رُفع إلى العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
   close:'أُقفل الطلب', enjaz:'سُجّل رقم معاملة إنجاز', student_message:'حُدّثت الرسالة الظاهرة للطالب',
   note:'ملاحظة داخلية', reopen:'أُعيد فتح الطلب', status:'تغيّرت الحالة',
 };
@@ -530,6 +530,7 @@ async function fetchExtras(r){
   }));
   return { files: signed, events: events||[] };
 }
+const H = () => S.settings.dean_honorific || 'سعادة';
 const who = id => { const p = S.people[id]; return p ? p.full_name : ''; };
 const deanName = () => {
   if (S.settings.dean_name) return S.settings.dean_name;
@@ -562,7 +563,7 @@ async function renderDetail(r, keepScroll){
   const canDecideNow = S.canDirect && ['at_dean','in_review','new'].includes(r.status);
   const composer = canDecideNow ? `
     <div class="sec"><div class="direct" id="composer">
-      <h3>✍️ توجيه فضيلة العميد</h3>
+      <h3>✍️ توجيه ${H()} العميد</h3>
       <div class="dec" id="decBtns"><button data-v="approved">موافق</button><button data-v="rejected">غير موافق</button><button data-v="reserved">متحفظ</button></div>
       <div class="row2">
         <div><label class="l" for="decRef">يُحال إلى (اختياري)</label>
@@ -575,12 +576,12 @@ async function renderDetail(r, keepScroll){
         <button class="btn teal" id="decSave" type="button">اعتماد التوجيه</button>
         ${r.status==='at_dean' ? '<button class="btn line" id="decReturn" type="button">إعادة للمكتب</button>' : ''}
       </div>
-      ${role!=='dean' ? '<div style="font-size:12.5px;color:var(--muted);margin-top:8px">ستعتمد التوجيه بالتفويض، وسيظهر في النموذج باسم فضيلة العميد.</div>' : ''}
+      ${role!=='dean' ? `<div style="font-size:12.5px;color:var(--muted);margin-top:8px">ستعتمد التوجيه بالتفويض، وسيظهر في النموذج باسم ${H()} العميد.</div>` : ''}
     </div></div>` : '';
 
   const acts = [];
   if (office && ['new','needs_info'].includes(r.status)) acts.push(`<button class="btn ghost" data-a="take">استلام للمراجعة</button>`);
-  if (office && ['new','in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لفضيلة العميد</button>`);
+  if (office && ['new','in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
   if (office && ['new','in_review','at_dean'].includes(r.status)) acts.push(`<button class="btn warn" data-a="info">طلب استكمال من الطالب</button>`);
   if (office && decidedNotClosed(r)) acts.push(`<button class="btn teal" data-a="close">إقفال الطلب</button>`);
   if (office) acts.push(`<button class="btn line" data-a="info2">رقم إنجاز / رسالة للطالب</button>`);
@@ -657,8 +658,8 @@ async function run(fn, okMsg){
 }
 function act(a, r){
   if (a==='take') return run(() => sb.rpc('req_take', { p_id:r.id }), 'تم الاستلام ✓');
-  if (a==='forward') return formBox('رفع الطلب لفضيلة العميد', [{ id:'n', label:'مرئيات المكتب (تظهر للعميد وفي النموذج المطبوع)', area:true, chips:PHRASES.forward, value:r.office_note||'' }], 'رفع للعميد',
-    v => sb.rpc('req_forward', { p_id:r.id, p_office_note:v.n || null }), 'رُفع لفضيلة العميد ✓');
+  if (a==='forward') return formBox(`رفع الطلب لـ${H()} العميد`, [{ id:'n', label:'مرئيات المكتب (تظهر للعميد وفي النموذج المطبوع)', area:true, chips:PHRASES.forward, value:r.office_note||'' }], 'رفع للعميد',
+    v => sb.rpc('req_forward', { p_id:r.id, p_office_note:v.n || null }), `رُفع لـ${H()} العميد ✓`);
   if (a==='info') return formBox('طلب استكمال من الطالب', [{ id:'m', label:'الرسالة التي ستظهر للطالب في صفحة المتابعة', area:true, required:true, chips:PHRASES.info }], 'إرسال',
     v => sb.rpc('req_request_info', { p_id:r.id, p_message:v.m }), 'أصبح الطلب «بانتظار استكمال»');
   if (a==='close') return formBox('إقفال الطلب', [
@@ -761,7 +762,7 @@ $('#btnSettings').addEventListener('click', () => {
 /* ================= PRINT: official form ================= */
 function printForm(r){
   const st = S.settings, files = S.cache[r.id]?.files || [];
-  const hon = st.dean_honorific || 'فضيلة';
+  const hon = H();
   const dir = r.dean_decision ? `
       <div class="dc ${r.dean_decision}">${DECISION[r.dean_decision]}</div>
       ${r.referred_to ? `<div>ويُحال إلى: <span class="ref">${esc(r.referred_to)}</span></div>` : ''}
