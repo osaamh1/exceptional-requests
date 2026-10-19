@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d4a3a">
+<meta name="theme-color" content="#12306b">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
 <title>الطلبات الاستثنائية | كلية الشريعة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,10 +13,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{
-  --green:#0d4a3a; --green-2:#14684f; --green-soft:#e6f0ec;
-  --gold:#b48a4a; --gold-soft:#f5eddf;
-  --ink:#1c2421; --muted:#68736e; --line:#e4e0d6;
-  --bg:#f7f5ef; --card:#ffffff;
+  /* هوية جامعة القصيم: كحلي + فيروزي (الأسماء القديمة للمتغيرات أُبقيت لتقليل التغيير) */
+  --green:#12306b; --green-2:#1d4690; --green-soft:#e7edf8;
+  --gold:#11908f; --gold-soft:#e2f3f2;
+  --ink:#1c2421; --muted:#68736e; --line:#e1e6ee;
+  --bg:#f4f6fa; --card:#ffffff;
   --ok:#1f7a55; --ok-soft:#e5f3ec;
   --warn:#a86a12; --warn-soft:#fbf1df;
   --bad:#b0412e; --bad-soft:#fbe9e5;
@@ -27,7 +30,7 @@ html,body{margin:0}
 body{
   font-family:"IBM Plex Sans Arabic",system-ui,sans-serif; color:var(--ink); background:var(--bg);
   font-size:16px; line-height:1.7; -webkit-font-smoothing:antialiased;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%230d4a3a' stroke-opacity='.045' stroke-width='1'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='24' y='24' width='32' height='32' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%2312306b' stroke-opacity='.045' stroke-width='1'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='24' y='24' width='32' height='32' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
 }
 h1,h2,h3{font-family:"Noto Kufi Arabic",sans-serif;line-height:1.5;margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -38,9 +41,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .hero::before{content:"";position:absolute;inset:0;opacity:.09;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2'%3E%3Cpath d='M32 4l7.5 20.5L60 32l-20.5 7.5L32 60l-7.5-20.5L4 32l20.5-7.5z'/%3E%3Ccircle cx='32' cy='32' r='9'/%3E%3C/g%3E%3C/svg%3E")}
 .hero::after{content:"";position:absolute;inset:auto 0 0 0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.hero .wrap{position:relative;display:flex;align-items:center;gap:16px}
-.emblem{width:56px;height:56px;flex:none;border-radius:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);display:grid;place-items:center}
-.hero small{display:block;opacity:.8;font-size:13px;letter-spacing:.2px}
+.hero .wrap{position:relative;display:flex;align-items:center;gap:22px}
+.hero .logo{width:200px;height:auto;flex:none}
+.hero .ttl{border-inline-start:1px solid rgba(255,255,255,.25);padding-inline-start:22px}
+@media (max-width:620px){
+  .hero .wrap{flex-direction:column;align-items:flex-start;gap:14px}
+  .hero .logo{width:170px}
+  .hero .ttl{border:0;padding:0}
+}
 .hero h1{font-size:clamp(20px,4.6vw,27px);font-weight:800}
 .hero p{margin:4px 0 0;opacity:.85;font-size:14px}
 
@@ -77,7 +85,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 @media (max-width:560px){.grid{grid-template-columns:1fr}}
 .f label,.f .lbl{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
 .f label em,.f .lbl em{color:var(--bad);font-style:normal}
-.input,.select,.textarea{width:100%;border:1.5px solid var(--line);background:#fcfbf8;border-radius:12px;padding:11px 14px;outline:none;transition:.15s;font-size:16px}
+.input,.select,.textarea{width:100%;border:1.5px solid var(--line);background:#fafbfd;border-radius:12px;padding:11px 14px;outline:none;transition:.15s;font-size:16px}
 .input:focus,.select:focus,.textarea:focus{border-color:var(--green-2);background:#fff;box-shadow:0 0 0 4px var(--green-soft)}
 .textarea{resize:vertical;min-height:110px;line-height:1.8}
 .ltr{direction:ltr;text-align:right;letter-spacing:.5px}
@@ -89,23 +97,23 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mail{display:inline-flex;align-items:center;gap:6px;direction:ltr;background:var(--green-soft);color:var(--green);padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600}
 
 .seg{display:flex;gap:8px}
-.seg button,.chips button{border:1.5px solid var(--line);background:#fcfbf8;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;transition:.15s}
+.seg button,.chips button{border:1.5px solid var(--line);background:#fafbfd;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;transition:.15s}
 .seg button{flex:1}
 .seg button.on,.chips button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{font-weight:500;font-size:14.5px}
 
 .cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.cat{text-align:right;border:1.5px solid var(--line);background:#fcfbf8;border-radius:14px;padding:14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:6px}
+.cat{text-align:right;border:1.5px solid var(--line);background:#fafbfd;border-radius:14px;padding:14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:6px}
 .cat svg{width:24px;height:24px;color:var(--gold)}
 .cat b{font-size:14.5px}
 .cat small{color:var(--muted);font-size:12.5px;line-height:1.5}
-.cat:hover{border-color:#cfc8b8}
+.cat:hover{border-color:#c4cede}
 .cat.on{border-color:var(--green);background:var(--green-soft)}
 .cat.on svg{color:var(--green)}
 
 /* ---------- Upload ---------- */
-.drop{border:2px dashed #d3cdbf;border-radius:16px;padding:28px 16px;text-align:center;cursor:pointer;background:#fcfbf8;transition:.2s}
+.drop{border:2px dashed #c9d2e0;border-radius:16px;padding:28px 16px;text-align:center;cursor:pointer;background:#fafbfd;transition:.2s}
 .drop:hover,.drop.over{border-color:var(--green-2);background:var(--green-soft)}
 .drop svg{width:34px;height:34px;color:var(--green-2)}
 .drop b{display:block;margin-top:6px}
@@ -129,7 +137,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* ---------- Review ---------- */
 .rev{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:12px}
-.rev h3{font-size:14px;background:#faf8f3;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.rev h3{font-size:14px;background:#f6f8fb;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
 .rev h3 button{border:0;background:none;color:var(--green-2);font-weight:600;cursor:pointer;font-size:13px}
 .rev dl{margin:0;padding:6px 14px}
 .rev .row{display:grid;grid-template-columns:140px 1fr;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
@@ -146,8 +154,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn.pri{background:var(--green);color:#fff;flex:1}
 .btn.pri:hover{background:var(--green-2)}
 .btn.gold{background:var(--gold);color:#fff}
-.btn.ghost{background:#f0ede5;color:var(--ink)}
-.btn.ghost:hover{background:#e7e3d8}
+.btn.ghost{background:#eef1f6;color:var(--ink)}
+.btn.ghost:hover{background:#e3e8f0}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .btn svg{width:18px;height:18px}
 
@@ -157,10 +165,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .check svg{width:46px;height:46px;stroke:var(--ok);stroke-width:3;fill:none;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .6s .2s forwards ease}
 @keyframes draw{to{stroke-dashoffset:0}}
 .ref{margin:18px auto;max-width:360px;border:2px solid var(--gold);border-radius:18px;padding:16px;background:linear-gradient(180deg,#fff,var(--gold-soft));position:relative}
-.ref small{color:#7a5a26;font-weight:600}
+.ref small{color:var(--gold);font-weight:600}
 .ref .num{font-family:"Noto Kufi Arabic";font-size:30px;font-weight:800;color:var(--green);direction:ltr;letter-spacing:1px}
 .ref .btn{margin-top:6px;padding:8px 14px;font-size:14px}
-.next{text-align:right;background:#faf8f3;border-radius:14px;padding:14px 16px;margin:16px 0;font-size:14.5px}
+.next{text-align:right;background:#f6f8fb;border-radius:14px;padding:14px 16px;margin:16px 0;font-size:14.5px}
 .next ol{margin:6px 0 0;padding-inline-start:20px}
 .done .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
@@ -183,7 +191,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .prog .st{width:72px}
 .prog .st span{white-space:normal;line-height:1.4}
 .msg{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px;border-inline-start:4px solid var(--gold);background:var(--gold-soft)}
-.msg b{display:block;margin-bottom:2px;color:#6b4e1f}
+.msg b{display:block;margin-bottom:2px;color:#0c6a69}
 .tl{list-style:none;margin:16px 0 0;padding:0;position:relative}
 .tl::before{content:"";position:absolute;right:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
 .tl li{position:relative;padding:0 26px 14px 0;font-size:14px}
@@ -221,11 +229,8 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
 
 <header class="hero">
   <div class="wrap">
-    <div class="emblem" aria-hidden="true">
-      <svg width="30" height="30" viewBox="0 0 64 64" fill="none" stroke="#d9b77a" stroke-width="3"><path d="M32 4l7.5 20.5L60 32l-20.5 7.5L32 60l-7.5-20.5L4 32l20.5-7.5z"/><circle cx="32" cy="32" r="8"/></svg>
-    </div>
-    <div>
-      <small>جامعة القصيم · كلية الشريعة</small>
+    <img class="logo" src="assets/logo-white.png" alt="جامعة القصيم — كلية الشريعة" width="220" height="94">
+    <div class="ttl">
       <h1>بوابة الطلبات الاستثنائية</h1>
       <p>للطلبات التي لا تتيحها الخدمات الإلكترونية المعتادة — تُرفع إلى سعادة عميد الكلية</p>
     </div>
