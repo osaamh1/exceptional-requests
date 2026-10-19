@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ملصق الطلبات الاستثنائية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--green:#0d4a3a;--gold:#b48a4a;--gold-soft:#f5eddf;--ink:#1c2421;--muted:#68736e}
+  *{box-sizing:border-box}
+  body{margin:0;background:#e9e6de;font-family:"IBM Plex Sans Arabic",sans-serif;color:var(--ink)}
+  .tools{max-width:210mm;margin:16px auto;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
+  .tools input{flex:1;min-width:220px;padding:10px 12px;border:1px solid #ccc;border-radius:10px;font:inherit;direction:ltr}
+  .tools button{padding:10px 18px;border:0;border-radius:10px;background:var(--green);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+  .page{width:210mm;min-height:297mm;margin:0 auto 24px;background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+  .top{background:var(--green);color:#fff;padding:22mm 18mm 26mm;position:relative}
+  .top::before{content:"";position:absolute;inset:0;opacity:.1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2'%3E%3Cpath d='M32 4l7.5 20.5L60 32l-20.5 7.5L32 60l-7.5-20.5L4 32l20.5-7.5z'/%3E%3Ccircle cx='32' cy='32' r='9'/%3E%3C/g%3E%3C/svg%3E")}
+  .top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  .top *{position:relative}
+  .top small{font-size:15px;opacity:.85}
+  .top h1{font-family:"Noto Kufi Arabic";font-size:44px;line-height:1.35;margin:10px 0 6px}
+  .top p{font-size:19px;margin:0;opacity:.9}
+  .mid{flex:1;display:flex;flex-direction:column;align-items:center;padding:0 18mm}
+  .qrwrap{margin-top:-16mm;background:#fff;padding:9mm;border-radius:10mm;box-shadow:0 8px 30px rgba(0,0,0,.12);border:3px solid var(--gold);position:relative}
+  #qr img,#qr canvas{display:block;width:78mm!important;height:78mm!important}
+  .scan{font-family:"Noto Kufi Arabic";font-weight:800;font-size:26px;color:var(--green);margin:9mm 0 2mm}
+  .url{direction:ltr;color:var(--muted);font-size:14px;word-break:break-all;text-align:center}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;width:100%;margin:12mm 0 8mm}
+  .s{background:var(--gold-soft);border-radius:6mm;padding:6mm 5mm;text-align:center}
+  .s b{display:grid;place-items:center;width:12mm;height:12mm;border-radius:50%;background:var(--green);color:#fff;margin:0 auto 3mm;font-size:20px}
+  .s span{font-size:16px;font-weight:600;line-height:1.6}
+  .note{font-size:14px;color:var(--muted);text-align:center;max-width:150mm;line-height:1.8}
+  .foot{padding:8mm 18mm;border-top:1px solid #eee;text-align:center;font-size:13px;color:var(--muted)}
+  @media print{
+    @page{size:A4;margin:0}
+    body{background:#fff}
+    .tools{display:none}
+    .page{margin:0;box-shadow:none}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="tools">
+  <input id="url" placeholder="https://username.github.io/exceptional-requests/">
+  <button onclick="build()">تحديث الرمز</button>
+  <button onclick="print()">طباعة</button>
+</div>
+
+<div class="page">
+  <div class="top">
+    <small>جامعة القصيم · كلية الشريعة والدراسات الإسلامية</small>
+    <h1>لديك طلب استثنائي؟</h1>
+    <p>قدّمه إلكترونياً في دقائق، دون نموذج ورقي</p>
+  </div>
+  <div class="mid">
+    <div class="qrwrap"><div id="qr"></div></div>
+    <div class="scan">امسح الرمز بكاميرا جوالك</div>
+    <div class="url" id="urlText"></div>
+    <div class="steps">
+      <div class="s"><b>1</b><span>امسح الرمز وعبّئ الطلب</span></div>
+      <div class="s"><b>2</b><span>أرفق ما يدعم طلبك</span></div>
+      <div class="s"><b>3</b><span>احتفظ برقم الطلب وتابع حالته</span></div>
+    </div>
+    <div class="note">مخصص للطلبات التي لا تتيحها الخدمات الإلكترونية المعتادة، كالطلبات بعد انتهاء المدد المحددة. تصلك التحديثات على بريدك الجامعي.</div>
+  </div>
+  <div class="foot">مكتب الكلية — للاستفسار يسعدنا خدمتك</div>
+</div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const DEFAULT = params.get('url') || location.href.replace(/poster\.html.*$/, '');
+  const inp = document.getElementById('url');
+  inp.value = DEFAULT;
+  let qr;
+  function build(){
+    const u = inp.value.trim();
+    document.getElementById('urlText').textContent = u;
+    const box = document.getElementById('qr'); box.innerHTML = '';
+    qr = new QRCode(box, { text:u, width:600, height:600, colorDark:'#0d4a3a', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H });
+  }
+  build();
+</script>
+</body>
+</html>

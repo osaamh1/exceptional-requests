@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d4a3a">
+<title>الطلبات الاستثنائية | كلية الشريعة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --green:#0d4a3a; --green-2:#14684f; --green-soft:#e6f0ec;
+  --gold:#b48a4a; --gold-soft:#f5eddf;
+  --ink:#1c2421; --muted:#68736e; --line:#e4e0d6;
+  --bg:#f7f5ef; --card:#ffffff;
+  --ok:#1f7a55; --ok-soft:#e5f3ec;
+  --warn:#a86a12; --warn-soft:#fbf1df;
+  --bad:#b0412e; --bad-soft:#fbe9e5;
+  --info:#2a5d8f; --info-soft:#e7eff8;
+  --r:16px; --shadow:0 1px 2px rgba(20,40,30,.05),0 8px 28px rgba(20,40,30,.07);
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:"IBM Plex Sans Arabic",system-ui,sans-serif; color:var(--ink); background:var(--bg);
+  font-size:16px; line-height:1.7; -webkit-font-smoothing:antialiased;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%230d4a3a' stroke-opacity='.045' stroke-width='1'%3E%3Cpath d='M40 8l9 23 23 9-23 9-9 23-9-23-23-9 23-9z'/%3E%3Crect x='24' y='24' width='32' height='32' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+}
+h1,h2,h3{font-family:"Noto Kufi Arabic",sans-serif;line-height:1.5;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* ---------- Hero ---------- */
+.hero{background:var(--green);color:#fff;position:relative;overflow:hidden;padding:28px 0 72px}
+.hero::before{content:"";position:absolute;inset:0;opacity:.09;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2'%3E%3Cpath d='M32 4l7.5 20.5L60 32l-20.5 7.5L32 60l-7.5-20.5L4 32l20.5-7.5z'/%3E%3Ccircle cx='32' cy='32' r='9'/%3E%3C/g%3E%3C/svg%3E")}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.hero .wrap{position:relative;display:flex;align-items:center;gap:16px}
+.emblem{width:56px;height:56px;flex:none;border-radius:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);display:grid;place-items:center}
+.hero small{display:block;opacity:.8;font-size:13px;letter-spacing:.2px}
+.hero h1{font-size:clamp(20px,4.6vw,27px);font-weight:800}
+.hero p{margin:4px 0 0;opacity:.85;font-size:14px}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:6px;background:var(--card);padding:6px;border-radius:14px;box-shadow:var(--shadow);margin:-46px auto 18px;max-width:420px;position:relative;z-index:2}
+.tab{flex:1;border:0;background:transparent;padding:10px 12px;border-radius:10px;font-weight:600;cursor:pointer;color:var(--muted);transition:.2s}
+.tab.on{background:var(--green);color:#fff}
+
+/* ---------- Cards ---------- */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px;border:1px solid rgba(0,0,0,.03)}
+.demo{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);color:#6b4e1f;border:1px dashed #d8bf91;padding:10px 14px;border-radius:12px;font-size:13.5px;margin-bottom:14px}
+
+/* ---------- Stepper ---------- */
+.stepper{display:flex;align-items:center;margin:2px 0 22px;counter-reset:s}
+.st{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;width:64px;text-align:center}
+.st .dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;border:2px solid var(--line);background:#fff;color:var(--muted);transition:.25s}
+.st span{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}
+.st.on .dot{border-color:var(--green);color:var(--green);box-shadow:0 0 0 4px var(--green-soft)}
+.st.on span{color:var(--green);font-weight:700}
+.st.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.bar{flex:1;height:2px;background:var(--line);margin-bottom:24px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0;background:var(--green);transform:scaleX(0);transform-origin:right;transition:.35s}
+.bar.done i{transform:scaleX(1)}
+
+.step{display:none;animation:in .35s ease}
+.step.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.step h2{font-size:19px;margin-bottom:2px}
+.lead{color:var(--muted);margin:0 0 18px;font-size:14.5px}
+
+/* ---------- Fields ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 14px}
+.full{grid-column:1/-1}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.f label,.f .lbl{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+.f label em,.f .lbl em{color:var(--bad);font-style:normal}
+.input,.select,.textarea{width:100%;border:1.5px solid var(--line);background:#fcfbf8;border-radius:12px;padding:11px 14px;outline:none;transition:.15s;font-size:16px}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--green-2);background:#fff;box-shadow:0 0 0 4px var(--green-soft)}
+.textarea{resize:vertical;min-height:110px;line-height:1.8}
+.ltr{direction:ltr;text-align:right;letter-spacing:.5px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px;display:flex;justify-content:space-between;gap:8px}
+.err{color:var(--bad);font-size:12.5px;margin-top:5px;display:none}
+.f.bad .err{display:block}
+.f.bad .input,.f.bad .select,.f.bad .textarea,.f.bad .seg,.f.bad .cats,.f.bad .chips{border-color:var(--bad)}
+.f.bad .seg,.f.bad .cats,.f.bad .chips{border-radius:12px;outline:1.5px solid var(--bad);outline-offset:4px}
+.mail{display:inline-flex;align-items:center;gap:6px;direction:ltr;background:var(--green-soft);color:var(--green);padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:600}
+
+.seg{display:flex;gap:8px}
+.seg button,.chips button{border:1.5px solid var(--line);background:#fcfbf8;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;transition:.15s}
+.seg button{flex:1}
+.seg button.on,.chips button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font-weight:500;font-size:14.5px}
+
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cat{text-align:right;border:1.5px solid var(--line);background:#fcfbf8;border-radius:14px;padding:14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:6px}
+.cat svg{width:24px;height:24px;color:var(--gold)}
+.cat b{font-size:14.5px}
+.cat small{color:var(--muted);font-size:12.5px;line-height:1.5}
+.cat:hover{border-color:#cfc8b8}
+.cat.on{border-color:var(--green);background:var(--green-soft)}
+.cat.on svg{color:var(--green)}
+
+/* ---------- Upload ---------- */
+.drop{border:2px dashed #d3cdbf;border-radius:16px;padding:28px 16px;text-align:center;cursor:pointer;background:#fcfbf8;transition:.2s}
+.drop:hover,.drop.over{border-color:var(--green-2);background:var(--green-soft)}
+.drop svg{width:34px;height:34px;color:var(--green-2)}
+.drop b{display:block;margin-top:6px}
+.drop small{color:var(--muted)}
+.files{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.files li{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
+.files li.fresh{animation:in .25s}
+.files .ic{width:36px;height:36px;border-radius:10px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;flex:none;font-size:10px;font-weight:700;direction:ltr}
+.files .nm{flex:1;min-width:0}
+.files .nm div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:14px;direction:ltr;text-align:right}
+.files .nm small{color:var(--muted);font-size:12px}
+.files .nm small s{opacity:.7}
+.files .saved{color:var(--ok);font-weight:700;margin-inline-start:4px}
+.files .cmp{color:var(--green-2);font-weight:600}
+.files li.busy{background:#fbfaf6}
+.mini{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--gold-soft);border-top-color:var(--gold);animation:sp .8s linear infinite;display:block}
+.x{border:0;background:transparent;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px}
+.x:hover{background:var(--bad-soft);color:var(--bad)}
+.tips{background:var(--info-soft);color:#24496e;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:14px}
+.tips ul{margin:4px 0 0;padding-inline-start:18px}
+
+/* ---------- Review ---------- */
+.rev{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.rev h3{font-size:14px;background:#faf8f3;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.rev h3 button{border:0;background:none;color:var(--green-2);font-weight:600;cursor:pointer;font-size:13px}
+.rev dl{margin:0;padding:6px 14px}
+.rev .row{display:grid;grid-template-columns:140px 1fr;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
+.rev .row:last-child{border:0}
+.rev dt{color:var(--muted)}
+.rev dd{margin:0;white-space:pre-wrap;word-break:break-word}
+@media (max-width:560px){.rev .row{grid-template-columns:1fr;gap:0}}
+.agree{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);padding:14px;border-radius:12px;cursor:pointer;font-size:14.5px}
+.agree input{width:20px;height:20px;accent-color:var(--green);margin-top:3px;flex:none}
+
+/* ---------- Nav ---------- */
+.nav{display:flex;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.btn{border:0;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s;font-size:15.5px}
+.btn.pri{background:var(--green);color:#fff;flex:1}
+.btn.pri:hover{background:var(--green-2)}
+.btn.gold{background:var(--gold);color:#fff}
+.btn.ghost{background:#f0ede5;color:var(--ink)}
+.btn.ghost:hover{background:#e7e3d8}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn svg{width:18px;height:18px}
+
+/* ---------- Success ---------- */
+.done{text-align:center;padding:10px 0}
+.check{width:84px;height:84px;margin:6px auto 12px;border-radius:50%;background:var(--ok-soft);display:grid;place-items:center}
+.check svg{width:46px;height:46px;stroke:var(--ok);stroke-width:3;fill:none;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .6s .2s forwards ease}
+@keyframes draw{to{stroke-dashoffset:0}}
+.ref{margin:18px auto;max-width:360px;border:2px solid var(--gold);border-radius:18px;padding:16px;background:linear-gradient(180deg,#fff,var(--gold-soft));position:relative}
+.ref small{color:#7a5a26;font-weight:600}
+.ref .num{font-family:"Noto Kufi Arabic";font-size:30px;font-weight:800;color:var(--green);direction:ltr;letter-spacing:1px}
+.ref .btn{margin-top:6px;padding:8px 14px;font-size:14px}
+.next{text-align:right;background:#faf8f3;border-radius:14px;padding:14px 16px;margin:16px 0;font-size:14.5px}
+.next ol{margin:6px 0 0;padding-inline-start:20px}
+.done .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- Track ---------- */
+.trk-form{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;align-items:end}
+@media (max-width:560px){.trk-form{grid-template-columns:1fr 1fr}.trk-form .btn{grid-column:1/-1}}
+.mine{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.mine button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;cursor:pointer;direction:ltr;font-weight:600;color:var(--green);font-size:13px}
+.res{margin-top:18px}
+.res-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.res-head .num{font-family:"Noto Kufi Arabic";font-weight:800;font-size:20px;direction:ltr;color:var(--green)}
+.pill{padding:5px 14px;border-radius:999px;font-weight:700;font-size:13.5px}
+.t-info{background:var(--info-soft);color:var(--info)}
+.t-warn{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--ok-soft);color:var(--ok)}
+.t-bad{background:var(--bad-soft);color:var(--bad)}
+.t-muted{background:#eeece6;color:var(--muted)}
+.res .sum{color:var(--muted);font-size:14px;margin:0 0 16px}
+.prog{display:flex;align-items:flex-start;margin:20px 0 6px}
+.prog .st{width:72px}
+.prog .st span{white-space:normal;line-height:1.4}
+.msg{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px;border-inline-start:4px solid var(--gold);background:var(--gold-soft)}
+.msg b{display:block;margin-bottom:2px;color:#6b4e1f}
+.tl{list-style:none;margin:16px 0 0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;right:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl li{position:relative;padding:0 26px 14px 0;font-size:14px}
+.tl li::before{content:"";position:absolute;right:2px;top:7px;width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--green-2)}
+.tl li:last-child::before{background:var(--green-2)}
+.tl small{display:block;color:var(--muted);font-size:12.5px}
+.empty{text-align:center;color:var(--muted);padding:18px;font-size:14.5px}
+
+/* ---------- Overlay / toast ---------- */
+.ov{position:fixed;inset:0;background:rgba(13,40,32,.55);backdrop-filter:blur(3px);display:none;place-items:center;z-index:50}
+.ov.on{display:grid}
+.ov .box{background:#fff;border-radius:18px;padding:26px 30px;text-align:center;min-width:260px;box-shadow:var(--shadow)}
+.spin{width:42px;height:42px;border-radius:50%;border:4px solid var(--green-soft);border-top-color:var(--green);margin:0 auto 12px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pbar{height:6px;background:var(--green-soft);border-radius:9px;overflow:hidden;margin-top:12px}
+.pbar i{display:block;height:100%;width:0;background:var(--green);transition:.3s}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-size:14.5px;transition:.3s;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.error{background:var(--bad)}
+.toast.ok{background:var(--ok)}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 36px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="emblem" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 64 64" fill="none" stroke="#d9b77a" stroke-width="3"><path d="M32 4l7.5 20.5L60 32l-20.5 7.5L32 60l-7.5-20.5L4 32l20.5-7.5z"/><circle cx="32" cy="32" r="8"/></svg>
+    </div>
+    <div>
+      <small>جامعة القصيم · كلية الشريعة والدراسات الإسلامية</small>
+      <h1>بوابة الطلبات الاستثنائية</h1>
+      <p>للطلبات التي لا تتيحها الخدمات الإلكترونية المعتادة — تُرفع إلى سعادة عميد الكلية</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="tabs" role="tablist">
+    <button class="tab on" data-tab="new" role="tab">تقديم طلب</button>
+    <button class="tab" data-tab="track" role="tab">متابعة طلب</button>
+  </nav>
+
+  <div id="demoNote" class="demo" hidden>
+    <span>🧪</span>
+    <div><b>وضع العرض التجريبي</b> — لم تُربط قاعدة البيانات بعد، فالبيانات تُحفظ مؤقتاً في هذا المتصفح فقط. لتجربة التتبع استخدم الرقم <b dir="ltr">EX-1448-0007</b> وآخر أربعة أرقام <b dir="ltr">1234</b>.</div>
+  </div>
+
+  <!-- ============ NEW REQUEST ============ -->
+  <section id="view-new" class="card">
+    <div id="wizard">
+      <div class="stepper" id="stepper"></div>
+
+      <!-- STEP 1 -->
+      <div class="step on" data-step="0">
+        <h2>بياناتك</h2>
+        <p class="lead">نحتاجها للتواصل معك بخصوص الطلب.</p>
+        <div class="grid">
+          <div class="f full" data-f="student_name">
+            <label for="student_name">الاسم الرباعي <em>*</em></label>
+            <input class="input" id="student_name" autocomplete="name" placeholder="مثال: عبدالله محمد صالح العتيبي">
+            <div class="err">اكتب اسمك الثلاثي على الأقل.</div>
+          </div>
+          <div class="f" data-f="university_id">
+            <label for="university_id">الرقم الجامعي <em>*</em></label>
+            <input class="input ltr" id="university_id" inputmode="numeric" maxlength="10" placeholder="441xxxxxx">
+            <div class="hint"><span>ستصلك التحديثات على: <span class="mail" id="mailPreview">—@qu.edu.sa</span></span></div>
+            <div class="err">الرقم الجامعي غير صحيح.</div>
+          </div>
+          <div class="f" data-f="mobile">
+            <label for="mobile">رقم الجوال <em>*</em></label>
+            <input class="input ltr" id="mobile" inputmode="tel" maxlength="10" placeholder="05xxxxxxxx" autocomplete="tel">
+            <div class="hint"><span>آخر 4 أرقام منه تُستخدم لمتابعة طلبك.</span></div>
+            <div class="err">رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.</div>
+          </div>
+          <div class="f" data-f="gender">
+            <span class="lbl">مقدّم الطلب <em>*</em></span>
+            <div class="seg" data-group="gender">
+              <button type="button" data-v="male">طالب</button>
+              <button type="button" data-v="female">طالبة</button>
+            </div>
+            <div class="err">اختر أحد الخيارين.</div>
+          </div>
+          <div class="f" data-f="level">
+            <span class="lbl">المرحلة <em>*</em></span>
+            <div class="seg" data-group="level">
+              <button type="button" data-v="bachelor">بكالوريوس</button>
+              <button type="button" data-v="master">ماجستير</button>
+              <button type="button" data-v="phd">دكتوراه</button>
+            </div>
+            <div class="err">اختر المرحلة.</div>
+          </div>
+          <div class="f full" data-f="department">
+            <label for="department">القسم <em>*</em></label>
+            <select class="select" id="department"><option value="">اختر القسم…</option></select>
+            <div class="err">اختر القسم.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" data-step="1">
+        <h2>طلبك</h2>
+        <p class="lead">كلما كان الطلب أوضح، كان البت فيه أسرع.</p>
+        <div class="grid">
+          <div class="f full" data-f="category">
+            <span class="lbl">نوع الطلب <em>*</em></span>
+            <div class="cats" id="cats"></div>
+            <div class="err">اختر نوع الطلب.</div>
+          </div>
+          <div class="f full" data-f="summary">
+            <label for="summary">ما المطلوب تحديداً؟ <em>*</em></label>
+            <textarea class="textarea" id="summary" maxlength="300" style="min-height:80px" placeholder="مثال: إضافة مقرر (فقه المعاملات 2) بعد انتهاء فترة الحذف والإضافة"></textarea>
+            <div class="hint"><span>سطر أو سطرين يلخّصان طلبك.</span><span id="c-summary">0 / 300</span></div>
+            <div class="err">اكتب ملخص طلبك (5 أحرف على الأقل).</div>
+          </div>
+          <div class="f full" data-f="bypass_reason">
+            <span class="lbl">لماذا لم يُقدَّم عبر النظام الإلكتروني؟ <em>*</em></span>
+            <div class="chips" data-group="bypass_reason">
+              <button type="button" data-v="deadline">انتهاء المدة المحددة</button>
+              <button type="button" data-v="unavailable">الطلب غير متاح في النظام</button>
+              <button type="button" data-v="technical">تعذّر تقني</button>
+              <button type="button" data-v="other">سبب آخر</button>
+            </div>
+            <div class="err">اختر السبب.</div>
+          </div>
+          <div class="f full" data-f="bypass_other" id="bypassOtherWrap" hidden>
+            <label for="bypass_other">وضّح السبب <em>*</em></label>
+            <input class="input" id="bypass_other" maxlength="200">
+            <div class="err">وضّح السبب.</div>
+          </div>
+          <div class="f full" data-f="justification">
+            <label for="justification">المبررات والظروف <em>*</em></label>
+            <textarea class="textarea" id="justification" maxlength="3000" style="min-height:150px" placeholder="اشرح ظروفك وأسباب طلبك، وأي تفاصيل تساعد على اتخاذ القرار…"></textarea>
+            <div class="hint"><span>اذكر التواريخ والوقائع إن وُجدت.</span><span id="c-justification">0 / 3000</span></div>
+            <div class="err">اكتب المبررات (10 أحرف على الأقل).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" data-step="2">
+        <h2>المرفقات</h2>
+        <p class="lead">أرفق ما يدعم طلبك — اختياري، لكنه يسرّع البت كثيراً.</p>
+        <div class="drop" id="drop" tabindex="0" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>
+          <b>اسحب الملفات هنا أو اضغط للاختيار</b>
+          <small>PDF، صور، Word — حتى 5 ملفات · الصور تُحسَّن تلقائياً لتُرفع أسرع</small>
+        </div>
+        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.doc,.docx" hidden>
+        <ul class="files" id="fileList"></ul>
+        <div class="tips"><b>أمثلة على مرفقات داعمة:</b>
+          <ul><li>تقرير طبي أو إجازة مرضية معتمدة</li><li>خطاب من جهة العمل أو جهة رسمية</li><li>لقطة شاشة لرسالة الخطأ في النظام</li><li>السجل الأكاديمي أو الجدول الدراسي</li></ul>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step" data-step="3">
+        <h2>المراجعة والإرسال</h2>
+        <p class="lead">تأكد من صحة البيانات قبل الإرسال.</p>
+        <div id="review"></div>
+        <label class="agree f" data-f="agree"><input type="checkbox" id="agree"><span>أقرّ بأن البيانات والمرفقات المقدّمة صحيحة، وأتحمّل مسؤولية أي معلومة غير صحيحة.</span></label>
+      </div>
+
+      <div class="nav">
+        <button class="btn ghost" id="prevBtn" type="button" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>السابق</button>
+        <button class="btn pri" id="nextBtn" type="button">التالي
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="success" class="done" hidden>
+      <div class="check"><svg viewBox="0 0 52 52"><path d="M14 27l8 8 16-17"/></svg></div>
+      <h2>تم استلام طلبك بنجاح</h2>
+      <p class="lead" style="margin:4px 0 0">سيُراجع من مكتب الكلية ثم يُرفع إلى سعادة العميد.</p>
+      <div class="ref">
+        <small>رقم طلبك</small>
+        <div class="num" id="refNum">—</div>
+        <button class="btn ghost" id="copyRef" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>نسخ الرقم</button>
+      </div>
+      <div class="next">
+        <b>ماذا بعد؟</b>
+        <ol>
+          <li>احتفظ برقم الطلب، أو التقط صورة لهذه الشاشة.</li>
+          <li>تابع حالة طلبك من تبويب «متابعة طلب» برقم الطلب وآخر 4 أرقام من جوالك.</li>
+          <li>تصلك التحديثات على بريدك الجامعي <span class="mail" id="doneMail"></span></li>
+        </ol>
+      </div>
+      <div class="acts">
+        <button class="btn pri" id="goTrack" type="button" style="flex:none">متابعة الطلب</button>
+        <button class="btn ghost" id="newReq" type="button">تقديم طلب جديد</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRACK ============ -->
+  <section id="view-track" class="card" hidden>
+    <h2 style="font-size:19px">متابعة طلب</h2>
+    <p class="lead">أدخل رقم الطلب وآخر 4 أرقام من الجوال المسجّل في الطلب.</p>
+    <form class="trk-form" id="trkForm" novalidate>
+      <div class="f"><label for="t_ref">رقم الطلب</label><input class="input ltr" id="t_ref" placeholder="EX-1448-0001" autocomplete="off"></div>
+      <div class="f"><label for="t_last4">آخر 4 أرقام</label><input class="input ltr" id="t_last4" inputmode="numeric" maxlength="4" placeholder="••••"></div>
+      <button class="btn pri" type="submit" style="flex:none">استعلام</button>
+    </form>
+    <div class="mine" id="mine" hidden></div>
+    <div class="res" id="trkRes"></div>
+  </section>
+</main>
+
+<footer>كلية الشريعة والدراسات الإسلامية · جامعة القصيم<br>بياناتك تُستخدم لغرض دراسة طلبك فقط، ولا يطّلع عليها إلا المختصون.</footer>
+
+<div class="ov" id="ov"><div class="box"><div class="spin"></div><b id="ovText">جاري الإرسال…</b><div class="pbar"><i id="ovBar"></i></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   الإعدادات — ضع بيانات مشروع Supabase هنا (Project Settings → API)
+   إذا تُركت فارغة تعمل الصفحة في «وضع العرض التجريبي»
+   ===================================================================== */
+const CONFIG = {
+  SUPABASE_URL: '',
+  SUPABASE_ANON_KEY: '',
+  EMAIL_DOMAIN: 'qu.edu.sa',
+  BUCKET: 'request-files',
+  MAX_FILES: 5,
+  MAX_MB: 10,               // الحد الأقصى للملف بعد الضغط (يطابق حد الحاوية في Supabase)
+  MAX_IMG_MB_BEFORE: 30,    // الصور تُقبل حتى هذا الحجم قبل ضغطها
+  IMG_MAX_SIDE: 1800,       // أطول ضلع للصورة بعد الضغط (بكسل) — واضح للقراءة
+  IMG_QUALITY: 0.8,         // جودة JPEG
+  IMG_SKIP_KB: 400,         // الصور الأصغر من هذا لا تُضغط
+};
+
+const DEPARTMENTS = ['القرآن وعلومه','الفقه','أصول الفقه','العقيدة','السنة','القانون'];
+const ICONS = {
+  registration:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  exams:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  postpone:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  plan:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
+  other:'<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>'
+};
+const CATEGORIES = [
+  {id:'registration', t:'تسجيل المقررات', d:'حذف أو إضافة أو تعديل الجدول'},
+  {id:'exams',        t:'الاختبارات',     d:'اختبار بديل، إعادة رصد، تعارض'},
+  {id:'postpone',     t:'اعتذار وتأجيل',  d:'الاعتذار عن فصل، التأجيل، الانسحاب'},
+  {id:'plan',         t:'الخطة والمعادلة', d:'معادلة مقررات، تعديل الخطة الدراسية'},
+  {id:'other',        t:'أخرى',           d:'أي طلب لا يندرج تحت ما سبق'},
+];
+const LABELS = {
+  gender:{male:'طالب',female:'طالبة'},
+  level:{bachelor:'بكالوريوس',master:'ماجستير',phd:'دكتوراه'},
+  bypass_reason:{deadline:'انتهاء المدة المحددة',unavailable:'الطلب غير متاح في النظام',technical:'تعذّر تقني',other:'سبب آخر'},
+  category:Object.fromEntries(CATEGORIES.map(c=>[c.id,c.t])),
+};
+const STATUS = {
+  new:        {label:'تم استلام الطلب',    stage:0, tone:'info',  hint:'وصل طلبك إلى مكتب الكلية، وسيُراجع قريباً.'},
+  in_review:  {label:'قيد المراجعة',       stage:1, tone:'info',  hint:'يقوم المكتب بمراجعة طلبك ومرفقاته.'},
+  needs_info: {label:'مطلوب استكمال',      stage:1, tone:'warn',  hint:'يحتاج طلبك إلى استكمال — اطّلع على الملاحظة أدناه أو راجع المكتب.'},
+  at_dean:    {label:'لدى سعادة العميد',   stage:2, tone:'info',  hint:'رُفع طلبك إلى سعادة العميد للتوجيه.'},
+  referred:   {label:'محال لجهة مختصة',    stage:2, tone:'info',  hint:'أُحيل طلبك إلى الجهة المختصة لدراسته.'},
+  approved:   {label:'تمت الموافقة',        stage:3, tone:'ok',    hint:'صدر قرار بالموافقة على طلبك.'},
+  rejected:   {label:'لم تتم الموافقة',     stage:3, tone:'bad',   hint:'صدر قرار بعدم الموافقة على طلبك.'},
+  closed:     {label:'مغلق',               stage:3, tone:'muted', hint:'أُغلق الطلب.'},
+};
+const STAGES = ['تم الاستلام','قيد المراجعة','لدى العميد','صدر القرار'];
+const STEP_NAMES = ['بياناتك','طلبك','المرفقات','الإرسال'];
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toLatin = s => String(s).replace(/[٠-٩]/g, d => d.charCodeAt(0)-1632).replace(/[۰-۹]/g, d => d.charCodeAt(0)-1776);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} },
+  del(k){ try{ localStorage.removeItem(k); }catch{} },
+};
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&3|8)).toString(16); }));
+const fmtDate = iso => {
+  try{
+    const d = new Date(iso);
+    const h = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'long',year:'numeric'}).format(d);
+    const t = new Intl.DateTimeFormat('ar-SA-u-nu-latn',{hour:'numeric',minute:'2-digit'}).format(d);
+    return `${h} · ${t}`;
+  }catch{ return new Date(iso).toLocaleString(); }
+};
+const fmtSize = b => b < 1024*1024 ? `${Math.max(1,Math.round(b/1024))} ك.ب` : `${(b/1024/1024).toFixed(1)} م.ب`;
+let toastT;
+function toast(msg, type=''){ const t=$('#toast'); t.textContent=msg; t.className=`toast on ${type}`; clearTimeout(toastT); toastT=setTimeout(()=>t.className='toast',3600); }
+function overlay(on, text, pct){ $('#ov').classList.toggle('on', on); if(text) $('#ovText').textContent=text; $('#ovBar').style.width = (pct??0)+'%'; }
+
+/* ---------------- API (Supabase or demo) ---------------- */
+const DEMO = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY || !window.supabase;
+const sb = DEMO ? null : window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+const api = DEMO ? (() => {
+  const mem = store.get('exreq_demo_db', null) || {seq:7, rows:[{
+    ref_no:'EX-1448-0007', mobile:'0550001234', status:'at_dean', category:'registration',
+    summary:'إضافة مقرر فقه المعاملات (2) بعد انتهاء فترة الحذف والإضافة',
+    student_message:null, created_at:new Date(Date.now()-3*864e5).toISOString(),
+    events:[
+      {action:'submitted',to_status:'new',created_at:new Date(Date.now()-3*864e5).toISOString()},
+      {action:'status',to_status:'in_review',created_at:new Date(Date.now()-2*864e5).toISOString()},
+      {action:'status',to_status:'at_dean',created_at:new Date(Date.now()-1*864e5).toISOString()},
+    ]}]};
+  const save = () => store.set('exreq_demo_db', mem);
+  const wait = ms => new Promise(r=>setTimeout(r,ms));
+  return {
+    async upload(file){ await wait(450); return {path:`incoming/${uuid()}/${Date.now()}`, name:file.name, size:file.size, mime:file.type}; },
+    async submit(p){
+      await wait(700); mem.seq++;
+      const ref = `EX-1448-${String(mem.seq).padStart(4,'0')}`, now = new Date().toISOString();
+      mem.rows.push({ref_no:ref, mobile:p.mobile, status:'new', category:p.category, summary:p.summary, student_message:null, created_at:now,
+        events:[{action:'submitted',to_status:'new',created_at:now}]});
+      save(); return {ref_no:ref, created_at:now};
+    },
+    async track(ref, last4){
+      await wait(500);
+      const r = mem.rows.find(x => x.ref_no === ref.toUpperCase().trim() && x.mobile.slice(-4) === last4);
+      return r ? {...r, updated_at:r.events.at(-1).created_at} : null;
+    },
+  };
+})() : {
+  async upload(file){
+    const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5) || 'bin';
+    const path = `incoming/${uuid()}/${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from(CONFIG.BUCKET).upload(path, file, { contentType: file.type || undefined, upsert:false });
+    if (error) throw error;
+    return { path, name:file.name, size:file.size, mime:file.type || 'application/octet-stream' };
+  },
+  async submit(p){
+    const { data, error } = await sb.rpc('submit_request', { p });
+    if (error) throw error; return data;
+  },
+  async track(ref, last4){
+    const { data, error } = await sb.rpc('track_request', { p_ref: ref, p_last4: last4 });
+    if (error) throw error; return data;
+  },
+};
+
+function errMsg(e){
+  const m = String(e?.message || e || '');
+  if (m.includes('RATE_LIMIT')) return 'وصلت للحد المسموح (3 طلبات خلال 24 ساعة). حاول لاحقاً أو راجع المكتب.';
+  if (m.includes('TOO_MANY_FILES')) return `الحد الأقصى ${CONFIG.MAX_FILES} مرفقات.`;
+  if (/mime|type/i.test(m)) return 'نوع أحد الملفات غير مدعوم.';
+  if (/size|large|413/i.test(m)) return `أحد الملفات يتجاوز ${CONFIG.MAX_MB} ميجابايت.`;
+  if (/fetch|network/i.test(m)) return 'تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى.';
+  return 'تعذّر إرسال الطلب، حاول مرة أخرى. إذا تكررت المشكلة راجع مكتب الكلية.';
+}
+
+/* ---------------- State ---------------- */
+const FIELDS = ['student_name','university_id','mobile','gender','level','department','category','summary','bypass_reason','bypass_other','justification'];
+const S = { step:0, data:Object.fromEntries(FIELDS.map(f=>[f,''])), files:[] };
+
+/* ---------------- Build UI ---------------- */
+$('#department').insertAdjacentHTML('beforeend', DEPARTMENTS.map(d=>`<option>${d}</option>`).join(''));
+$('#cats').innerHTML = CATEGORIES.map(c => `
+  <button type="button" class="cat" data-v="${c.id}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[c.id]}</svg>
+    <b>${c.t}</b><small>${c.d}</small>
+  </button>`).join('');
+$('#stepper').innerHTML = STEP_NAMES.map((n,i)=>
+  `${i?'<div class="bar"><i></i></div>':''}<div class="st"><div class="dot">${i+1}</div><span>${n}</span></div>`).join('');
+if (DEMO) $('#demoNote').hidden = false;
+
+/* text inputs */
+['student_name','university_id','mobile','department','summary','bypass_other','justification'].forEach(id => {
+  const el = $('#'+id);
+  el.addEventListener('input', () => {
+    if (id==='university_id' || id==='mobile') el.value = toLatin(el.value).replace(/\D/g,'');
+    S.data[id] = el.value;
+    el.closest('.f')?.classList.remove('bad');
+    if (id==='university_id') updateMail();
+    if (id==='summary' || id==='justification') $('#c-'+id).textContent = `${el.value.length} / ${el.maxLength}`;
+    saveDraft();
+  });
+});
+/* choice groups */
+function bindChoice(container, field){
+  container.addEventListener('click', e => {
+    const b = e.target.closest('[data-v]'); if (!b) return;
+    S.data[field] = b.dataset.v;
+    container.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on', x===b));
+    container.closest('.f')?.classList.remove('bad');
+    if (field==='bypass_reason') $('#bypassOtherWrap').hidden = b.dataset.v!=='other';
+    saveDraft();
+  });
+}
+$$('[data-group]').forEach(g => bindChoice(g, g.dataset.group));
+bindChoice($('#cats'), 'category');
+
+function updateMail(){
+  const u = S.data.university_id;
+  $('#mailPreview').textContent = `${u || '—'}@${CONFIG.EMAIL_DOMAIN}`;
+}
+
+/* ---------------- Draft autosave ---------------- */
+let draftT;
+function saveDraft(){ clearTimeout(draftT); draftT = setTimeout(()=>store.set('exreq_draft', S.data), 300); }
+function restoreDraft(){
+  const d = store.get('exreq_draft', null); if (!d) return;
+  let any = false;
+  FIELDS.forEach(f => { if (d[f]) { S.data[f] = d[f]; any = true; } });
+  if (!any) return;
+  ['student_name','university_id','mobile','department','summary','bypass_other','justification'].forEach(id => { $('#'+id).value = S.data[id] || ''; });
+  $$('[data-group]').forEach(g => g.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v===S.data[g.dataset.group])));
+  $$('#cats .cat').forEach(b => b.classList.toggle('on', b.dataset.v===S.data.category));
+  $('#bypassOtherWrap').hidden = S.data.bypass_reason!=='other';
+  ['summary','justification'].forEach(id => $('#c-'+id).textContent = `${S.data[id].length} / ${$('#'+id).maxLength}`);
+  updateMail();
+  toast('استعدنا مسودة طلبك السابقة ✓');
+}
+
+/* ---------------- Validation ---------------- */
+const RULES = [
+  { student_name: v => v.trim().split(/\s+/).filter(Boolean).length >= 3,
+    university_id: v => /^\d{6,10}$/.test(v),
+    mobile: v => /^05\d{8}$/.test(v),
+    gender: v => !!v, level: v => !!v, department: v => !!v },
+  { category: v => !!v,
+    summary: v => v.trim().length >= 5,
+    bypass_reason: v => !!v,
+    bypass_other: (v,d) => d.bypass_reason!=='other' || v.trim().length >= 3,
+    justification: v => v.trim().length >= 10 },
+  {},
+  { agree: () => $('#agree').checked },
+];
+function validate(step){
+  let first = null;
+  for (const [k, fn] of Object.entries(RULES[step])) {
+    const ok = fn(S.data[k] ?? '', S.data);
+    const f = document.querySelector(`[data-f="${k}"]`);
+    f?.classList.toggle('bad', !ok);
+    if (!ok && !first) first = f;
+  }
+  if (first) {
+    first.scrollIntoView({behavior:'smooth', block:'center'});
+    first.classList.add('shake'); setTimeout(()=>first.classList.remove('shake'), 400);
+    if (step===3) toast('يرجى الإقرار بصحة البيانات قبل الإرسال', 'error');
+  }
+  return !first;
+}
+$('#agree').addEventListener('change', () => $('[data-f="agree"]').classList.remove('bad'));
+
+/* ---------------- Steps ---------------- */
+function go(step, scroll=true){
+  S.step = step;
+  $$('.step').forEach(s => s.classList.toggle('on', +s.dataset.step===step));
+  $$('#stepper .st').forEach((s,i) => { s.classList.toggle('on', i===step); s.classList.toggle('done', i<step); });
+  $$('#stepper .bar').forEach((b,i) => b.classList.toggle('done', i<step));
+  $('#prevBtn').hidden = step===0;
+  $('#nextBtn').innerHTML = step===3
+    ? 'إرسال الطلب <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>'
+    : 'التالي <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>';
+  if (step===3) renderReview();
+  if (scroll) $('#view-new').scrollIntoView({behavior:'smooth', block:'start'});
+}
+$('#nextBtn').addEventListener('click', () => {
+  if (filesBusy()) { toast('لحظة، جاري تحسين الصور…'); return; }
+  if (!validate(S.step)) return;
+  S.step < 3 ? go(S.step+1) : submit();
+});
+$('#prevBtn').addEventListener('click', () => go(S.step-1));
+
+/* ---------------- Files ---------------- */
+const OK_EXT = ['pdf','jpg','jpeg','png','webp','heic','heif','doc','docx'];
+const IMG_EXT = ['jpg','jpeg','png','webp','heic','heif'];
+
+/* ضغط الصور داخل جهاز الطالب قبل الرفع
+   - يصغّر أطول ضلع إلى IMG_MAX_SIDE بكسل ويحوّل إلى JPEG
+   - يحترم اتجاه الصورة (EXIF) ويملأ الخلفية الشفافة بالأبيض
+   - إذا فشل الضغط أو لم يُنتج ملفاً أصغر، يُرفع الأصل كما هو */
+async function decodeImage(file){
+  if (window.createImageBitmap) {
+    try { return await createImageBitmap(file, { imageOrientation:'from-image' }); } catch {}
+  }
+  return await new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('decode')); };
+    img.src = url;
+  });
+}
+async function compressImage(file){
+  if (file.size <= CONFIG.IMG_SKIP_KB*1024) return file;
+  const src = await decodeImage(file);
+  const w0 = src.width, h0 = src.height;
+  if (!w0 || !h0) return file;
+  const k = Math.min(1, CONFIG.IMG_MAX_SIDE / Math.max(w0, h0));
+  const w = Math.round(w0*k), h = Math.round(h0*k);
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(src, 0, 0, w, h);
+  if (src.close) src.close();
+  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', CONFIG.IMG_QUALITY));
+  if (!blob || blob.size >= file.size) return file;
+  const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+  return new File([blob], name, { type:'image/jpeg', lastModified:Date.now() });
+}
+
+let fileSeq = 0;
+function addFiles(list){
+  for (const f of list) {
+    const ext = (f.name.split('.').pop()||'').toLowerCase();
+    const isImg = IMG_EXT.includes(ext);
+    if (S.files.length >= CONFIG.MAX_FILES) { toast(`الحد الأقصى ${CONFIG.MAX_FILES} مرفقات`, 'error'); break; }
+    if (!OK_EXT.includes(ext)) { toast(`«${f.name}» نوعه غير مدعوم`, 'error'); continue; }
+    const limit = (isImg ? CONFIG.MAX_IMG_MB_BEFORE : CONFIG.MAX_MB) * 1024*1024;
+    if (f.size > limit) { toast(`«${f.name}» أكبر من ${isImg ? CONFIG.MAX_IMG_MB_BEFORE : CONFIG.MAX_MB} ميجابايت`, 'error'); continue; }
+    if (S.files.some(x => x.orig.name===f.name && x.orig.size===f.size)) continue;
+
+    const entry = { id:++fileSeq, orig:f, file:f, busy:isImg };
+    S.files.push(entry);
+    if (isImg) {
+      compressImage(f)
+        .then(out => { entry.file = out; })
+        .catch(() => { entry.file = f; })
+        .finally(() => {
+          entry.busy = false;
+          if (entry.file.size > CONFIG.MAX_MB*1024*1024) {
+            S.files = S.files.filter(x => x !== entry);
+            toast(`تعذّر تصغير «${f.name}» إلى أقل من ${CONFIG.MAX_MB} ميجابايت`, 'error');
+          }
+          renderFiles();
+        });
+    }
+  }
+  renderFiles();
+}
+function renderFiles(){
+  const X = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  $('#fileList').innerHTML = S.files.map(e => {
+    const ext = (e.file.name.split('.').pop()||'').toUpperCase().slice(0,4);
+    let meta;
+    if (e.busy) meta = '<span class="cmp">جاري تحسين الصورة…</span>';
+    else if (e.file !== e.orig) {
+      const pct = Math.round((1 - e.file.size/e.orig.size) * 100);
+      meta = `<s>${fmtSize(e.orig.size)}</s> ← ${fmtSize(e.file.size)} <span class="saved">وفّرنا ${pct}%</span>`;
+    } else meta = fmtSize(e.file.size);
+    const fresh = !e.shown; e.shown = true;
+    return `<li class="${e.busy?'busy':''} ${fresh?'fresh':''}"><div class="ic">${e.busy ? '<i class="mini"></i>' : esc(ext)}</div>
+      <div class="nm"><div>${esc(e.orig.name)}</div><small>${meta}</small></div>
+      <button class="x" type="button" data-id="${e.id}" aria-label="حذف">${X}</button></li>`;
+  }).join('');
+}
+const filesBusy = () => S.files.some(e => e.busy);
+const drop = $('#drop'), fi = $('#fileInput');
+drop.addEventListener('click', () => fi.click());
+drop.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); fi.click(); } });
+fi.addEventListener('change', () => { addFiles(fi.files); fi.value=''; });
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+$('#fileList').addEventListener('click', e => { const b = e.target.closest('.x'); if (b) { S.files = S.files.filter(x => x.id !== +b.dataset.id); renderFiles(); } });
+
+/* ---------------- Review ---------------- */
+function renderReview(){
+  const d = S.data;
+  const row = (k,v) => `<div class="row"><dt>${k}</dt><dd>${v}</dd></div>`;
+  const sec = (title, step, rows) => `<div class="rev"><h3>${title}<button type="button" data-go="${step}">تعديل</button></h3><dl>${rows}</dl></div>`;
+  $('#review').innerHTML =
+    sec('بياناتك', 0,
+      row('الاسم', esc(d.student_name)) +
+      row('الرقم الجامعي', `<span dir="ltr">${esc(d.university_id)}</span>`) +
+      row('البريد الجامعي', `<span dir="ltr">${esc(d.university_id)}@${CONFIG.EMAIL_DOMAIN}</span>`) +
+      row('الجوال', `<span dir="ltr">${esc(d.mobile)}</span>`) +
+      row('المرحلة والقسم', `${LABELS.gender[d.gender]} · ${LABELS.level[d.level]} · قسم ${esc(d.department)}`)) +
+    sec('طلبك', 1,
+      row('نوع الطلب', LABELS.category[d.category]) +
+      row('المطلوب', esc(d.summary)) +
+      row('سبب عدم التقديم إلكترونياً', d.bypass_reason==='other' ? esc(d.bypass_other) : LABELS.bypass_reason[d.bypass_reason]) +
+      row('المبررات', esc(d.justification))) +
+    sec('المرفقات', 2,
+      row('الملفات', S.files.length ? S.files.map(e=>`${esc(e.orig.name)} <small style="color:var(--muted)">(${fmtSize(e.file.size)})</small>`).join('<br>') : 'لا توجد مرفقات'));
+}
+$('#review').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) go(+b.dataset.go); });
+
+/* ---------------- Submit ---------------- */
+let busy = false;
+async function submit(){
+  if (busy) return; busy = true; $('#nextBtn').disabled = true;
+  const n = S.files.length;
+  try {
+    const uploaded = [];
+    for (let i=0; i<n; i++) {
+      overlay(true, `جاري رفع المرفقات (${i+1} من ${n})…`, (i/(n+1))*100);
+      const up = await api.upload(S.files[i].file);
+      up.name = S.files[i].file.name;
+      uploaded.push(up);
+    }
+    overlay(true, 'جاري إرسال الطلب…', (n/(n+1))*100 || 60);
+    const d = S.data;
+    const payload = {
+      student_name:d.student_name.trim(), university_id:d.university_id, mobile:d.mobile,
+      gender:d.gender, level:d.level, department:d.department,
+      category:d.category, summary:d.summary.trim(), bypass_reason:d.bypass_reason,
+      bypass_other:d.bypass_reason==='other' ? d.bypass_other.trim() : null,
+      justification:d.justification.trim(), files:uploaded,
+    };
+    const res = await api.submit(payload);
+    overlay(true, 'تم ✓', 100);
+    const mine = store.get('exreq_mine', []).filter(x => x.ref !== res.ref_no);
+    mine.unshift({ ref:res.ref_no, last4:d.mobile.slice(-4), at:Date.now() });
+    store.set('exreq_mine', mine.slice(0,5));
+    store.del('exreq_draft');
+    setTimeout(() => { overlay(false); showSuccess(res.ref_no); }, 350);
+  } catch (e) {
+    console.error(e); overlay(false); toast(errMsg(e), 'error');
+  } finally { busy = false; $('#nextBtn').disabled = false; }
+}
+
+function showSuccess(ref){
+  $('#wizard').hidden = true; $('#success').hidden = false;
+  $('#refNum').textContent = ref;
+  $('#doneMail').textContent = `${S.data.university_id}@${CONFIG.EMAIL_DOMAIN}`;
+  $('#success').dataset.ref = ref; $('#success').dataset.last4 = S.data.mobile.slice(-4);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+$('#copyRef').addEventListener('click', async () => {
+  const ref = $('#refNum').textContent;
+  try { await navigator.clipboard.writeText(ref); toast('تم نسخ رقم الطلب ✓','ok'); }
+  catch { toast(`رقم طلبك: ${ref}`); }
+});
+$('#goTrack').addEventListener('click', () => {
+  const {ref, last4} = $('#success').dataset;
+  switchTab('track'); $('#t_ref').value = ref; $('#t_last4').value = last4; doTrack();
+});
+$('#newReq').addEventListener('click', () => {
+  FIELDS.forEach(f => S.data[f] = ''); S.files = [];
+  $$('#wizard input:not([type=checkbox]):not([type=file]), #wizard textarea, #wizard select').forEach(x => x.value='');
+  $('#agree').checked = false;
+  $$('.on[data-v]').forEach(b => b.classList.remove('on'));
+  $('#bypassOtherWrap').hidden = true; renderFiles(); updateMail();
+  ['summary','justification'].forEach(id => $('#c-'+id).textContent = `0 / ${$('#'+id).maxLength}`);
+  $('#success').hidden = true; $('#wizard').hidden = false; go(0);
+});
+
+/* ---------------- Tabs ---------------- */
+function switchTab(t){
+  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab===t));
+  $('#view-new').hidden = t!=='new'; $('#view-track').hidden = t!=='track';
+  if (t==='track') renderMine();
+  try { history.replaceState(null, '', t==='track' ? '#track' : '#'); } catch {}
+}
+$$('.tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+/* ---------------- Track ---------------- */
+function renderMine(){
+  const mine = store.get('exreq_mine', []);
+  const el = $('#mine'); el.hidden = !mine.length;
+  el.innerHTML = 'طلباتك على هذا الجهاز: ' + mine.map(m => `<button type="button" data-ref="${esc(m.ref)}" data-l="${esc(m.last4)}">${esc(m.ref)}</button>`).join('');
+}
+$('#mine').addEventListener('click', e => {
+  const b = e.target.closest('[data-ref]'); if (!b) return;
+  $('#t_ref').value = b.dataset.ref; $('#t_last4').value = b.dataset.l; doTrack();
+});
+$('#t_last4').addEventListener('input', e => e.target.value = toLatin(e.target.value).replace(/\D/g,''));
+$('#t_ref').addEventListener('input', e => e.target.value = toLatin(e.target.value).toUpperCase());
+$('#trkForm').addEventListener('submit', e => { e.preventDefault(); doTrack(); });
+
+async function doTrack(){
+  const ref = $('#t_ref').value.trim(), l4 = $('#t_last4').value.trim();
+  const out = $('#trkRes');
+  if (!/^EX-\d{4}-\d{4}$/i.test(ref)) { toast('صيغة رقم الطلب: EX-1448-0001','error'); return; }
+  if (!/^\d{4}$/.test(l4)) { toast('أدخل آخر 4 أرقام من الجوال','error'); return; }
+  out.innerHTML = '<div class="empty"><div class="spin"></div>جاري الاستعلام…</div>';
+  try {
+    const r = await api.track(ref, l4);
+    if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقم الطلب وآخر 4 أرقام من الجوال المسجّل.</div>'; return; }
+    const s = STATUS[r.status] || STATUS.new;
+    const prog = STAGES.map((n,i) => {
+      const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
+      return `${i?`<div class="bar ${i<=s.stage?'done':''}"><i></i></div>`:''}<div class="st ${cls}"><div class="dot">${i < s.stage || (i===3&&s.stage===3) ? '✓' : i+1}</div><span>${i===s.stage && s.stage<3 ? s.label : n}</span></div>`;
+    }).join('');
+    const ev = (r.events||[]).slice().reverse().map(e => {
+      const t = e.action==='submitted' ? 'تم تقديم الطلب' : (STATUS[e.to_status]?.label || 'تحديث');
+      return `<li><b>${t}</b><small>${fmtDate(e.created_at)}</small></li>`;
+    }).join('');
+    out.innerHTML = `
+      <div class="res-head"><span class="num">${esc(r.ref_no)}</span><span class="pill t-${s.tone}">${s.label}</span></div>
+      <p class="sum">${LABELS.category[r.category]||''} — ${esc(r.summary||'')}</p>
+      <div class="prog">${prog}</div>
+      <p class="lead" style="margin:10px 0 0">${s.hint}</p>
+      ${r.student_message ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${esc(r.student_message)}</div>` : ''}
+      <ul class="tl">${ev}</ul>`;
+  } catch (e) { console.error(e); out.innerHTML = `<div class="empty">${errMsg(e)}</div>`; }
+}
+
+/* ---------------- Init ---------------- */
+go(0, false); restoreDraft(); updateMail();
+if (location.hash.startsWith('#track')) {
+  switchTab('track');
+  const m = location.hash.match(/ref=([A-Z0-9-]+)/i);
+  if (m) $('#t_ref').value = m[1].toUpperCase();
+}
+window.addEventListener('beforeunload', e => {
+  if (S.files.length && !$('#wizard').hidden && S.step>0) { e.preventDefault(); e.returnValue=''; }
+});
+</script>
+</body>
+</html>
