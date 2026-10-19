@@ -232,7 +232,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
     <img class="logo" src="assets/logo-white.png" alt="جامعة القصيم — كلية الشريعة" width="220" height="94">
     <div class="ttl">
       <h1>بوابة الطلبات الاستثنائية</h1>
-      <p>للطلبات التي لا تتيحها الخدمات الإلكترونية المعتادة — تُرفع إلى سعادة عميد الكلية</p>
+      <p>للطلبات التي لا تتيحها الخدمات الإلكترونية المعتادة — تُرفع إلى فضيلة عميد الكلية</p>
     </div>
   </div>
 </header>
@@ -384,7 +384,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
     <div id="success" class="done" hidden>
       <div class="check"><svg viewBox="0 0 52 52"><path d="M14 27l8 8 16-17"/></svg></div>
       <h2>تم استلام طلبك بنجاح</h2>
-      <p class="lead" style="margin:4px 0 0">سيُراجع من مكتب الكلية ثم يُرفع إلى سعادة العميد.</p>
+      <p class="lead" style="margin:4px 0 0">سيُراجع من مكتب الكلية ثم يُرفع إلى فضيلة العميد.</p>
       <div class="ref">
         <small>رقم طلبك</small>
         <div class="num" id="refNum">—</div>
@@ -467,13 +467,23 @@ const LABELS = {
 const STATUS = {
   new:        {label:'تم استلام الطلب',    stage:0, tone:'info',  hint:'وصل طلبك إلى مكتب الكلية، وسيُراجع قريباً.'},
   in_review:  {label:'قيد المراجعة',       stage:1, tone:'info',  hint:'يقوم المكتب بمراجعة طلبك ومرفقاته.'},
-  needs_info: {label:'مطلوب استكمال',      stage:1, tone:'warn',  hint:'يحتاج طلبك إلى استكمال — اطّلع على الملاحظة أدناه أو راجع المكتب.'},
-  at_dean:    {label:'لدى سعادة العميد',   stage:2, tone:'info',  hint:'رُفع طلبك إلى سعادة العميد للتوجيه.'},
-  referred:   {label:'محال لجهة مختصة',    stage:2, tone:'info',  hint:'أُحيل طلبك إلى الجهة المختصة لدراسته.'},
-  approved:   {label:'تمت الموافقة',        stage:3, tone:'ok',    hint:'صدر قرار بالموافقة على طلبك.'},
-  rejected:   {label:'لم تتم الموافقة',     stage:3, tone:'bad',   hint:'صدر قرار بعدم الموافقة على طلبك.'},
-  closed:     {label:'مغلق',               stage:3, tone:'muted', hint:'أُغلق الطلب.'},
+  needs_info: {label:'مطلوب استكمال',      stage:1, tone:'warn',  hint:'يحتاج طلبك إلى استكمال — اطّلع على الرسالة أدناه أو راجع مكتب الكلية.'},
+  at_dean:    {label:'لدى فضيلة العميد',   stage:2, tone:'info',  hint:'رُفع طلبك إلى فضيلة العميد للتوجيه.'},
+  referred:   {label:'صدر التوجيه',         stage:3, tone:'ok',    hint:'صدر توجيه فضيلة العميد، وأُحيل طلبك إلى الجهة المختصة لاستكمال الإجراء.'},
+  approved:   {label:'تمت الموافقة',        stage:3, tone:'ok',    hint:'صدر توجيه فضيلة العميد بالموافقة على طلبك.'},
+  rejected:   {label:'لم تتم الموافقة',     stage:3, tone:'bad',   hint:'صدر توجيه فضيلة العميد بعدم الموافقة على طلبك.'},
+  reserved:   {label:'صدر التوجيه',         stage:3, tone:'warn',  hint:'صدر توجيه بشأن طلبك، يرجى مراجعة مكتب الكلية.'},
+  closed:     {label:'مكتمل',               stage:3, tone:'muted', hint:'اكتملت معالجة طلبك.'},
 };
+// حالة الطلب كما تظهر للطالب (المغلق يُعرض بحسب التوجيه)
+function studentStatus(r){
+  if (r.status === 'closed') {
+    if (r.decision === 'approved') return {...STATUS.approved, label:'تمت الموافقة — مكتمل'};
+    if (r.decision === 'rejected') return {...STATUS.rejected, label:'لم تتم الموافقة — مكتمل'};
+  }
+  if (r.status === 'referred' && r.decision === 'rejected') return STATUS.rejected;
+  return STATUS[r.status] || STATUS.new;
+}
 const STAGES = ['تم الاستلام','قيد المراجعة','لدى العميد','صدر القرار'];
 const STEP_NAMES = ['بياناتك','طلبك','المرفقات','الإرسال'];
 
@@ -933,7 +943,7 @@ async function doTrack(){
   try {
     const r = await api.track(ref, l4);
     if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقمك الجامعي وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</div>'; return; }
-    const s = STATUS[r.status] || STATUS.new;
+    const s = studentStatus(r);
     const prog = STAGES.map((n,i) => {
       const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
       return `${i?`<div class="bar ${i<=s.stage?'done':''}"><i></i></div>`:''}<div class="st ${cls}"><div class="dot">${i < s.stage || (i===3&&s.stage===3) ? '✓' : i+1}</div><span>${i===s.stage && s.stage<3 ? s.label : n}</span></div>`;

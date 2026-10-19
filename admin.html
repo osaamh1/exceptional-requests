@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12306b">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة الطلبات الاستثنائية | كلية الشريعة</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --navy:#12306b; --navy-2:#1d4690; --navy-soft:#e7edf8;
+  --teal:#11908f; --teal-soft:#e2f3f2;
+  --ink:#1c2431; --muted:#66707e; --line:#e1e6ee; --bg:#f4f6fa; --card:#fff;
+  --ok:#1f7a55; --ok-soft:#e5f3ec; --warn:#a86a12; --warn-soft:#fbf1df;
+  --bad:#b0412e; --bad-soft:#fbe9e5; --info:#2a5d8f; --info-soft:#e7eff8;
+  --violet:#5b4bb5; --violet-soft:#eeebfb;
+  --r:14px; --shadow:0 1px 2px rgba(18,48,107,.05),0 8px 24px rgba(18,48,107,.07);
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Noto Kufi Arabic",sans-serif;line-height:1.5;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.ltr{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- buttons / inputs ---------- */
+.btn{border:0;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s;font-size:14.5px;white-space:nowrap}
+.btn svg{width:17px;height:17px;flex:none}
+.btn.pri{background:var(--navy);color:#fff}.btn.pri:hover{background:var(--navy-2)}
+.btn.teal{background:var(--teal);color:#fff}.btn.teal:hover{filter:brightness(1.07)}
+.btn.ghost{background:#eef1f6;color:var(--ink)}.btn.ghost:hover{background:#e3e8f0}
+.btn.line{background:#fff;border:1px solid var(--line);color:var(--ink)}.btn.line:hover{border-color:#c6cfdd}
+.btn.warn{background:var(--warn-soft);color:var(--warn)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.input,.select,.textarea{width:100%;border:1.5px solid var(--line);background:#fafbfd;border-radius:10px;padding:9px 12px;outline:none;transition:.15s;font-size:15px}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--navy-2);background:#fff;box-shadow:0 0 0 4px var(--navy-soft)}
+.textarea{resize:vertical;min-height:84px;line-height:1.8}
+label.l{display:block;font-weight:600;font-size:13.5px;margin:0 0 5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px dashed #c7d0de;background:#fff;border-radius:999px;padding:3px 11px;font-size:12.5px;cursor:pointer;color:var(--navy-2)}
+.chip:hover{background:var(--navy-soft);border-style:solid}
+
+/* ---------- login ---------- */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:linear-gradient(160deg,var(--navy) 0%,#0c2350 60%,#0a1c40 100%)}
+.login .box{background:#fff;border-radius:20px;padding:30px 26px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.login img{width:220px;display:block;margin:0 auto 6px}
+.login h1{font-size:19px;text-align:center;color:var(--navy);margin:6px 0 2px}
+.login p.sub{text-align:center;color:var(--muted);margin:0 0 20px;font-size:13.5px}
+.login .f{margin-bottom:12px}
+.login .btn{width:100%;padding:11px}
+.login .link{display:block;text-align:center;margin-top:12px;color:var(--navy-2);font-size:13.5px;cursor:pointer;background:none;border:0}
+.login .msg{font-size:13.5px;border-radius:10px;padding:9px 12px;margin-bottom:12px}
+.login .msg.err{background:var(--bad-soft);color:var(--bad)}
+.login .msg.ok{background:var(--ok-soft);color:var(--ok)}
+
+/* ---------- shell ---------- */
+.top{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.top::after{content:"";display:block;height:3px;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.top .in{max-width:1320px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.top img{height:40px}
+.top .ttl{font-family:"Noto Kufi Arabic";font-weight:700;font-size:15px;border-inline-start:1px solid rgba(255,255,255,.25);padding-inline-start:14px}
+.top .sp{flex:1}
+.who{display:flex;align-items:center;gap:10px;font-size:13.5px}
+.who .role{background:rgba(255,255,255,.14);border-radius:999px;padding:2px 10px;font-size:12px}
+.who .deleg{background:var(--teal);border-radius:999px;padding:2px 10px;font-size:12px}
+.ibtn{background:rgba(255,255,255,.1);border:0;color:#fff;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;cursor:pointer}
+.ibtn:hover{background:rgba(255,255,255,.2)}
+.ibtn svg{width:18px;height:18px}
+@media (max-width:720px){.top .ttl,.who .nm{display:none}.top img{height:34px}}
+
+main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(3,1fr);gap:6px}.kpi{padding:8px 9px}.kpi b{font-size:20px}.kpi span{font-size:11px;line-height:1.35;display:block}}
+.kpi{background:#fff;border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.02);cursor:pointer;text-align:right;border-inline-start:4px solid var(--c,var(--navy));transition:.15s}
+.kpi:hover{transform:translateY(-1px)}
+.kpi.on{outline:2px solid var(--c,var(--navy));outline-offset:-2px}
+.kpi b{display:block;font-size:26px;line-height:1.2;font-family:"IBM Plex Sans Arabic";color:var(--c,var(--navy))}
+.kpi span{font-size:12.5px;color:var(--muted);font-weight:600}
+
+/* toolbar */
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;box-shadow:var(--shadow);gap:2px;overflow-x:auto;max-width:100%}
+.tab{border:0;background:none;padding:7px 13px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--muted);white-space:nowrap;font-size:14px}
+.tab .n{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:#eef1f6;color:var(--muted);font-size:11.5px;margin-inline-start:4px}
+.tab.on{background:var(--navy);color:#fff}.tab.on .n{background:rgba(255,255,255,.2);color:#fff}
+.search{flex:1;min-width:200px;position:relative}
+.search input{padding-inline-start:36px}
+.search svg{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted)}
+
+/* list */
+.layout{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:16px;align-items:start}
+@media (max-width:980px){.layout{grid-template-columns:1fr}}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;border:1.5px solid transparent;transition:.12s;display:grid;grid-template-columns:1fr auto;gap:2px 10px}
+.item:hover{border-color:#d3dbe8}
+.item.on{border-color:var(--navy)}
+.item .nm{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .rf{font-size:12.5px;color:var(--muted);font-weight:600}
+.item .sm{grid-column:1/-1;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .mt{grid-column:1/-1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:12px;color:var(--muted)}
+.late{color:var(--bad);font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:40px 16px;background:#fff;border-radius:var(--r);box-shadow:var(--shadow)}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:12px;white-space:nowrap}
+.t-new{background:var(--info-soft);color:var(--info)}
+.t-in_review{background:var(--navy-soft);color:var(--navy-2)}
+.t-needs_info{background:var(--warn-soft);color:var(--warn)}
+.t-at_dean{background:var(--violet-soft);color:var(--violet)}
+.t-referred,.t-approved{background:var(--ok-soft);color:var(--ok)}
+.t-rejected{background:var(--bad-soft);color:var(--bad)}
+.t-reserved{background:var(--warn-soft);color:var(--warn)}
+.t-closed{background:#eceff3;color:var(--muted)}
+.tag{background:#f0f2f6;border-radius:6px;padding:1px 7px}
+
+/* detail */
+.detail{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);position:sticky;top:78px;max-height:calc(100vh - 96px);display:flex;flex-direction:column;overflow:hidden}
+.d-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.d-head .rf{font-size:20px;font-weight:700;color:var(--navy)}
+.d-head .sp{flex:1}
+.d-close{display:none}
+.d-body{padding:4px 18px 18px;overflow:auto;flex:1}
+.d-actions{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;background:#fbfcfe}
+@media (max-width:980px){
+  .detail{position:fixed;inset:0;top:0;max-height:none;border-radius:0;z-index:40}
+  .d-close{display:grid}
+}
+.sec{padding:14px 0;border-bottom:1px dashed var(--line)}
+.sec:last-child{border:0}
+.sec h3{font-size:13.5px;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 16px}
+@media (max-width:520px){.kv{grid-template-columns:1fr 1fr}.d-actions{padding:10px 12px;gap:6px}.d-actions .btn{flex:1 1 45%;padding:8px 10px;font-size:13.5px}}
+.kv div small{display:block;color:var(--muted);font-size:12px}
+.kv div b{font-weight:600}
+.txt{white-space:pre-wrap;word-break:break-word;background:#f8f9fc;border-radius:10px;padding:10px 12px;font-size:14.5px}
+.txt+.txt{margin-top:8px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.file{border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;background:#fafbfd;text-decoration:none;color:inherit}
+.file .th{height:86px;display:grid;place-items:center;background:#eef1f6;color:var(--navy-2);font-weight:700;font-size:13px;overflow:hidden}
+.file .th img{width:100%;height:100%;object-fit:cover}
+.file .fn{padding:5px 8px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right}
+.box{border-radius:12px;padding:12px 14px;font-size:14.5px}
+.box.office{background:var(--navy-soft)}
+.box.dean{background:var(--teal-soft);border-inline-start:4px solid var(--teal)}
+.box.dean .dc{font-weight:800;font-size:16px}
+.box.stu{background:var(--warn-soft)}
+.box small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+
+/* directive composer */
+.direct{border:2px solid var(--teal);border-radius:14px;padding:14px;background:linear-gradient(180deg,#fff,var(--teal-soft))}
+.direct h3{color:#0b6e6d}
+.dec{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.dec button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 6px;font-weight:700;cursor:pointer;font-size:15px}
+.dec button[data-v=approved].on{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.dec button[data-v=rejected].on{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.dec button[data-v=reserved].on{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+.direct .row2{display:grid;grid-template-columns:1fr;gap:10px}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;right:6px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl li{position:relative;padding:0 24px 12px 0;font-size:13.5px}
+.tl li::before{content:"";position:absolute;right:1px;top:6px;width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--navy-2)}
+.tl li.n::before{border-color:#b9c3d3}
+.tl small{color:var(--muted);font-size:12px}
+.tl q{display:block;quotes:none;background:#f8f9fc;border-radius:8px;padding:5px 9px;margin-top:3px;font-size:13px;white-space:pre-wrap}
+
+/* modal */
+.mod{position:fixed;inset:0;background:rgba(10,24,52,.5);backdrop-filter:blur(2px);display:none;place-items:center;z-index:60;padding:16px}
+.mod.on{display:grid}
+.mod .mb{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mod .mh{padding:16px 18px;border-bottom:1px solid var(--line);font-family:"Noto Kufi Arabic";font-weight:700;color:var(--navy)}
+.mod .mc{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.mod .mf{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-start}
+.mod .hint{font-size:12.5px;color:var(--muted)}
+
+/* settings table */
+.ut{width:100%;border-collapse:collapse;font-size:13.5px}
+.ut td,.ut th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}
+.ut th{color:var(--muted);font-weight:600;font-size:12.5px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-size:14px;transition:.3s;z-index:80;max-width:calc(100% - 32px);text-align:center;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.error{background:var(--bad)}.toast.ok{background:var(--ok)}
+.spin{width:30px;height:30px;border-radius:50%;border:3px solid var(--navy-soft);border-top-color:var(--navy);margin:0 auto 8px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ================= PRINT: official form ================= */
+#print{display:none}
+@media print{
+  @page{size:A4;margin:12mm 14mm}
+  body{background:#fff}
+  body>*:not(#print){display:none!important}
+  #print{display:block;font-size:12.5pt;color:#111}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+.pf{font-family:"IBM Plex Sans Arabic",sans-serif;color:#111;line-height:1.75}
+.pf .ph{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;border-bottom:2px solid var(--navy);padding-bottom:8px}
+.pf .ph img{height:68px}
+.pf .ph .t{text-align:center}
+.pf .ph .t h1{font-size:17pt;color:var(--navy);font-family:"Noto Kufi Arabic"}
+.pf .ph .t div{font-size:10pt;color:#555}
+.pf .ph .meta{font-size:10.5pt;text-align:left}
+.pf .ph .meta div{white-space:nowrap}
+.pf .ph .meta b{font-family:"IBM Plex Sans Arabic"}
+.pf .acc{height:3px;background:linear-gradient(90deg,transparent,var(--teal),transparent);margin:2px 0 12px}
+.pf .salute{font-family:"Amiri",serif;font-size:14.5pt;margin:4px 0 8px}
+.pf table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:11.5pt}
+.pf th,.pf td{border:1px solid #c9d1de;padding:5px 8px;text-align:right;vertical-align:top}
+.pf th{background:#eef2f8;color:var(--navy);width:24%;font-weight:700}
+.pf .blk{margin:8px 0}
+.pf .blk h4{margin:0 0 3px;color:var(--navy);font-size:11.5pt}
+.pf .blk div{white-space:pre-wrap;border:1px solid #dfe5ee;border-radius:6px;padding:6px 9px;background:#fbfcfe}
+.pf .sig{font-size:10.5pt;color:#444;margin-top:2px}
+.pf .dir{margin-top:14px;border:2px solid var(--navy);border-radius:10px;padding:10px 14px;page-break-inside:avoid}
+.pf .dir .hd{font-family:"Noto Kufi Arabic";color:var(--navy);font-size:12.5pt;margin-bottom:6px}
+.pf .dir .dc{font-size:15pt;font-weight:800;margin:2px 0}
+.pf .dir .dc.approved{color:#13693f}.pf .dir .dc.rejected{color:#a2311f}.pf .dir .dc.reserved{color:#8a560c}
+.pf .dir .ref{font-weight:700}
+.pf .dir .note{font-family:"Amiri",serif;font-size:14pt;margin:4px 0}
+.pf .dir .sign{display:flex;justify-content:flex-end;margin-top:12px}
+.pf .dir .sign div{text-align:center;min-width:56mm}
+.pf .dir .sign .ti{font-family:"Amiri",serif;font-size:13.5pt}
+.pf .dir .sign .nm{font-family:"Amiri",serif;font-size:15pt;font-weight:700}
+.pf .dir .empty-dir{height:42mm;border:1px dashed #b9c3d3;border-radius:8px;display:grid;place-items:center;color:#999}
+.pf .stamp{font-size:9pt;color:#666;margin-top:8px;border-top:1px dashed #ccd;padding-top:5px;display:flex;justify-content:space-between;gap:10px}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<section class="login" id="vLogin" hidden>
+  <div class="box">
+    <img src="assets/logo.png" alt="جامعة القصيم — كلية الشريعة">
+    <h1>لوحة الطلبات الاستثنائية</h1>
+    <p class="sub">دخول منسوبي مكتب الكلية</p>
+    <div class="msg" id="lMsg" hidden></div>
+    <form id="lForm" novalidate>
+      <div class="f"><label class="l" for="lEmail">البريد الإلكتروني</label><input class="input ltr" id="lEmail" type="email" autocomplete="username" required></div>
+      <div class="f" id="lPassWrap"><label class="l" for="lPass">كلمة المرور</label><input class="input ltr" id="lPass" type="password" autocomplete="current-password"></div>
+      <button class="btn pri" type="submit" id="lBtn">دخول</button>
+    </form>
+    <button class="link" id="lForgot" type="button">نسيت كلمة المرور؟</button>
+  </div>
+</section>
+
+<!-- ================= SET NEW PASSWORD (after reset link) ================= -->
+<section class="login" id="vReset" hidden>
+  <div class="box">
+    <img src="assets/logo.png" alt="">
+    <h1>تعيين كلمة مرور جديدة</h1>
+    <p class="sub">اختر كلمة مرور لا تقل عن 8 أحرف</p>
+    <div class="msg" id="rMsg" hidden></div>
+    <div class="f"><label class="l" for="rPass">كلمة المرور الجديدة</label><input class="input ltr" id="rPass" type="password" autocomplete="new-password"></div>
+    <button class="btn pri" id="rBtn" type="button">حفظ</button>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="vApp" hidden>
+  <header class="top"><div class="in">
+    <img src="assets/logo-white.png" alt="جامعة القصيم — كلية الشريعة">
+    <div class="ttl">لوحة الطلبات الاستثنائية</div>
+    <div class="sp"></div>
+    <div class="who"><span class="nm" id="meName"></span><span class="role" id="meRole"></span><span class="deleg" id="meDeleg" hidden>مفوَّض بالتوجيه</span></div>
+    <button class="ibtn" id="btnRefresh" title="تحديث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+    <button class="ibtn" id="btnSettings" title="الإعدادات" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="ibtn" id="btnPass" title="تغيير كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
+    <button class="ibtn" id="btnLogout" title="تسجيل الخروج"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
+  </div></header>
+
+  <main class="app">
+    <div class="kpis" id="kpis"></div>
+    <div class="bar">
+      <div class="tabs" id="tabs"></div>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input class="input" id="q" placeholder="بحث بالاسم أو الرقم الجامعي أو رقم الطلب أو الجوال"></div>
+    </div>
+    <div class="layout">
+      <div class="list" id="list"></div>
+      <section class="detail" id="detail" hidden></section>
+    </div>
+  </main>
+</div>
+
+<!-- generic modal -->
+<div class="mod" id="mod"><div class="mb"><div class="mh" id="modH"></div><div class="mc" id="modC"></div><div class="mf" id="modF"></div></div></div>
+<div class="toast" id="toast"></div>
+<div id="print"></div>
+
+<script>
+/* =====================================================================
+   الإعدادات
+   ===================================================================== */
+const CONFIG = {
+  SUPABASE_URL: 'https://nwdmnjpzkkqtksetrelk.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53ZG1uanB6a2txdGtzZXRyZWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzOTc2MjMsImV4cCI6MjEwNzk3MzYyM30.3JE8h1Vv-DOeLHuBensYYibx-TAj8o_-21KWh2MPivc',
+  BUCKET: 'request-files',
+  IDLE_MINUTES: 30,        // خروج تلقائي بعد عدم النشاط
+  LATE_DAYS: 2,            // يُعلَّم الطلب متأخراً إذا بقي بلا حركة أكثر من هذا
+  AUTO_REFRESH_SEC: 60,
+};
+
+const ROLES = { admin:'مدير النظام', office:'مكتب الكلية', dean:'عميد الكلية', referral:'جهة إحالة' };
+const STATUS = {
+  new:{l:'جديد'}, in_review:{l:'قيد المراجعة'}, needs_info:{l:'بانتظار استكمال'}, at_dean:{l:'لدى العميد'},
+  referred:{l:'محال'}, approved:{l:'موافق'}, rejected:{l:'غير موافق'}, reserved:{l:'متحفظ'}, closed:{l:'مغلق'},
+};
+const DECISION = { approved:'موافق', rejected:'غير موافق', reserved:'متحفظ' };
+const CATEGORY = { registration:'تسجيل المقررات', exams:'الاختبارات', postpone:'اعتذار وتأجيل', plan:'الخطة والمعادلة', other:'أخرى' };
+const BYPASS = { deadline:'انتهاء المدة المحددة', unavailable:'الطلب غير متاح في النظام', technical:'تعذّر تقني', other:'سبب آخر' };
+const LEVEL = { bachelor:'بكالوريوس', master:'ماجستير', phd:'دكتوراه' };
+const GENDER = { male:'طالب', female:'طالبة' };
+const REFERRALS = [
+  'وكيل الكلية للشؤون الطلابية','وكيل الكلية للشؤون التعليمية',
+  'قسم القرآن وعلومه','قسم الفقه','قسم أصول الفقه','قسم العقيدة','قسم السنة','قسم القانون',
+];
+const PHRASES = {
+  approved: ['لا مانع وفق الأنظمة واللوائح','لا مانع، مع استكمال الإجراءات النظامية','لا مانع استثناءً، ولمرة واحدة','للتنفيذ وفق الأنظمة'],
+  rejected: ['يُعتذر لعدم استيفاء الشروط النظامية','يُعتذر لانتهاء المدة النظامية','لا يُوافق لعدم كفاية المبررات'],
+  reserved: ['للدراسة والإفادة بالمرئيات','يُعرض على مجلس القسم','يُستكمل ما يثبت العذر','للاطلاع والإفادة'],
+  forward:  ['المرفقات مكتملة','الطالب لديه عذر موثق','الطلب بعد انتهاء المدة بأيام قليلة','سبق للطالب طلب مماثل','يتطلب رأي القسم المختص'],
+  info:     ['يرجى إرفاق ما يثبت العذر','يرجى توضيح المقرر المطلوب ورمزه والشعبة','يرجى مراجعة مكتب الكلية لاستكمال الطلب'],
+  close:    { approved:'تمت الموافقة على طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.',
+              rejected:'نعتذر، لم تتم الموافقة على طلبك.',
+              reserved:'صدر توجيه بشأن طلبك، يرجى مراجعة مكتب الكلية.' },
+};
+const EVENT = {
+  submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب',
+  forward:'رُفع إلى فضيلة العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
+  close:'أُقفل الطلب', enjaz:'سُجّل رقم معاملة إنجاز', student_message:'حُدّثت الرسالة الظاهرة للطالب',
+  note:'ملاحظة داخلية', reopen:'أُعيد فتح الطلب', status:'تغيّرت الحالة',
+};
+const OPEN = ['new','in_review','needs_info','at_dean','referred'];
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hijri = (iso, opts={day:'numeric',month:'long',year:'numeric'}) => {
+  try { return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', opts).format(new Date(iso)); } catch { return new Date(iso).toLocaleDateString(); }
+};
+const time = iso => { try { return new Intl.DateTimeFormat('ar-SA-u-nu-latn',{hour:'numeric',minute:'2-digit'}).format(new Date(iso)); } catch { return ''; } };
+const ago = iso => {
+  const m = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return 'الآن'; if (m < 60) return `قبل ${m} د`;
+  const h = Math.round(m/60); if (h < 24) return `قبل ${h} س`;
+  const d = Math.round(h/24); return d === 1 ? 'أمس' : d === 2 ? 'قبل يومين' : d <= 10 ? `قبل ${d} أيام` : `قبل ${d} يوماً`;
+};
+let toastT;
+function toast(msg, type=''){ const t=$('#toast'); t.textContent=msg; t.className=`toast on ${type}`; clearTimeout(toastT); toastT=setTimeout(()=>t.className='toast',3400); }
+function errText(e){
+  const m = String(e?.message || e || '');
+  if (m.includes('FORBIDDEN')) return 'لا تملك صلاحية هذا الإجراء.';
+  if (m.includes('BAD_STATE')) return 'حالة الطلب تغيّرت، حدّث الصفحة وحاول مجدداً.';
+  if (m.includes('MESSAGE_REQUIRED')) return 'اكتب النص المطلوب.';
+  if (/Invalid login/i.test(m)) return 'البريد أو كلمة المرور غير صحيحة.';
+  if (/fetch|network/i.test(m)) return 'تعذّر الاتصال. تحقق من الإنترنت.';
+  return 'حدث خطأ: ' + m;
+}
+
+const sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } });
+
+/* ---------------- state ---------------- */
+const S = { me:null, canDirect:false, settings:{}, people:{}, rows:[], tab:null, kpi:null, q:'', sel:null, cache:{} };
+
+/* ================= AUTH ================= */
+function show(view){ ['vLogin','vReset','vApp'].forEach(v => $('#'+v).hidden = v!==view); }
+function lMsg(t, kind='err'){ const m=$('#lMsg'); m.hidden=!t; m.textContent=t||''; m.className='msg '+kind; }
+
+$('#lForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#lEmail').value.trim(), password = $('#lPass').value;
+  if (!email || !password) return lMsg('أدخل البريد وكلمة المرور.');
+  $('#lBtn').disabled = true; lMsg('');
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  $('#lBtn').disabled = false;
+  if (error) return lMsg(errText(error));
+  boot();
+});
+$('#lForgot').addEventListener('click', async () => {
+  const email = $('#lEmail').value.trim();
+  if (!email) return lMsg('اكتب بريدك أولاً ثم اضغط «نسيت كلمة المرور».');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  lMsg(error ? errText(error) : 'إذا كان البريد مسجلاً فستصلك رسالة بها رابط تعيين كلمة المرور.', error ? 'err' : 'ok');
+});
+$('#rBtn').addEventListener('click', async () => {
+  const p = $('#rPass').value;
+  const m = $('#rMsg');
+  if (p.length < 8) { m.hidden=false; m.className='msg err'; m.textContent='كلمة المرور قصيرة.'; return; }
+  const { error } = await sb.auth.updateUser({ password: p });
+  m.hidden=false; m.className = 'msg ' + (error ? 'err' : 'ok'); m.textContent = error ? errText(error) : 'تم الحفظ ✓';
+  if (!error) { history.replaceState(null,'',location.pathname); setTimeout(boot, 800); }
+});
+$('#btnLogout').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+
+sb.auth.onAuthStateChange((ev) => { if (ev === 'PASSWORD_RECOVERY') show('vReset'); });
+
+/* inactivity logout */
+let idleT;
+function bumpIdle(){ clearTimeout(idleT); idleT = setTimeout(async () => { if (S.me) { await sb.auth.signOut(); alert('تم تسجيل الخروج تلقائياً لعدم النشاط.'); location.reload(); } }, CONFIG.IDLE_MINUTES*60000); }
+['click','keydown','mousemove','touchstart','scroll'].forEach(ev => addEventListener(ev, bumpIdle, {passive:true}));
+
+/* ================= BOOT ================= */
+async function boot(){
+  if (/type=recovery/.test(location.hash)) { show('vReset'); return; }
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) { show('vLogin'); return; }
+  const { data: me, error } = await sb.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+  if (error || !me || !me.active) {
+    await sb.auth.signOut(); show('vLogin');
+    lMsg('هذا الحساب غير مفعّل في المنصة. تواصل مع مدير النظام.'); return;
+  }
+  S.me = me;
+  const [{ data: cd }, { data: st }, { data: ppl }] = await Promise.all([
+    sb.rpc('can_direct'), sb.from('settings').select('*').eq('id',1).maybeSingle(), sb.from('profiles').select('id,full_name,role,title,active,delegate_until,email'),
+  ]);
+  S.canDirect = !!cd; S.settings = st || {};
+  S.people = Object.fromEntries((ppl||[]).map(p => [p.id, p]));
+  $('#meName').textContent = me.full_name;
+  $('#meRole').textContent = ROLES[me.role] || me.role;
+  $('#meDeleg').hidden = !(S.canDirect && me.role !== 'dean');
+  $('#btnSettings').hidden = !['admin','dean'].includes(me.role);
+  show('vApp'); bumpIdle();
+  buildTabs();
+  await load();
+  setInterval(() => { if (!document.hidden && !$('#mod').classList.contains('on')) load(true); }, CONFIG.AUTO_REFRESH_SEC*1000);
+}
+
+/* ================= DATA ================= */
+async function load(silent){
+  if (!silent) $('#list').innerHTML = '<div class="empty"><div class="spin"></div>جاري التحميل…</div>';
+  const { data, error } = await sb.from('requests')
+    .select('id,ref_no,student_name,university_id,student_email,gender,level,department,mobile,category,summary,bypass_reason,bypass_other,justification,status,office_note,dean_decision,dean_note,referred_to,student_message,enjaz_no,assigned_to,forwarded_at,decided_at,decided_by,decided_on_behalf,closed_at,created_at,updated_at')
+    .order('created_at', { ascending:false }).limit(1000);
+  if (error) { $('#list').innerHTML = `<div class="empty">${esc(errText(error))}</div>`; return; }
+  S.rows = data || [];
+  renderKpis(); renderTabs(); renderList();
+  if (S.sel) { const r = S.rows.find(x => x.id === S.sel); if (r) renderDetail(r, silent); }
+}
+const isLate = r => OPEN.includes(r.status) && r.status !== 'referred' && (Date.now() - new Date(r.updated_at)) > CONFIG.LATE_DAYS*864e5;
+const decidedNotClosed = r => ['approved','rejected','reserved','referred'].includes(r.status);
+
+/* ================= KPIs / TABS ================= */
+const KPIS = [
+  { id:'new',      l:'جديدة',               c:'var(--info)',   f:r => r.status==='new' },
+  { id:'review',   l:'قيد المراجعة', c:'var(--navy-2)', f:r => ['in_review','needs_info'].includes(r.status) },
+  { id:'dean',     l:'لدى العميد',          c:'var(--violet)', f:r => r.status==='at_dean' },
+  { id:'toclose',  l:'بانتظار الإقفال', c:'var(--teal)', f:decidedNotClosed },
+  { id:'late',     l:'متأخرة',              c:'var(--bad)',    f:isLate },
+  { id:'month',    l:'أُقفلت هذا الشهر',      c:'var(--ok)',     f:r => r.status==='closed' && r.closed_at && hijri(r.closed_at,{month:'numeric',year:'numeric'})===hijri(new Date(),{month:'numeric',year:'numeric'}) },
+];
+function renderKpis(){
+  $('#kpis').innerHTML = KPIS.map(k => `<button class="kpi ${S.kpi===k.id?'on':''}" style="--c:${k.c}" data-k="${k.id}"><b>${S.rows.filter(k.f).length}</b><span>${k.l}</span></button>`).join('');
+}
+$('#kpis').addEventListener('click', e => {
+  const b = e.target.closest('[data-k]'); if (!b) return;
+  S.kpi = S.kpi === b.dataset.k ? null : b.dataset.k; renderKpis(); renderList();
+});
+
+let TABS = [];
+function buildTabs(){
+  const dean = S.me.role === 'dean';
+  TABS = [
+    { id:'action', l: dean ? 'بانتظار توجيهك' : 'تحتاج إجراء', f: dean ? (r => r.status==='at_dean') : (r => ['new','in_review','needs_info'].includes(r.status) || decidedNotClosed(r)) },
+    { id:'dean',   l:'لدى العميد', f:r => r.status==='at_dean' },
+    { id:'done',   l:'صدر التوجيه', f:r => decidedNotClosed(r) || r.status==='closed' },
+    { id:'closed', l:'المغلقة', f:r => r.status==='closed' },
+    { id:'all',    l:'الكل', f:() => true },
+  ];
+  if (dean) TABS.splice(1,1);
+  S.tab = 'action';
+}
+function renderTabs(){
+  $('#tabs').innerHTML = TABS.map(t => `<button class="tab ${S.tab===t.id?'on':''}" data-t="${t.id}">${t.l}<span class="n">${S.rows.filter(t.f).length}</span></button>`).join('');
+}
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; S.tab = b.dataset.t; S.kpi = null; renderKpis(); renderTabs(); renderList(); });
+$('#q').addEventListener('input', e => { S.q = e.target.value.trim(); renderList(); });
+
+/* ================= LIST ================= */
+function filtered(){
+  let rows = S.rows;
+  if (S.kpi) rows = rows.filter(KPIS.find(k=>k.id===S.kpi).f);
+  else rows = rows.filter(TABS.find(t=>t.id===S.tab).f);
+  if (S.q) {
+    const q = S.q.replace(/[٠-٩]/g, d => d.charCodeAt(0)-1632).toLowerCase();
+    rows = rows.filter(r => [r.student_name, r.university_id, r.ref_no, r.mobile, r.summary, r.enjaz_no].some(v => String(v||'').toLowerCase().includes(q)));
+  }
+  return rows;
+}
+function renderList(){
+  const rows = filtered();
+  if (!rows.length) { $('#list').innerHTML = '<div class="empty">لا توجد طلبات هنا 🌿</div>'; return; }
+  $('#list').innerHTML = rows.map(r => `
+    <div class="item ${S.sel===r.id?'on':''}" data-id="${r.id}">
+      <div class="nm">${esc(r.student_name)}</div>
+      <div><span class="pill t-${r.status}">${statusLabel(r)}</span></div>
+      <div class="sm">${esc(r.summary)}</div>
+      <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>·<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
+    </div>`).join('');
+}
+function statusLabel(r){
+  if (r.status==='referred') return 'محال · ' + (DECISION[r.dean_decision]||'');
+  return STATUS[r.status]?.l || r.status;
+}
+$('#list').addEventListener('click', e => { const it = e.target.closest('.item'); if (!it) return; openReq(it.dataset.id); });
+
+/* ================= DETAIL ================= */
+async function openReq(id){
+  S.sel = id; renderList();
+  const r = S.rows.find(x => x.id === id); if (!r) return;
+  renderDetail(r);
+}
+async function fetchExtras(r){
+  const [{ data: files }, { data: events }] = await Promise.all([
+    sb.from('request_files').select('*').eq('request_id', r.id).order('created_at'),
+    sb.from('request_events').select('*').eq('request_id', r.id).order('created_at'),
+  ]);
+  const signed = await Promise.all((files||[]).map(async f => {
+    const { data } = await sb.storage.from(CONFIG.BUCKET).createSignedUrl(f.path, 3600);
+    return { ...f, url: data?.signedUrl };
+  }));
+  return { files: signed, events: events||[] };
+}
+const who = id => { const p = S.people[id]; return p ? p.full_name : ''; };
+const deanName = () => {
+  if (S.settings.dean_name) return S.settings.dean_name;
+  const d = Object.values(S.people).find(p => p.role==='dean' && p.active); return d ? ((d.title ? d.title+' ' : '') + d.full_name) : '';
+};
+
+async function renderDetail(r, keepScroll){
+  const D = $('#detail'); D.hidden = false;
+  const sc = keepScroll ? D.querySelector('.d-body')?.scrollTop : 0;
+  if (!S.cache[r.id] || !keepScroll) {
+    if (!keepScroll) D.innerHTML = '<div class="d-body"><div class="empty" style="box-shadow:none"><div class="spin"></div></div></div>';
+    S.cache[r.id] = await fetchExtras(r);
+  }
+  const { files, events } = S.cache[r.id];
+  const role = S.me.role, office = ['admin','office'].includes(role);
+
+  const fileHtml = files.length ? `<div class="files">${files.map(f => {
+      const img = /^image\//.test(f.mime||'') && f.url;
+      return `<a class="file" href="${esc(f.url||'#')}" target="_blank" rel="noopener"><div class="th">${img ? `<img src="${esc(f.url)}" alt="">` : esc((f.name.split('.').pop()||'').toUpperCase())}</div><div class="fn">${esc(f.name)}</div></a>`;
+    }).join('')}</div>` : '<div class="txt" style="color:var(--muted)">لا توجد مرفقات</div>';
+
+  const tl = events.map(e => `<li class="${e.is_public?'':'n'}"><b>${EVENT[e.action]||e.action}</b>${e.to_status && e.action!=='submitted' ? ` ← <span class="pill t-${e.to_status}">${STATUS[e.to_status]?.l||e.to_status}</span>`:''}
+      <small> · ${hijri(e.created_at)} ${time(e.created_at)}${e.actor ? ' · ' + esc(who(e.actor)) : ''}</small>${e.note ? `<q>${esc(e.note)}</q>` : ''}</li>`).join('');
+
+  const deanBox = r.dean_decision ? `<div class="box dean"><div class="dc">${DECISION[r.dean_decision]}</div>
+      ${r.referred_to ? `<div>ويُحال إلى: <b>${esc(r.referred_to)}</b></div>` : ''}
+      ${r.dean_note ? `<div style="margin-top:4px;white-space:pre-wrap">${esc(r.dean_note)}</div>` : ''}
+      <small>${hijri(r.decided_at)} ${time(r.decided_at)}${r.decided_on_behalf ? ' · سجّله بالتفويض: ' + esc(who(r.decided_by)) : ''}</small></div>` : '';
+
+  const canDecideNow = S.canDirect && ['at_dean','in_review','new'].includes(r.status);
+  const composer = canDecideNow ? `
+    <div class="sec"><div class="direct" id="composer">
+      <h3>✍️ توجيه فضيلة العميد</h3>
+      <div class="dec" id="decBtns"><button data-v="approved">موافق</button><button data-v="rejected">غير موافق</button><button data-v="reserved">متحفظ</button></div>
+      <div class="row2">
+        <div><label class="l" for="decRef">يُحال إلى (اختياري)</label>
+          <select class="select" id="decRef"><option value="">— دون إحالة —</option>${REFERRALS.map(x=>`<option>${x}</option>`).join('')}</select></div>
+        <div><label class="l" for="decNote">نص التوجيه / ملاحظات</label>
+          <textarea class="textarea" id="decNote" placeholder="اكتب التوجيه أو اختر عبارة جاهزة"></textarea>
+          <div class="chips" id="decChips"></div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn teal" id="decSave" type="button">اعتماد التوجيه</button>
+        ${r.status==='at_dean' ? '<button class="btn line" id="decReturn" type="button">إعادة للمكتب</button>' : ''}
+      </div>
+      ${role!=='dean' ? '<div style="font-size:12.5px;color:var(--muted);margin-top:8px">ستعتمد التوجيه بالتفويض، وسيظهر في النموذج باسم فضيلة العميد.</div>' : ''}
+    </div></div>` : '';
+
+  const acts = [];
+  if (office && ['new','needs_info'].includes(r.status)) acts.push(`<button class="btn ghost" data-a="take">استلام للمراجعة</button>`);
+  if (office && ['new','in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لفضيلة العميد</button>`);
+  if (office && ['new','in_review','at_dean'].includes(r.status)) acts.push(`<button class="btn warn" data-a="info">طلب استكمال من الطالب</button>`);
+  if (office && decidedNotClosed(r)) acts.push(`<button class="btn teal" data-a="close">إقفال الطلب</button>`);
+  if (office) acts.push(`<button class="btn line" data-a="info2">رقم إنجاز / رسالة للطالب</button>`);
+  acts.push(`<button class="btn line" data-a="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة النموذج</button>`);
+  acts.push(`<button class="btn line" data-a="note">ملاحظة داخلية</button>`);
+  if (role==='admin' && (decidedNotClosed(r) || r.status==='closed')) acts.push(`<button class="btn danger" data-a="reopen">إعادة فتح</button>`);
+
+  D.innerHTML = `
+    <div class="d-head">
+      <button class="ibtn d-close" style="background:#eef1f6;color:var(--ink)" id="dClose" aria-label="رجوع"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>
+      <span class="rf ltr">${esc(r.ref_no)}</span><span class="pill t-${r.status}">${statusLabel(r)}</span>
+      <span class="sp"></span><small style="color:var(--muted)">قُدّم ${hijri(r.created_at)}</small>
+    </div>
+    <div class="d-body">
+      <div class="sec"><h3>👤 مقدّم الطلب</h3><div class="kv">
+        <div><small>الاسم</small><b>${esc(r.student_name)}</b></div>
+        <div><small>الرقم الجامعي</small><b class="ltr">${esc(r.university_id)}</b></div>
+        <div><small>الجوال</small><b class="ltr"><a href="tel:${esc(r.mobile)}" style="color:inherit">${esc(r.mobile)}</a></b></div>
+        <div><small>البريد الجامعي</small><b class="ltr" style="font-size:13px">${esc(r.student_email)}</b></div>
+        <div><small>المرحلة</small><b>${GENDER[r.gender]} · ${LEVEL[r.level]}</b></div>
+        <div><small>القسم</small><b>${esc(r.department)}</b></div>
+      </div></div>
+      <div class="sec"><h3>📝 الطلب — ${CATEGORY[r.category]||''}</h3>
+        <div class="txt"><b>المطلوب:</b> ${esc(r.summary)}</div>
+        <div class="txt"><b>سبب عدم التقديم إلكترونياً:</b> ${r.bypass_reason==='other' ? esc(r.bypass_other) : BYPASS[r.bypass_reason]}</div>
+        <div class="txt"><b>المبررات:</b>\n${esc(r.justification)}</div>
+      </div>
+      <div class="sec"><h3>📎 المرفقات (${files.length})</h3>${fileHtml}</div>
+      ${r.office_note ? `<div class="sec"><h3>🏢 مرئيات المكتب</h3><div class="box office">${esc(r.office_note)}</div></div>` : ''}
+      ${deanBox ? `<div class="sec"><h3>🖋️ توجيه العميد</h3>${deanBox}</div>` : ''}
+      ${composer}
+      ${(r.student_message || r.enjaz_no) ? `<div class="sec"><h3>📮 المتابعة</h3>
+        ${r.enjaz_no ? `<div class="txt"><b>رقم معاملة إنجاز:</b> <span class="ltr">${esc(r.enjaz_no)}</span></div>` : ''}
+        ${r.student_message ? `<div class="box stu" style="margin-top:8px"><b>الرسالة الظاهرة للطالب:</b> ${esc(r.student_message)}</div>` : ''}</div>` : ''}
+      <div class="sec"><h3>🕓 السجل</h3><ul class="tl">${tl}</ul></div>
+    </div>
+    <div class="d-actions">${acts.join('')}</div>`;
+  if (keepScroll && sc) D.querySelector('.d-body').scrollTop = sc;
+
+  $('#dClose').onclick = () => { D.hidden = true; S.sel = null; renderList(); };
+  D.querySelector('.d-actions').onclick = e => { const b = e.target.closest('[data-a]'); if (b) act(b.dataset.a, r); };
+  if (canDecideNow) wireComposer(r);
+}
+
+/* ---------------- dean composer ---------------- */
+function wireComposer(r){
+  let decision = null;
+  const chips = $('#decChips'), note = $('#decNote');
+  const paint = () => {
+    const list = decision ? PHRASES[decision] : [...PHRASES.approved.slice(0,2), ...PHRASES.reserved.slice(0,2)];
+    chips.innerHTML = list.map(p => `<button type="button" class="chip">${p}</button>`).join('');
+  };
+  paint();
+  $('#decBtns').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; decision = b.dataset.v; $$('#decBtns button').forEach(x => x.classList.toggle('on', x===b)); paint(); };
+  chips.onclick = e => { const c = e.target.closest('.chip'); if (!c) return; note.value = note.value.trim() ? note.value.trim() + '، ' + c.textContent : c.textContent; note.focus(); };
+  $('#decSave').onclick = async () => {
+    if (!decision) { toast('اختر: موافق أو غير موافق أو متحفظ', 'error'); return; }
+    const ref = $('#decRef').value;
+    const ok = await confirmBox('اعتماد التوجيه',
+      `<div style="font-size:15px">سيُعتمد التوجيه التالي على الطلب <b class="ltr">${esc(r.ref_no)}</b>:</div>
+       <div class="box dean"><div class="dc">${DECISION[decision]}</div>${ref ? `<div>ويُحال إلى: <b>${esc(ref)}</b></div>` : ''}${note.value.trim() ? `<div style="white-space:pre-wrap">${esc(note.value.trim())}</div>` : ''}</div>`, 'اعتماد');
+    if (!ok) return;
+    await run(() => sb.rpc('req_decide', { p_id:r.id, p_decision:decision, p_referred_to:ref || null, p_note:note.value.trim() || null }), 'اعتُمد التوجيه ✓');
+  };
+  const ret = $('#decReturn');
+  if (ret) ret.onclick = () => formBox('إعادة الطلب إلى المكتب', [{ id:'n', label:'سبب الإعادة / المطلوب من المكتب', area:true, required:true, chips:['يُستكمل ما يثبت العذر','يُرفق رأي القسم','يُتحقق من السجل الأكاديمي'] }], 'إعادة',
+    v => sb.rpc('req_return', { p_id:r.id, p_note:v.n }), 'أُعيد إلى المكتب');
+}
+
+/* ---------------- actions ---------------- */
+async function run(fn, okMsg){
+  try { const { error } = await fn(); if (error) throw error; toast(okMsg, 'ok'); delete S.cache[S.sel]; await load(true); return true; }
+  catch (e) { console.error(e); toast(errText(e), 'error'); return false; }
+}
+function act(a, r){
+  if (a==='take') return run(() => sb.rpc('req_take', { p_id:r.id }), 'تم الاستلام ✓');
+  if (a==='forward') return formBox('رفع الطلب لفضيلة العميد', [{ id:'n', label:'مرئيات المكتب (تظهر للعميد وفي النموذج المطبوع)', area:true, chips:PHRASES.forward, value:r.office_note||'' }], 'رفع للعميد',
+    v => sb.rpc('req_forward', { p_id:r.id, p_office_note:v.n || null }), 'رُفع لفضيلة العميد ✓');
+  if (a==='info') return formBox('طلب استكمال من الطالب', [{ id:'m', label:'الرسالة التي ستظهر للطالب في صفحة المتابعة', area:true, required:true, chips:PHRASES.info }], 'إرسال',
+    v => sb.rpc('req_request_info', { p_id:r.id, p_message:v.m }), 'أصبح الطلب «بانتظار استكمال»');
+  if (a==='close') return formBox('إقفال الطلب', [
+      { id:'e', label:'رقم معاملة إنجاز (إن وُجد)', value:r.enjaz_no||'', ltr:true },
+      { id:'m', label:'الرسالة الظاهرة للطالب', area:true, value: r.student_message || PHRASES.close[r.dean_decision] || '', chips:Object.values(PHRASES.close) },
+    ], 'إقفال', v => sb.rpc('req_close', { p_id:r.id, p_enjaz_no:v.e || null, p_student_message:v.m || null }), 'أُقفل الطلب ✓');
+  if (a==='info2') return formBox('رقم إنجاز ورسالة الطالب', [
+      { id:'e', label:'رقم معاملة إنجاز', value:r.enjaz_no||'', ltr:true },
+      { id:'m', label:'الرسالة الظاهرة للطالب في صفحة المتابعة', area:true, value:r.student_message||'', chips:[...Object.values(PHRASES.close), ...PHRASES.info] },
+    ], 'حفظ', v => sb.rpc('req_update_info', { p_id:r.id, p_enjaz_no:v.e || null, p_student_message:v.m || null }), 'تم الحفظ ✓');
+  if (a==='note') return formBox('ملاحظة داخلية', [{ id:'n', label:'لا تظهر للطالب ولا في النموذج المطبوع', area:true, required:true }], 'حفظ',
+    v => sb.rpc('req_note', { p_id:r.id, p_note:v.n }), 'أُضيفت الملاحظة');
+  if (a==='reopen') return formBox('إعادة فتح الطلب', [{ id:'n', label:'سبب إعادة الفتح (يُمسح التوجيه الحالي ويعود الطلب للعميد)', area:true, required:true }], 'إعادة فتح',
+    v => sb.rpc('req_reopen', { p_id:r.id, p_note:v.n }), 'أُعيد فتح الطلب');
+  if (a==='print') return printForm(r);
+}
+
+/* ---------------- modal helpers ---------------- */
+function modal(title, body, foot){ $('#modH').textContent = title; $('#modC').innerHTML = body; $('#modF').innerHTML = foot; $('#mod').classList.add('on'); }
+function closeModal(){ $('#mod').classList.remove('on'); }
+$('#mod').addEventListener('click', e => { if (e.target.id==='mod') closeModal(); });
+addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+function confirmBox(title, html, okText){
+  return new Promise(res => {
+    modal(title, html, `<button class="btn teal" id="mOk">${okText}</button><button class="btn ghost" id="mNo">إلغاء</button>`);
+    $('#mOk').onclick = () => { closeModal(); res(true); };
+    $('#mNo').onclick = () => { closeModal(); res(false); };
+  });
+}
+function formBox(title, fields, okText, submit, okMsg){
+  modal(title, fields.map(f => `<div><label class="l" for="mf_${f.id}">${f.label}${f.required?' <span style="color:var(--bad)">*</span>':''}</label>
+      ${f.area ? `<textarea class="textarea" id="mf_${f.id}">${esc(f.value||'')}</textarea>` : `<input class="input ${f.ltr?'ltr':''}" id="mf_${f.id}" value="${esc(f.value||'')}">`}
+      ${f.chips ? `<div class="chips">${f.chips.map(c=>`<button type="button" class="chip" data-for="mf_${f.id}">${esc(c)}</button>`).join('')}</div>` : ''}</div>`).join(''),
+    `<button class="btn pri" id="mOk">${okText}</button><button class="btn ghost" id="mNo">إلغاء</button>`);
+  $('#modC').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; const t = $('#'+c.dataset.for); t.value = t.value.trim() ? t.value.trim() + '، ' + c.textContent : c.textContent; t.focus(); };
+  $('#mNo').onclick = closeModal;
+  $('#mOk').onclick = async () => {
+    const v = {}; for (const f of fields) { v[f.id] = $('#mf_'+f.id).value.trim(); if (f.required && !v[f.id]) { toast('اكتب '+f.label.split('(')[0].trim(), 'error'); return; } }
+    $('#mOk').disabled = true;
+    const ok = await run(() => submit(v), okMsg);
+    if (ok) closeModal(); else $('#mOk').disabled = false;
+  };
+  setTimeout(() => $('#mf_'+fields[0].id)?.focus(), 50);
+}
+$('#btnRefresh').addEventListener('click', () => { S.cache = {}; load(); });
+$('#btnPass').addEventListener('click', () => {
+  modal('تغيير كلمة المرور', `<div><label class="l" for="np">كلمة المرور الجديدة (8 أحرف على الأقل)</label><input class="input ltr" type="password" id="np" autocomplete="new-password"></div>`,
+    `<button class="btn pri" id="mOk">حفظ</button><button class="btn ghost" id="mNo">إلغاء</button>`);
+  $('#mNo').onclick = closeModal;
+  $('#mOk').onclick = async () => {
+    const p = $('#np').value; if (p.length < 8) return toast('كلمة المرور قصيرة', 'error');
+    const { error } = await sb.auth.updateUser({ password:p }); if (error) return toast(errText(error), 'error');
+    closeModal(); toast('تم تغيير كلمة المرور ✓', 'ok');
+  };
+});
+
+/* ---------------- settings: dean name + delegation ---------------- */
+$('#btnSettings').addEventListener('click', () => {
+  const st = S.settings, staff = Object.values(S.people).filter(p => ['admin','office'].includes(p.role) && p.active);
+  const today = new Date(); const iso = d => d.toISOString().slice(0,10);
+  modal('الإعدادات', `
+    <div style="font-weight:700;color:var(--navy)">بيانات العميد في النموذج المطبوع</div>
+    <div style="display:grid;grid-template-columns:110px 1fr;gap:8px">
+      <div><label class="l" for="sHon">اللقب</label><select class="select" id="sHon">${['فضيلة','سعادة'].map(x=>`<option ${st.dean_honorific===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div><label class="l" for="sName">الاسم كما يظهر تحت التوجيه</label><input class="input" id="sName" value="${esc(st.dean_name||'')}" placeholder="مثال: د. ..."></div>
+    </div>
+    <div><label class="l" for="sTitle">المسمى</label><input class="input" id="sTitle" value="${esc(st.dean_title||'عميد كلية الشريعة')}"></div>
+    <button class="btn pri" id="sSave" style="align-self:flex-start">حفظ بيانات العميد</button>
+    <hr style="border:0;border-top:1px solid var(--line);width:100%">
+    <div style="font-weight:700;color:var(--navy)">التفويض بالتوجيه</div>
+    <div class="hint">الموظف المفوَّض يستطيع اعتماد التوجيه حتى التاريخ المحدد، ويظهر التوجيه في النموذج باسم العميد، ويُحفظ في السجل من نفّذه فعلياً.</div>
+    <table class="ut"><tr><th>الموظف</th><th>مفوَّض حتى</th><th></th></tr>
+      ${staff.map(p => { const on = p.delegate_until && new Date(p.delegate_until) > today; return `<tr>
+        <td>${esc(p.full_name)}<div style="font-size:11.5px;color:var(--muted)">${ROLES[p.role]}</div></td>
+        <td>${on ? `<b style="color:var(--teal)">${hijri(p.delegate_until)}</b>` : '<span style="color:var(--muted)">—</span>'}</td>
+        <td style="white-space:nowrap">${on ? `<button class="btn danger" data-stop="${p.id}" style="padding:5px 10px">إيقاف</button>`
+             : `<input type="date" class="input ltr" style="width:140px;padding:5px 8px;display:inline-block" data-d="${p.id}" value="${iso(new Date(today.getTime()+7*864e5))}"> <button class="btn teal" data-go="${p.id}" style="padding:5px 10px">تفويض</button>`}</td></tr>`; }).join('') || '<tr><td colspan="3" style="color:var(--muted)">لا يوجد موظفون</td></tr>'}
+    </table>`,
+    `<button class="btn ghost" id="mNo">إغلاق</button>`);
+  $('#mNo').onclick = closeModal;
+  $('#sSave').onclick = async () => {
+    const { error } = await sb.from('settings').update({ dean_honorific:$('#sHon').value, dean_name:$('#sName').value.trim()||null, dean_title:$('#sTitle').value.trim()||'عميد كلية الشريعة', updated_at:new Date().toISOString() }).eq('id',1);
+    if (error) return toast(errText(error), 'error');
+    const { data } = await sb.from('settings').select('*').eq('id',1).maybeSingle(); S.settings = data||S.settings; toast('تم الحفظ ✓','ok');
+  };
+  $('#modC').querySelector('.ut').onclick = async e => {
+    const go = e.target.closest('[data-go]'), stop = e.target.closest('[data-stop]');
+    if (!go && !stop) return;
+    const id = (go||stop).dataset.go || (go||stop).dataset.stop;
+    let until = null;
+    if (go) { const d = document.querySelector(`[data-d="${id}"]`).value; if (!d) return toast('اختر تاريخ نهاية التفويض','error'); until = new Date(d+'T23:59:59+03:00').toISOString(); }
+    const { error } = await sb.rpc('set_delegation', { p_user:id, p_until:until });
+    if (error) return toast(errText(error), 'error');
+    const { data: ppl } = await sb.from('profiles').select('id,full_name,role,title,active,delegate_until,email');
+    S.people = Object.fromEntries((ppl||[]).map(p => [p.id, p]));
+    toast(go ? 'تم التفويض ✓' : 'أُوقف التفويض', 'ok'); closeModal(); $('#btnSettings').click();
+  };
+});
+
+/* ================= PRINT: official form ================= */
+function printForm(r){
+  const st = S.settings, files = S.cache[r.id]?.files || [];
+  const hon = st.dean_honorific || 'فضيلة';
+  const dir = r.dean_decision ? `
+      <div class="dc ${r.dean_decision}">${DECISION[r.dean_decision]}</div>
+      ${r.referred_to ? `<div>ويُحال إلى: <span class="ref">${esc(r.referred_to)}</span></div>` : ''}
+      ${r.dean_note ? `<div class="note">${esc(r.dean_note)}</div>` : ''}
+      <div class="sign"><div><div class="ti">${esc(st.dean_title || 'عميد كلية الشريعة')}</div><div class="nm">${esc(deanName())}</div></div></div>`
+    : `<div class="empty-dir">لم يصدر التوجيه بعد</div>`;
+  $('#print').innerHTML = `
+  <div class="pf">
+    <div class="ph">
+      <img src="assets/logo.png" alt="">
+      <div class="t"><h1>نموذج طلب استثنائي</h1><div>مكتب كلية الشريعة</div></div>
+      <div class="meta">
+        <div>رقم الطلب: <b class="ltr">${esc(r.ref_no)}</b></div>
+        <div>التاريخ: <b>${hijri(r.created_at)}</b></div>
+        ${r.enjaz_no ? `<div>معاملة إنجاز: <b class="ltr">${esc(r.enjaz_no)}</b></div>` : ''}
+      </div>
+    </div>
+    <div class="acc"></div>
+    <div class="salute">${hon} عميد كلية الشريعة&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;حفظه الله<br>السلام عليكم ورحمة الله وبركاته،</div>
+    <table>
+      <tr><th>الاسم</th><td>${esc(r.student_name)}</td><th>الرقم الجامعي</th><td class="ltr" style="text-align:right">${esc(r.university_id)}</td></tr>
+      <tr><th>القسم</th><td>${esc(r.department)}</td><th>المرحلة</th><td>${LEVEL[r.level]} (${GENDER[r.gender]})</td></tr>
+      <tr><th>الجوال</th><td class="ltr" style="text-align:right">${esc(r.mobile)}</td><th>نوع الطلب</th><td>${CATEGORY[r.category]}</td></tr>
+    </table>
+    <div class="blk"><h4>المطلوب</h4><div>${esc(r.summary)}</div></div>
+    <div class="blk"><h4>سبب عدم التقديم عبر النظام الإلكتروني</h4><div>${r.bypass_reason==='other' ? esc(r.bypass_other) : BYPASS[r.bypass_reason]}</div></div>
+    <div class="blk"><h4>المبررات والظروف</h4><div>${esc(r.justification)}</div></div>
+    <div class="blk"><h4>المرفقات</h4><div>${files.length ? files.map((f,i)=>`${i+1}. ${esc(f.name)}`).join('&nbsp;&nbsp;&nbsp; ') : 'لا توجد'}</div></div>
+    <div class="sig">مقدّم الطلب: ${esc(r.student_name)} — قُدّم إلكترونياً بتاريخ ${hijri(r.created_at)} الساعة ${time(r.created_at)}</div>
+    ${r.office_note ? `<div class="blk"><h4>مرئيات مكتب الكلية</h4><div>${esc(r.office_note)}</div></div>` : ''}
+    <div class="dir"><div class="hd">توجيه ${hon} عميد الكلية</div>${dir}</div>
+    <div class="stamp"><span>${r.decided_at ? `اعتُمد التوجيه إلكترونياً عبر بوابة الطلبات الاستثنائية بتاريخ ${hijri(r.decided_at)} الساعة ${time(r.decided_at)}` : 'بوابة الطلبات الاستثنائية — كلية الشريعة'}</span><span class="ltr">${esc(r.ref_no)}</span></div>
+  </div>`;
+  const imgs = [...$('#print').querySelectorAll('img')];
+  Promise.all(imgs.map(i => i.complete ? 1 : new Promise(res => { i.onload = i.onerror = res; }))).then(() => setTimeout(() => window.print(), 120));
+}
+
+boot();
+</script>
+</body>
+</html>
