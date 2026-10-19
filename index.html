@@ -409,9 +409,9 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
   <!-- ============ TRACK ============ -->
   <section id="view-track" class="card" hidden>
     <h2 style="font-size:19px">متابعة طلب</h2>
-    <p class="lead">أدخل رقم الطلب وآخر 4 أرقام من الجوال المسجّل في الطلب.</p>
+    <p class="lead">اكتب رقم الطلب (يكفي آخره مثل 0001) أو رقمك الجامعي، مع آخر 4 أرقام من الجوال الذي كتبته في الطلب.</p>
     <form class="trk-form" id="trkForm" novalidate>
-      <div class="f"><label for="t_ref">رقم الطلب</label><input class="input ltr" id="t_ref" placeholder="EX-1448-0001" autocomplete="off"></div>
+      <div class="f"><label for="t_ref">رقم الطلب أو الرقم الجامعي</label><input class="input ltr" id="t_ref" placeholder="EX-1448-0001" autocomplete="off"></div>
       <div class="f"><label for="t_last4">آخر 4 أرقام</label><input class="input ltr" id="t_last4" inputmode="numeric" maxlength="4" placeholder="••••"></div>
       <button class="btn pri" type="submit" style="flex:none">استعلام</button>
     </form>
@@ -537,7 +537,8 @@ const api = DEMO ? (() => {
     },
     async track(ref, last4){
       await wait(500);
-      const r = mem.rows.find(x => x.ref_no === ref.toUpperCase().trim() && x.mobile.slice(-4) === last4);
+      const isUid = /^\d{6,10}$/.test(ref);
+      const r = mem.rows.slice().reverse().find(x => (isUid ? x.uid === ref : x.ref_no === ref) && x.mobile.slice(-4) === last4);
       return r ? {...r, updated_at:r.events.at(-1).created_at} : null;
     },
   };
@@ -907,7 +908,7 @@ $$('.tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.ta
 function renderMine(){
   const mine = store.get('exreq_mine', []);
   const el = $('#mine'); el.hidden = !mine.length;
-  el.innerHTML = 'طلباتك على هذا الجهاز: ' + mine.map(m => `<button type="button" data-ref="${esc(m.ref)}" data-l="${esc(m.last4)}">${esc(m.ref)}</button>`).join('');
+  el.innerHTML = 'طلبات قدّمتها من هذا الجوال — اضغط على الرقم لعرض حالته: ' + mine.map(m => `<button type="button" data-ref="${esc(m.ref)}" data-l="${esc(m.last4)}">${esc(m.ref)}</button>`).join('');
 }
 $('#mine').addEventListener('click', e => {
   const b = e.target.closest('[data-ref]'); if (!b) return;
@@ -917,15 +918,34 @@ $('#t_last4').addEventListener('input', e => e.target.value = toLatin(e.target.v
 $('#t_ref').addEventListener('input', e => e.target.value = toLatin(e.target.value).toUpperCase());
 $('#trkForm').addEventListener('submit', e => { e.preventDefault(); doTrack(); });
 
+/* يقبل رقم الطلب بأي شكل يكتبه الطالب، أو رقمه الجامعي:
+   EX-1448-0001 · ex 1448 1 · 1448-1 · 0001 · 1 · ١ · 441234567 */
+function currentHijriYear(){
+  try { return +new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{year:'numeric'}).format(new Date()).replace(/\D/g,''); }
+  catch { return 1448; }
+}
+function normalizeLookup(raw){
+  const v = toLatin(raw).toUpperCase().replace(/[\s‐-―−_\/]+/g,'-').replace(/^-+|-+$/g,'');
+  const digits = v.replace(/\D/g,'');
+  if (/^\d{6,10}$/.test(v)) return v;                                   // رقم جامعي
+  let m = v.match(/^(?:EX-?)?(14\d{2})-?(\d{1,4})$/);                    // سنة + تسلسل
+  if (m && (v.includes('-') || v.startsWith('EX'))) return `EX-${m[1]}-${m[2].padStart(4,'0')}`;
+  if (/^(?:EX-?)?\d{1,4}$/.test(v)) return `EX-${currentHijriYear()}-${digits.padStart(4,'0')}`; // تسلسل فقط
+  return null;
+}
+
 async function doTrack(){
-  const ref = $('#t_ref').value.trim(), l4 = $('#t_last4').value.trim();
+  const raw = $('#t_ref').value.trim(), l4 = toLatin($('#t_last4').value.trim());
   const out = $('#trkRes');
-  if (!/^EX-\d{4}-\d{4}$/i.test(ref)) { toast('صيغة رقم الطلب: EX-1448-0001','error'); return; }
-  if (!/^\d{4}$/.test(l4)) { toast('أدخل آخر 4 أرقام من الجوال','error'); return; }
+  if (!raw) { toast('اكتب رقم الطلب أو رقمك الجامعي','error'); $('#t_ref').focus(); return; }
+  const ref = normalizeLookup(raw);
+  if (!ref) { toast('اكتب رقم الطلب مثل EX-1448-0001 (أو 0001 فقط)، أو رقمك الجامعي','error'); $('#t_ref').focus(); return; }
+  if (/^EX-/.test(ref)) $('#t_ref').value = ref;
+  if (!/^\d{4}$/.test(l4)) { toast('أدخل آخر 4 أرقام من الجوال','error'); $('#t_last4').focus(); return; }
   out.innerHTML = '<div class="empty"><div class="spin"></div>جاري الاستعلام…</div>';
   try {
     const r = await api.track(ref, l4);
-    if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقم الطلب وآخر 4 أرقام من الجوال المسجّل.</div>'; return; }
+    if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقم الطلب (أو رقمك الجامعي) وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</div>'; return; }
     const s = STATUS[r.status] || STATUS.new;
     const prog = STAGES.map((n,i) => {
       const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
