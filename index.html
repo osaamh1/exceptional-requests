@@ -274,7 +274,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
           <div class="f" data-f="university_id">
             <label for="university_id">الرقم الجامعي <em>*</em></label>
             <input class="input ltr" id="university_id" inputmode="numeric" maxlength="10" placeholder="441xxxxxx">
-            <div class="hint"><span>ستصلك التحديثات على: <span class="mail" id="mailPreview">—@qu.edu.sa</span></span></div>
+            <div class="hint" data-email hidden><span>ستصلك التحديثات على: <span class="mail" id="mailPreview">—@qu.edu.sa</span></span></div>
             <div class="err">الرقم الجامعي غير صحيح.</div>
           </div>
           <div class="f" data-f="mobile">
@@ -396,7 +396,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
         <ol>
           <li>احتفظ برقم الطلب، أو التقط صورة لهذه الشاشة.</li>
           <li>تابع حالة طلبك من تبويب «متابعة طلب» برقمك الجامعي وآخر 4 أرقام من جوالك.</li>
-          <li>تصلك التحديثات على بريدك الجامعي <span class="mail" id="doneMail"></span></li>
+          <li data-email hidden>تصلك التحديثات على بريدك الجامعي <span class="mail" id="doneMail"></span></li>
         </ol>
       </div>
       <div class="acts">
@@ -433,6 +433,7 @@ const CONFIG = {
   SUPABASE_URL: 'https://nwdmnjpzkkqtksetrelk.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53ZG1uanB6a2txdGtzZXRyZWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzOTc2MjMsImV4cCI6MjEwNzk3MzYyM30.3JE8h1Vv-DOeLHuBensYYibx-TAj8o_-21KWh2MPivc',
   EMAIL_DOMAIN: 'qu.edu.sa',
+  EMAIL_ENABLED: false,     // اجعلها true عند تشغيل رسائل البريد للطلاب (تُظهر جمل البريد في الصفحة)
   BUCKET: 'request-files',
   MAX_FILES: 5,
   MAX_MB: 10,               // الحد الأقصى للملف بعد الضغط (يطابق حد الحاوية في Supabase)
@@ -588,6 +589,7 @@ $('#cats').innerHTML = CATEGORIES.map(c => `
 $('#stepper').innerHTML = STEP_NAMES.map((n,i)=>
   `${i?'<div class="bar"><i></i></div>':''}<div class="st"><div class="dot">${i+1}</div><span>${n}</span></div>`).join('');
 if (DEMO) $('#demoNote').hidden = false;
+if (CONFIG.EMAIL_ENABLED) $$('[data-email]').forEach(el => el.hidden = false);
 
 /* text inputs */
 ['student_name','university_id','mobile','department','summary','bypass_other','justification'].forEach(id => {
@@ -820,7 +822,7 @@ function renderReview(){
     sec('بياناتك', 0,
       row('الاسم', esc(d.student_name)) +
       row('الرقم الجامعي', `<span dir="ltr">${esc(d.university_id)}</span>`) +
-      row('البريد الجامعي', `<span dir="ltr">${esc(d.university_id)}@${CONFIG.EMAIL_DOMAIN}</span>`) +
+      (CONFIG.EMAIL_ENABLED ? row('البريد الجامعي', `<span dir="ltr">${esc(d.university_id)}@${CONFIG.EMAIL_DOMAIN}</span>`) : '') +
       row('الجوال', `<span dir="ltr">${esc(d.mobile)}</span>`) +
       row('المرحلة والقسم', `${LABELS.gender[d.gender]} · ${LABELS.level[d.level]} · قسم ${esc(d.department)}`)) +
     sec('طلبك', 1,
