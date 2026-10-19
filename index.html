@@ -160,7 +160,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn svg{width:18px;height:18px}
 
 /* ---------- Success ---------- */
-.done{text-align:center;padding:10px 0}
+#success.done{text-align:center;padding:10px 0}
 .check{width:84px;height:84px;margin:6px auto 12px;border-radius:50%;background:var(--ok-soft);display:grid;place-items:center}
 .check svg{width:46px;height:46px;stroke:var(--ok);stroke-width:3;fill:none;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .6s .2s forwards ease}
 @keyframes draw{to{stroke-dashoffset:0}}
@@ -170,7 +170,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ref .btn{margin-top:6px;padding:8px 14px;font-size:14px}
 .next{text-align:right;background:#f6f8fb;border-radius:14px;padding:14px 16px;margin:16px 0;font-size:14.5px}
 .next ol{margin:6px 0 0;padding-inline-start:20px}
-.done .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#success .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
 /* ---------- Track ---------- */
 .trk-form{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;align-items:start}
@@ -192,6 +192,17 @@ button,input,select,textarea{font:inherit;color:inherit}
 .prog .st span{white-space:normal;line-height:1.4}
 .msg{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px;border-inline-start:4px solid var(--gold);background:var(--gold-soft)}
 .msg b{display:block;margin-bottom:2px;color:#0c6a69}
+.act-box{border:1.5px solid #efd7ad;background:#fffdf8;border-radius:14px;padding:14px;margin:14px 0}
+.act-box h3{font-size:15px;color:#7a4c0c;margin-bottom:4px}
+.act-box p{margin:0 0 10px;font-size:13.5px;color:var(--muted)}
+.act-box .drop{padding:16px 12px}
+.act-box .drop svg{width:26px;height:26px}
+.act-box .btn{margin-top:10px}
+.wd-link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:13px;padding:6px 0;margin-top:6px}
+.wd-box{border:1.5px solid #f0c9c0;background:#fffafa;border-radius:14px;padding:14px;margin:10px 0}
+.wd-box h3{font-size:15px;color:var(--bad);margin-bottom:4px}
+.wd-box .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn.danger{background:var(--bad);color:#fff}
 .tl{list-style:none;margin:16px 0 0;padding:0;position:relative}
 .tl::before{content:"";position:absolute;right:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
 .tl li{position:relative;padding:0 26px 14px 0;font-size:14px}
@@ -474,6 +485,7 @@ const STATUS = {
   rejected:   {label:'لم تتم الموافقة',     stage:3, tone:'bad',   hint:'صدر توجيه سعادة العميد بعدم الموافقة على طلبك.'},
   reserved:   {label:'صدر التوجيه',         stage:3, tone:'warn',  hint:'صدر توجيه بشأن طلبك، يرجى مراجعة مكتب الكلية.'},
   closed:     {label:'مكتمل',               stage:3, tone:'muted', hint:'اكتملت معالجة طلبك.'},
+  withdrawn:  {label:'مسحوب',               stage:-1, tone:'muted', hint:'سحبتَ هذا الطلب، ويمكنك تقديم طلب جديد متى احتجت.'},
 };
 // حالة الطلب كما تظهر للطالب (المغلق يُعرض بحسب التوجيه)
 function studentStatus(r){
@@ -539,6 +551,22 @@ const api = DEMO ? (() => {
         events:[{action:'submitted',to_status:'new',created_at:now}]});
       save(); return {ref_no:ref, created_at:now};
     },
+    async complete(ref, last4, reply, files){
+      await wait(500);
+      const r = await this.track(ref, last4); if (!r) throw new Error('NOT_FOUND');
+      const row = mem.rows.find(x => x.ref_no === r.ref_no);
+      if (row.status !== 'needs_info') throw new Error('BAD_STATE');
+      row.status = 'in_review'; row.student_message = null;
+      row.events.push({action:'completed', to_status:'in_review', created_at:new Date().toISOString()}); save(); return {ok:true};
+    },
+    async withdraw(ref, last4, reason){
+      await wait(500);
+      const r = await this.track(ref, last4); if (!r) throw new Error('NOT_FOUND');
+      const row = mem.rows.find(x => x.ref_no === r.ref_no);
+      if (!['new','in_review','needs_info'].includes(row.status)) throw new Error('BAD_STATE');
+      row.status = 'withdrawn';
+      row.events.push({action:'withdrawn', to_status:'withdrawn', created_at:new Date().toISOString()}); save(); return {ok:true};
+    },
     async checkOpen(uid, mobile){
       await wait(300);
       const OPEN = ['new','in_review','needs_info','at_dean','referred'];
@@ -572,10 +600,21 @@ const api = DEMO ? (() => {
     const { data, error } = await sb.rpc('check_open_request', { p_uid: uid, p_mobile: mobile });
     if (error) throw error; return data;
   },
+  async complete(ref, last4, reply, files){
+    const { data, error } = await sb.rpc('student_complete', { p_ref: ref, p_last4: last4, p_reply: reply, p_files: files });
+    if (error) throw error; return data;
+  },
+  async withdraw(ref, last4, reason){
+    const { data, error } = await sb.rpc('student_withdraw', { p_ref: ref, p_last4: last4, p_reason: reason });
+    if (error) throw error; return data;
+  },
 };
 
 function errMsg(e){
   const m = String(e?.message || e || '');
+  if (m.includes('EMPTY')) return 'اكتب ردّك أو أرفق ملفاً على الأقل.';
+  if (m.includes('BAD_STATE')) return 'تغيّرت حالة الطلب، حدّث صفحة المتابعة.';
+  if (m.includes('NOT_FOUND')) return 'لم نجد الطلب. تأكد من البيانات.';
   if (m.includes('OPEN_REQUEST')) return 'لديك طلب قائم لم يُبتّ فيه بعد، ولا يمكن تقديم طلب جديد حتى يصدر القرار فيه. تابع طلبك من صفحة المتابعة أو راجع مكتب الكلية.';
   if (m.includes('RATE_LIMIT')) return 'وصلت للحد المسموح (3 طلبات خلال 24 ساعة). حاول لاحقاً أو راجع المكتب.';
   if (m.includes('TOO_MANY_FILES')) return `الحد الأقصى ${CONFIG.MAX_FILES} مرفقات.`;
@@ -931,6 +970,77 @@ function normalizeLookup(raw){
   return null;
 }
 
+/* ---------------- استكمال الطلب / سحب الطلب (للطالب) ---------------- */
+const T = { ref:null, l4:null, files:[] };
+function completionBox(){
+  return `<div class="act-box" id="cmpBox">
+    <h3>استكمال الطلب</h3>
+    <p>اكتب ردّك على ملاحظة المكتب، وأرفق ما طُلب منك. لا يتغيّر طلبك الأصلي، بل يُضاف الاستكمال إليه.</p>
+    <textarea class="textarea" id="cmpReply" maxlength="2000" style="min-height:90px" placeholder="ردّك أو التوضيح المطلوب…"></textarea>
+    <div class="drop" id="cmpDrop" tabindex="0" role="button" style="margin-top:10px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>
+      <b>إرفاق ملفات</b><small>PDF، صور، Word — حتى 5 ملفات</small>
+    </div>
+    <input type="file" id="cmpInput" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.doc,.docx" hidden>
+    <ul class="files" id="cmpList"></ul>
+    <button class="btn pri" type="button" id="cmpSend" style="width:100%">إرسال الاستكمال</button>
+  </div>`;
+}
+function renderCmpFiles(){
+  $('#cmpList').innerHTML = T.files.map(e => `<li><div class="ic">${e.busy ? '<i class="mini"></i>' : esc((e.file.name.split('.').pop()||'').toUpperCase().slice(0,4))}</div>
+    <div class="nm"><div>${esc(e.orig.name)}</div><small>${e.busy ? '<span class="cmp">جاري تحسين الصورة…</span>' : fmtSize(e.file.size)}</small></div>
+    <button class="x" type="button" data-id="${e.id}" aria-label="حذف"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></li>`).join('');
+}
+function wireCompletion(){
+  T.files = [];
+  const inp = $('#cmpInput'), drop = $('#cmpDrop');
+  drop.onclick = () => inp.click();
+  inp.onchange = () => {
+    for (const f of inp.files) {
+      const ext = (f.name.split('.').pop()||'').toLowerCase(), isImg = IMG_EXT.includes(ext);
+      if (T.files.length >= 5) { toast('الحد الأقصى 5 ملفات', 'error'); break; }
+      if (!OK_EXT.includes(ext)) { toast(`«${f.name}» نوعه غير مدعوم`, 'error'); continue; }
+      if (f.size > (isImg ? CONFIG.MAX_IMG_MB_BEFORE : CONFIG.MAX_MB)*1024*1024) { toast(`«${f.name}» كبير جداً`, 'error'); continue; }
+      const e = { id:++fileSeq, orig:f, file:f, busy:isImg }; T.files.push(e);
+      if (isImg) compressImage(f).then(o => e.file = o).catch(() => {}).finally(() => { e.busy = false; renderCmpFiles(); });
+    }
+    inp.value = ''; renderCmpFiles();
+  };
+  $('#cmpList').onclick = ev => { const b = ev.target.closest('.x'); if (b) { T.files = T.files.filter(x => x.id !== +b.dataset.id); renderCmpFiles(); } };
+  $('#cmpSend').onclick = async () => {
+    if (T.files.some(e => e.busy)) return toast('لحظة، جاري تحسين الصور…');
+    const reply = $('#cmpReply').value.trim();
+    if (!reply && !T.files.length) return toast('اكتب ردّك أو أرفق ملفاً على الأقل', 'error');
+    $('#cmpSend').disabled = true;
+    try {
+      const up = [];
+      for (let i = 0; i < T.files.length; i++) {
+        overlay(true, `جاري رفع المرفقات (${i+1} من ${T.files.length})…`, (i/(T.files.length+1))*100);
+        const u = await api.upload(T.files[i].file); u.name = T.files[i].file.name; up.push(u);
+      }
+      overlay(true, 'جاري الإرسال…', 90);
+      await api.complete(T.ref, T.l4, reply, up);
+      overlay(false); toast('تم إرسال الاستكمال ✓ وعاد طلبك للمراجعة', 'ok');
+      doTrack();
+    } catch (e) { console.error(e); overlay(false); toast(errMsg(e), 'error'); $('#cmpSend').disabled = false; }
+  };
+}
+function openWithdraw(){
+  $('#wdOpen').hidden = true;
+  $('#wdSlot').innerHTML = `<div class="wd-box">
+    <h3>سحب الطلب</h3>
+    <p style="margin:0 0 10px;font-size:13.5px">سيُغلق طلبك رقم <b dir="ltr">${esc(T.ref)}</b> ولن يُرفع إلى سعادة العميد. يمكنك بعد ذلك تقديم طلب جديد.</p>
+    <input class="input" id="wdReason" maxlength="300" placeholder="سبب السحب (اختياري)">
+    <div class="row"><button class="btn danger" type="button" id="wdGo">تأكيد سحب الطلب</button><button class="btn ghost" type="button" id="wdNo">تراجع</button></div>
+  </div>`;
+  $('#wdNo').onclick = () => { $('#wdSlot').innerHTML = ''; $('#wdOpen').hidden = false; };
+  $('#wdGo').onclick = async () => {
+    $('#wdGo').disabled = true;
+    try { await api.withdraw(T.ref, T.l4, $('#wdReason').value.trim()); toast('سُحب الطلب ✓', 'ok'); doTrack(); }
+    catch (e) { console.error(e); toast(errMsg(e), 'error'); $('#wdGo').disabled = false; }
+  };
+}
+
 async function doTrack(){
   const raw = $('#t_ref').value.trim(), l4 = toLatin($('#t_last4').value.trim());
   const out = $('#trkRes');
@@ -948,17 +1058,23 @@ async function doTrack(){
       const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
       return `${i?`<div class="bar ${i<=s.stage?'done':''}"><i></i></div>`:''}<div class="st ${cls}"><div class="dot">${i < s.stage || (i===3&&s.stage===3) ? '✓' : i+1}</div><span>${i===s.stage && s.stage<3 ? s.label : n}</span></div>`;
     }).join('');
+    const EV = { submitted:'تم تقديم الطلب', completed:'أرسلتَ الاستكمال', withdrawn:'سحبتَ الطلب', info_request:'طُلب منك استكمال الطلب' };
     const ev = (r.events||[]).slice().reverse().map(e => {
-      const t = e.action==='submitted' ? 'تم تقديم الطلب' : (STATUS[e.to_status]?.label || 'تحديث');
+      const t = EV[e.action] || (STATUS[e.to_status]?.label || 'تحديث');
       return `<li><b>${t}</b><small>${fmtDate(e.created_at)}</small></li>`;
     }).join('');
     out.innerHTML = `
       <div class="res-head"><span class="num">${esc(r.ref_no)}</span><span class="pill t-${s.tone}">${s.label}</span></div>
       <p class="sum">${LABELS.category[r.category]||''} — ${esc(r.summary||'')}</p>
-      <div class="prog">${prog}</div>
+      ${s.stage >= 0 ? `<div class="prog">${prog}</div>` : ''}
       <p class="lead" style="margin:10px 0 0">${s.hint}</p>
       ${r.student_message ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${esc(r.student_message)}</div>` : ''}
-      <ul class="tl">${ev}</ul>`;
+      ${r.status === 'needs_info' ? completionBox() : ''}
+      <ul class="tl">${ev}</ul>
+      ${['new','in_review','needs_info'].includes(r.status) ? `<button class="wd-link" type="button" id="wdOpen">أرغب في سحب هذا الطلب</button><div id="wdSlot"></div>` : ''}`;
+    T.ref = r.ref_no; T.l4 = l4;
+    if (r.status === 'needs_info') wireCompletion();
+    const wo = $('#wdOpen'); if (wo) wo.onclick = openWithdraw;
   } catch (e) { console.error(e); out.innerHTML = `<div class="empty">${errMsg(e)}</div>`; }
 }
 

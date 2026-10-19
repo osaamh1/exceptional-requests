@@ -333,3 +333,11 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 -- تحديث: صيغة رقم الطلب صارت أرقاماً فقط 1448/0001 (بدل EX-1448-0001)
 --   normalize_ref() تقبل: 1448/0001 · 1448-1 · 14480001 · EX-1448-0001
 --   انظر migration «part9_numeric_reference_numbers»
+
+-- تحديث (المرحلة الثانية):
+--   حالات إضافية: reserved (متحفظ) · withdrawn (مسحوب)
+--   دوال المكتب والعميد: req_take · req_request_info · req_forward · req_decide · req_return
+--                        req_close · req_update_info · req_note · req_reopen · set_delegation
+--   دوال الطالب: student_complete (رد + مرفقات استكمال) · student_withdraw (قبل الرفع للعميد)
+--   جدول settings: لقب العميد واسمه ومسماه للنموذج المطبوع
+--   انظر migrations: p2_* و p3_* في Supabase → Database → Migrations
