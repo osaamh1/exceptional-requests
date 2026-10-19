@@ -173,10 +173,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .done .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
 /* ---------- Track ---------- */
-.trk-form{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;align-items:end}
-@media (max-width:560px){.trk-form{grid-template-columns:1fr 1fr}.trk-form .btn{grid-column:1/-1}}
-.mine{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
-.mine button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;cursor:pointer;direction:ltr;font-weight:600;color:var(--green);font-size:13px}
+.trk-form{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;align-items:start}
+.trk-form .f label{white-space:nowrap}
+.trk-form .btn{margin-top:30px}
+@media (max-width:560px){.trk-form{grid-template-columns:1fr 1fr}.trk-form .btn{grid-column:1/-1;margin-top:4px}}
 .res{margin-top:18px}
 .res-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .res-head .num{font-family:"Noto Kufi Arabic";font-weight:800;font-size:20px;direction:ltr;color:var(--green)}
@@ -395,7 +395,7 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
         <b>ماذا بعد؟</b>
         <ol>
           <li>احتفظ برقم الطلب، أو التقط صورة لهذه الشاشة.</li>
-          <li>تابع حالة طلبك من تبويب «متابعة طلب» برقم الطلب وآخر 4 أرقام من جوالك.</li>
+          <li>تابع حالة طلبك من تبويب «متابعة طلب» برقمك الجامعي وآخر 4 أرقام من جوالك.</li>
           <li>تصلك التحديثات على بريدك الجامعي <span class="mail" id="doneMail"></span></li>
         </ol>
       </div>
@@ -409,13 +409,12 @@ footer{text-align:center;color:var(--muted);font-size:12.5px;padding:26px 16px 3
   <!-- ============ TRACK ============ -->
   <section id="view-track" class="card" hidden>
     <h2 style="font-size:19px">متابعة طلب</h2>
-    <p class="lead">اكتب رقم الطلب (يكفي آخره مثل 0001) أو رقمك الجامعي، مع آخر 4 أرقام من الجوال الذي كتبته في الطلب.</p>
+    <p class="lead">اكتب رقمك الجامعي وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</p>
     <form class="trk-form" id="trkForm" novalidate>
-      <div class="f"><label for="t_ref">رقم الطلب أو الرقم الجامعي</label><input class="input ltr" id="t_ref" placeholder="EX-1448-0001" autocomplete="off"></div>
-      <div class="f"><label for="t_last4">آخر 4 أرقام</label><input class="input ltr" id="t_last4" inputmode="numeric" maxlength="4" placeholder="••••"></div>
+      <div class="f"><label for="t_ref">الرقم الجامعي</label><input class="input ltr" id="t_ref" inputmode="numeric" placeholder="441xxxxxx" autocomplete="off"><div class="hint"><span>أو رقم الطلب إن كان لديك</span></div></div>
+      <div class="f"><label for="t_last4">آخر 4 أرقام من الجوال</label><input class="input ltr" id="t_last4" inputmode="numeric" maxlength="4" placeholder="••••"></div>
       <button class="btn pri" type="submit" style="flex:none">استعلام</button>
     </form>
-    <div class="mine" id="mine" hidden></div>
     <div class="res" id="trkRes"></div>
   </section>
 </main>
@@ -702,7 +701,7 @@ async function checkOpenRequest(){
 }
 $('#openTrack').addEventListener('click', () => {
   const b = $('#openReq');
-  switchTab('track'); $('#t_ref').value = b.dataset.ref; $('#t_last4').value = b.dataset.last4; doTrack();
+  switchTab('track'); $('#t_ref').value = S.data.university_id; $('#t_last4').value = S.data.mobile.slice(-4); doTrack();
 });
 ['university_id','mobile'].forEach(id => $('#'+id).addEventListener('input', () => { $('#openReq').hidden = true; }));
 
@@ -858,9 +857,6 @@ async function submit(){
     };
     const res = await api.submit(payload);
     overlay(true, 'تم ✓', 100);
-    const mine = store.get('exreq_mine', []).filter(x => x.ref !== res.ref_no);
-    mine.unshift({ ref:res.ref_no, last4:d.mobile.slice(-4), at:Date.now() });
-    store.set('exreq_mine', mine.slice(0,5));
     store.del('exreq_draft');
     setTimeout(() => { overlay(false); showSuccess(res.ref_no); }, 350);
   } catch (e) {
@@ -881,8 +877,7 @@ $('#copyRef').addEventListener('click', async () => {
   catch { toast(`رقم طلبك: ${ref}`); }
 });
 $('#goTrack').addEventListener('click', () => {
-  const {ref, last4} = $('#success').dataset;
-  switchTab('track'); $('#t_ref').value = ref; $('#t_last4').value = last4; doTrack();
+  switchTab('track'); $('#t_ref').value = S.data.university_id; $('#t_last4').value = S.data.mobile.slice(-4); doTrack();
 });
 $('#newReq').addEventListener('click', () => {
   FIELDS.forEach(f => S.data[f] = ''); S.files = [];
@@ -899,21 +894,11 @@ $('#newReq').addEventListener('click', () => {
 function switchTab(t){
   $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab===t));
   $('#view-new').hidden = t!=='new'; $('#view-track').hidden = t!=='track';
-  if (t==='track') renderMine();
   try { history.replaceState(null, '', t==='track' ? '#track' : '#'); } catch {}
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
 /* ---------------- Track ---------------- */
-function renderMine(){
-  const mine = store.get('exreq_mine', []);
-  const el = $('#mine'); el.hidden = !mine.length;
-  el.innerHTML = 'طلبات قدّمتها من هذا الجوال — اضغط على الرقم لعرض حالته: ' + mine.map(m => `<button type="button" data-ref="${esc(m.ref)}" data-l="${esc(m.last4)}">${esc(m.ref)}</button>`).join('');
-}
-$('#mine').addEventListener('click', e => {
-  const b = e.target.closest('[data-ref]'); if (!b) return;
-  $('#t_ref').value = b.dataset.ref; $('#t_last4').value = b.dataset.l; doTrack();
-});
 $('#t_last4').addEventListener('input', e => e.target.value = toLatin(e.target.value).replace(/\D/g,''));
 $('#t_ref').addEventListener('input', e => e.target.value = toLatin(e.target.value).toUpperCase());
 $('#trkForm').addEventListener('submit', e => { e.preventDefault(); doTrack(); });
@@ -937,15 +922,15 @@ function normalizeLookup(raw){
 async function doTrack(){
   const raw = $('#t_ref').value.trim(), l4 = toLatin($('#t_last4').value.trim());
   const out = $('#trkRes');
-  if (!raw) { toast('اكتب رقم الطلب أو رقمك الجامعي','error'); $('#t_ref').focus(); return; }
+  if (!raw) { toast('اكتب رقمك الجامعي','error'); $('#t_ref').focus(); return; }
   const ref = normalizeLookup(raw);
-  if (!ref) { toast('اكتب رقم الطلب مثل EX-1448-0001 (أو 0001 فقط)، أو رقمك الجامعي','error'); $('#t_ref').focus(); return; }
+  if (!ref) { toast('اكتب رقمك الجامعي (أو رقم الطلب مثل EX-1448-0001)','error'); $('#t_ref').focus(); return; }
   if (/^EX-/.test(ref)) $('#t_ref').value = ref;
   if (!/^\d{4}$/.test(l4)) { toast('أدخل آخر 4 أرقام من الجوال','error'); $('#t_last4').focus(); return; }
   out.innerHTML = '<div class="empty"><div class="spin"></div>جاري الاستعلام…</div>';
   try {
     const r = await api.track(ref, l4);
-    if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقم الطلب (أو رقمك الجامعي) وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</div>'; return; }
+    if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقمك الجامعي وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</div>'; return; }
     const s = STATUS[r.status] || STATUS.new;
     const prog = STAGES.map((n,i) => {
       const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
@@ -967,6 +952,7 @@ async function doTrack(){
 
 /* ---------------- Init ---------------- */
 go(0, false); restoreDraft(); updateMail();
+store.del('exreq_mine');   // أُلغيت قائمة الطلبات المحفوظة على الجهاز
 if (location.hash.startsWith('#track')) {
   switchTab('track');
   const m = location.hash.match(/ref=([A-Z0-9-]+)/i);
