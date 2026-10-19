@@ -338,6 +338,6 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 --   حالات إضافية: reserved (متحفظ) · withdrawn (مسحوب)
 --   دوال المكتب والعميد: req_take · req_request_info · req_forward · req_decide · req_return
 --                        req_close · req_update_info · req_note · req_reopen · set_delegation
---   دوال الطالب: student_complete (رد + مرفقات استكمال) · student_withdraw (قبل الرفع للعميد)
+--   دوال الطالب: student_complete (رد + مرفقات استكمال) · student_withdraw (فقط قبل استلام المكتب للطلب)
 --   جدول settings: لقب العميد واسمه ومسماه للنموذج المطبوع
 --   انظر migrations: p2_* و p3_* في Supabase → Database → Migrations

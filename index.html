@@ -563,7 +563,7 @@ const api = DEMO ? (() => {
       await wait(500);
       const r = await this.track(ref, last4); if (!r) throw new Error('NOT_FOUND');
       const row = mem.rows.find(x => x.ref_no === r.ref_no);
-      if (!['new','in_review','needs_info'].includes(row.status)) throw new Error('BAD_STATE');
+      if (row.status !== 'new') throw new Error('BAD_STATE');
       row.status = 'withdrawn';
       row.events.push({action:'withdrawn', to_status:'withdrawn', created_at:new Date().toISOString()}); save(); return {ok:true};
     },
@@ -613,7 +613,7 @@ const api = DEMO ? (() => {
 function errMsg(e){
   const m = String(e?.message || e || '');
   if (m.includes('EMPTY')) return 'اكتب ردّك أو أرفق ملفاً على الأقل.';
-  if (m.includes('BAD_STATE')) return 'تغيّرت حالة الطلب، حدّث صفحة المتابعة.';
+  if (m.includes('BAD_STATE')) return 'تغيّرت حالة الطلب (ربما استلمه المكتب)، حدّث صفحة المتابعة.';
   if (m.includes('NOT_FOUND')) return 'لم نجد الطلب. تأكد من البيانات.';
   if (m.includes('OPEN_REQUEST')) return 'لديك طلب قائم لم يُبتّ فيه بعد، ولا يمكن تقديم طلب جديد حتى يصدر القرار فيه. تابع طلبك من صفحة المتابعة أو راجع مكتب الكلية.';
   if (m.includes('RATE_LIMIT')) return 'وصلت للحد المسموح (3 طلبات خلال 24 ساعة). حاول لاحقاً أو راجع المكتب.';
@@ -1029,7 +1029,7 @@ function openWithdraw(){
   $('#wdOpen').hidden = true;
   $('#wdSlot').innerHTML = `<div class="wd-box">
     <h3>سحب الطلب</h3>
-    <p style="margin:0 0 10px;font-size:13.5px">سيُغلق طلبك رقم <b dir="ltr">${esc(T.ref)}</b> ولن يُرفع إلى سعادة العميد. يمكنك بعد ذلك تقديم طلب جديد.</p>
+    <p style="margin:0 0 10px;font-size:13.5px">سيُغلق طلبك رقم <b dir="ltr">${esc(T.ref)}</b> قبل أن يستلمه مكتب الكلية. يمكنك بعد ذلك تقديم طلب جديد.</p>
     <input class="input" id="wdReason" maxlength="300" placeholder="سبب السحب (اختياري)">
     <div class="row"><button class="btn danger" type="button" id="wdGo">تأكيد سحب الطلب</button><button class="btn ghost" type="button" id="wdNo">تراجع</button></div>
   </div>`;
@@ -1071,7 +1071,7 @@ async function doTrack(){
       ${r.student_message ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${esc(r.student_message)}</div>` : ''}
       ${r.status === 'needs_info' ? completionBox() : ''}
       <ul class="tl">${ev}</ul>
-      ${['new','in_review','needs_info'].includes(r.status) ? `<button class="wd-link" type="button" id="wdOpen">أرغب في سحب هذا الطلب</button><div id="wdSlot"></div>` : ''}`;
+      ${r.status === 'new' ? `<button class="wd-link" type="button" id="wdOpen">أرغب في سحب هذا الطلب</button><div id="wdSlot"></div>` : ''}`;
     T.ref = r.ref_no; T.l4 = l4;
     if (r.status === 'needs_info') wireCompletion();
     const wo = $('#wdOpen'); if (wo) wo.onclick = openWithdraw;
