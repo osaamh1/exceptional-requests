@@ -236,6 +236,28 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ut td,.ut th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}
 .ut th{color:var(--muted);font-weight:600;font-size:12.5px}
 
+/* إشعارات الملاحظات (بشكل إشعار الجوال) */
+#notifs{position:fixed;top:74px;left:16px;width:min(370px,calc(100% - 32px));z-index:70;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.ntf{pointer-events:auto;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-radius:18px;box-shadow:0 14px 40px rgba(18,48,107,.22),0 2px 6px rgba(18,48,107,.08);padding:12px 14px 13px;cursor:pointer;border:1px solid #e3e8f0;animation:ntfIn .45s cubic-bezier(.2,.9,.3,1.2)}
+.ntf:hover{box-shadow:0 18px 46px rgba(18,48,107,.28)}
+@keyframes ntfIn{from{opacity:0;transform:translateY(-16px) scale(.97)}to{opacity:1;transform:none}}
+.ntf .nh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.ntf .nh .ic{width:22px;height:22px;border-radius:6px;background:var(--navy);display:grid;place-items:center;flex-shrink:0}
+.ntf .nh .ic img{width:16px}
+.ntf .nh .ap{font-weight:600;color:#3b4456}
+.ntf .nh .x{margin-inline-start:auto;border:0;background:#eef1f6;color:#5b6475;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+.ntf .nt{font-weight:800;color:var(--ink);font-size:14.5px;margin-top:8px}
+.ntf .ns{font-size:12.5px;color:#5b6475;margin-top:1px}
+.ntf .nb{font-size:13.5px;color:#2a3140;margin-top:6px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+.ntf .no{margin-top:9px;font-size:12.5px;font-weight:700;color:var(--navy-2)}
+.ntf.more{padding:8px 14px;text-align:center;font-size:12.5px;color:var(--muted);font-weight:600;animation:none}
+.tag.nnote{background:#fff1d6;color:#8a560c;font-weight:700;animation:pulseN 1.6s ease-in-out 3}
+@keyframes pulseN{50%{box-shadow:0 0 0 4px rgba(192,122,18,.18)}}
+.newnote{background:linear-gradient(180deg,#fff8ea,#fff3dc);border:1px solid #f1d9a8;border-radius:14px;padding:12px 16px;margin-top:14px}
+.newnote h4{margin:0 0 6px;font-size:14px;color:#8a560c;display:flex;align-items:center;gap:6px}
+.newnote .it+.it{border-top:1px dashed #ecd3a0;margin-top:8px;padding-top:8px}
+.newnote .by{font-size:12px;color:#8a6a3a}
+.newnote .tx{font-size:14px;color:#2a3140;white-space:pre-wrap;line-height:1.8;margin-top:2px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,30px);opacity:0;background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-size:14px;transition:.3s;z-index:80;max-width:calc(100% - 32px);text-align:center;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .toast.error{background:var(--bad)}.toast.ok{background:var(--ok)}
@@ -276,6 +298,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .pf td{font-weight:500}
 .pf .blk{margin:10px 0}
 .pf .blk h4{margin:0 0 5px;color:var(--navy);font-size:11.5pt;font-weight:700}
+.pf .blk .stf{color:#1a1f2b;font-weight:700}
 .pf .blk div{white-space:pre-wrap;border:1px solid #dfe5ee;border-radius:6px;padding:6px 12px;background:#fbfcfe;font-size:11pt}
 .pf .dir{margin-top:16px;border:2px solid var(--navy);border-radius:10px;padding:8px 16px 10px;page-break-inside:avoid;break-inside:avoid}
 .pf .dir .hd{color:var(--navy);font-size:12pt;font-weight:700;margin-bottom:4px}
@@ -353,6 +376,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 <!-- generic modal -->
 <div class="mod" id="mod"><div class="mb"><div class="mh" id="modH"></div><div class="mc" id="modC"></div><div class="mf" id="modF"></div></div></div>
 <div class="toast" id="toast"></div>
+<div id="notifs" aria-live="polite"></div>
 <div id="print"></div>
 
 <script>
@@ -507,9 +531,51 @@ async function load(silent){
     .order('created_at', { ascending:false }).limit(1000);
   if (error) { $('#list').innerHTML = `<div class="empty">${esc(errText(error))}</div>`; return; }
   S.rows = data || [];
+  await loadNotes();
   renderKpis(); renderTabs(); renderList();
   if (S.sel) { const r = S.rows.find(x => x.id === S.sel); if (r) renderDetail(r, silent); }
 }
+/* ================= NOTES NOTIFICATIONS ================= */
+S.unread = []; S.popped = new Set(); S.dismissed = new Set(); S.freshNotes = {};
+async function loadNotes(){
+  if (S.me?.role === 'referral') return;
+  const { data, error } = await sb.rpc('my_unread_notes');
+  if (error) return;
+  S.unread = (data || []).filter(n => !(S.freshNotes[n.request_id] || []).some(x => x.event_id === n.event_id));
+  renderNotifs();
+}
+const unreadFor = id => S.unread.filter(n => n.request_id === id);
+const noteFrom = n => n.actor_role === 'dean' ? `ملاحظة من ${H()} العميد` : 'ملاحظة من مكتب الكلية';
+function renderNotifs(){
+  const list = S.unread.filter(n => !S.dismissed.has(n.event_id));
+  const shown = list.slice(0, 3);
+  $('#notifs').innerHTML = shown.map(n => `
+    <div class="ntf" data-nreq="${n.request_id}" data-nid="${n.event_id}" ${S.popped.has(n.event_id) ? 'style="animation:none"' : ''}>
+      <div class="nh"><span class="ic"><img src="assets/logo-white.png" alt=""></span><span class="ap">بوابة الطلبات</span><span>· ${ago(n.created_at)}</span><button class="x" data-ndis="${n.event_id}" aria-label="إخفاء">×</button></div>
+      <div class="nt">📝 ${noteFrom(n)}</div>
+      <div class="ns">${esc(n.actor_name || '')} · طلب <span class="ltr">${esc(n.ref_no)}</span> — ${esc(n.student_name)}</div>
+      <div class="nb">${esc(n.note)}</div>
+      <div class="no">اضغط لفتح الطلب ←</div>
+    </div>`).join('') + (list.length > 3 ? `<div class="ntf more">و ${list.length - 3} ملاحظات أخرى — تجدها موسومة في القائمة</div>` : '');
+  shown.forEach(n => S.popped.add(n.event_id));
+  const c = S.unread.length; document.title = (c ? `(${c}) ` : '') + 'لوحة الطلبات الاستثنائية | كلية الشريعة';
+}
+$('#notifs').addEventListener('click', e => {
+  const x = e.target.closest('[data-ndis]');
+  if (x) { e.stopPropagation(); S.dismissed.add(+x.dataset.ndis); renderNotifs(); return; }
+  const c = e.target.closest('[data-nreq]'); if (!c) return;
+  const id = c.dataset.nreq;
+  if (!filtered().some(r => r.id === id)) { S.tab = 'all'; S.kpi = null; S.q = ''; $('#q').value = ''; renderKpis(); renderTabs(); }
+  openReq(id);
+});
+async function markNotesRead(id){
+  const mine = unreadFor(id); if (!mine.length) return;
+  S.freshNotes[id] = mine;
+  S.unread = S.unread.filter(n => n.request_id !== id);
+  renderNotifs(); renderList();
+  await sb.rpc('mark_notes_read', { p_request: id });
+}
+
 const canTake = r => r.status==='new' && ['admin','office'].includes(S.me?.role);
 const TAKE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 const deptText = r => r.college ? `${r.department} — ${r.college}` : r.department;
@@ -577,7 +643,7 @@ function renderList(){
   $('#list').innerHTML = rows.map(r => `
     <div class="item ${S.sel===r.id?'on':''}" data-id="${r.id}">
       <div class="nm">${esc(r.student_name)}</div>
-      <div><span class="pill ${pillClass(r)}">${statusLabel(r)}</span></div>
+      <div><span class="pill ${pillClass(r)}">${statusLabel(r)}</span>${unreadFor(r.id).length ? ` <span class="tag nnote">📝 ملاحظة جديدة</span>` : ''}</div>
       <div class="sm">${esc(r.summary)}</div>
       <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>${r.college ? `<span class="tag" style="background:var(--warn-soft);color:var(--warn)">${esc(r.college)}</span>` : ''}·${replied(r) ? '<span class="tag rep">↩ استكمل الطالب</span>' : ''}<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
       ${r.dean_decision ? `<div class="dsum ds-${r.dean_decision}">
@@ -610,6 +676,8 @@ $('#list').addEventListener('click', async e => {
 async function openReq(id){
   S.sel = id; renderList();
   const r = S.rows.find(x => x.id === id); if (!r) return;
+  Object.keys(S.freshNotes).forEach(k => { if (k !== id) delete S.freshNotes[k]; });
+  markNotesRead(id);
   renderDetail(r);
 }
 async function fetchExtras(r){
@@ -695,6 +763,7 @@ async function renderDetail(r, keepScroll){
       <span class="sp"></span><small style="color:var(--muted)">قُدّم ${hijri(r.created_at)}</small>
     </div>
     <div class="d-body">
+      ${(S.freshNotes[r.id] || []).length ? `<div class="newnote"><h4>📝 ${S.freshNotes[r.id].length > 1 ? 'ملاحظات جديدة' : 'ملاحظة جديدة'}</h4>${S.freshNotes[r.id].slice().reverse().map(n => `<div class="it"><div class="by">${esc(n.actor_name||'')} · ${hijri(n.created_at)} · ${time(n.created_at)}</div><div class="tx">${esc(n.note)}</div></div>`).join('')}</div>` : ''}
       ${office && r.status==='needs_info' ? `<div class="waitst"><span><b>الطلب لدى الطالب للاستكمال.</b> عند إرسال الطالب للاستكمال يعود تلقائياً إلى «تحتاج إجراء» ويصلكم تنبيه.</span><button class="btn line" data-a="cancelinfo" type="button">إلغاء طلب الاستكمال</button></div>` : ''}
       ${office && r.status==='at_dean' ? `<div class="atdean">الطلب لدى ${H()} العميد للتوجيه، ولا يمكن تعديله من المكتب. إن احتاج استكمالاً فسيعيده ${H()} العميد إلى المكتب.</div>` : ''}
       ${office && r.status==='new' ? `<div class="recv"><div><b>لم يُستلم هذا الطلب بعد</b><span>استلمه أولاً لتتمكن من مراجعته ورفعه لـ${H()} العميد.</span></div><button class="btn take" data-a="take" type="button">${TAKE_ICON}استلام الطلب</button></div>` : ''}
@@ -914,6 +983,10 @@ async function printForm(r){
     catch { return { ...f, plink: f.url }; }
   }));
   const hon = H();
+  // صاحب المرئيات: من رفع الطلب للعميد (آخر رفع)، وإلا مستلم الطلب — باسمه الرسمي من الحسابات
+  const fwd = (S.cache[r.id]?.events || []).filter(e => e.action==='forward' && e.actor).pop();
+  const pick = id => { const p = S.people[id]; return p && p.role !== 'admin' ? p.full_name : ''; };
+  const staffName = (fwd && pick(fwd.actor)) || pick(r.assigned_to);
   const dir = r.dean_decision ? `
       <div class="dc ${r.dean_decision}">${DECISION[r.dean_decision]}</div>
       ${r.referred_to ? `<div class="refl">ويُحال إلى: <b>${esc(r.referred_to)}</b></div>` : ''}
@@ -948,7 +1021,7 @@ async function printForm(r){
       <tr><th>الجوال</th><td class="ltr">${esc(r.mobile)}</td><th>البريد الجامعي</th><td class="ltr">${esc(r.student_email||'')}</td></tr>
     </table>
     ${(S.cache[r.id]?.events || []).filter(e => e.action==='completed' && e.note).map(e => `<div class="blk"><h4>استكمال الطالب (${hijri(e.created_at)})</h4><div>${esc(e.note)}</div></div>`).join('')}
-    ${r.office_note ? `<div class="blk"><h4>مرئيات مكتب الكلية</h4><div>${esc(r.office_note)}</div></div>` : ''}
+    ${r.office_note ? `<div class="blk"><h4>مرئيات الموظف${staffName ? `: <span class="stf">${esc(staffName)}</span>` : ''}</h4><div>${esc(r.office_note)}</div></div>` : ''}
     <div class="dir"><div class="hd">توجيه ${hon} عميد الكلية</div>${dir}</div>
     <div class="stamp"><span>${r.decided_at ? `اعتُمد التوجيه إلكترونياً عبر بوابة الطلبات الاستثنائية بتاريخ ${hijri(r.decided_at)} الساعة ${time(r.decided_at)}` : 'بوابة الطلبات الاستثنائية — كلية الشريعة'}</span><span class="ltr">${esc(r.ref_no)}</span></div>
   </div>`;

@@ -346,3 +346,6 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 
 -- p8_needs_info_flow: req_cancel_info(p_id) — يعيد الطلب من «بانتظار استكمال» إلى «قيد المراجعة»؛
 --   req_forward صار من in_review فقط (لا رفع للعميد والطلب لدى الطالب)
+
+-- p9_note_reads: جدول note_reads + my_unread_notes() + mark_notes_read(p_request)
+--   إشعارات الملاحظات الداخلية: كل مستخدم يرى ملاحظات غيره غير المقروءة (آخر 30 يوماً)
