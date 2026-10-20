@@ -525,15 +525,17 @@ $('#kpis').addEventListener('click', e => {
 
 let TABS = [];
 function buildTabs(){
-  const dean = S.me.role === 'dean';
-  TABS = [
-    { id:'action', l: dean ? 'بانتظار توجيهك' : 'تحتاج إجراء', f: dean ? (r => r.status==='at_dean') : (r => ['new','in_review','needs_info'].includes(r.status) || decidedNotClosed(r)) },
-    { id:'dean',   l:'لدى العميد', f:r => r.status==='at_dean' },
-    { id:'done',   l:'صدر التوجيه', f:r => decidedNotClosed(r) || r.status==='closed' },
-    { id:'closed', l:'المغلقة والمسحوبة', f:r => ['closed','withdrawn'].includes(r.status) },
-    { id:'all',    l:'الكل', f:() => true },
+  // كل طلب في تبويب واحد فقط بحسب «ما المطلوب مني؟»، مع «الكل» للعرض الشامل
+  TABS = S.me.role === 'dean' ? [
+    { id:'action', l:'بانتظار توجيهك',     f:r => r.status==='at_dean' },
+    { id:'done',   l:'التوجيهات الصادرة', f:r => !!r.dean_decision },
+    { id:'all',    l:'الكل',               f:() => true },
+  ] : [
+    { id:'action', l:'تحتاج إجراء', f:r => ['new','in_review','needs_info'].includes(r.status) || decidedNotClosed(r) },
+    { id:'dean',   l:'لدى العميد',  f:r => r.status==='at_dean' },
+    { id:'closed', l:'المكتملة',    f:r => ['closed','withdrawn'].includes(r.status) },
+    { id:'all',    l:'الكل',        f:() => true },
   ];
-  if (dean) TABS.splice(1,1);
   S.tab = 'action';
 }
 function renderTabs(){
