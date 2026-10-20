@@ -352,3 +352,5 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 
 -- p10: track_request يخفي التوجيه عن الطالب حتى إقفال الطلب
 -- p11: قيود: الجوال ^05[0-9]{8}$ والرقم الجامعي ^[0-9]{9}$ (NOT VALID — لا تمس الطلبات السابقة)
+
+-- p12: track_request يعيد referred_to و closed_at بعد الإقفال (لصندوق «نتيجة طلبك»)

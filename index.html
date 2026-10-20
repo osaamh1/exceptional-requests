@@ -214,6 +214,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 .prog{display:flex;align-items:flex-start;margin:20px 0 6px}
 .prog .st{width:72px}
 .prog .st span{white-space:normal;line-height:1.4}
+.result{display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 18px;margin:16px 0 4px;border:1.5px solid}
+.result .ri{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:19px;flex:none}
+.result small{color:var(--muted);font-size:12.5px}
+.result h3{margin:2px 0 4px;font-size:18px}
+.result p{margin:0;font-size:14.5px;line-height:1.8}
+.result .rd{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.r-ok{background:var(--ok-soft);border-color:#bfe0cf}.r-ok .ri{background:var(--ok)}.r-ok h3{color:var(--ok)}
+.r-bad{background:var(--bad-soft);border-color:#f0c9c0}.r-bad .ri{background:var(--bad)}.r-bad h3{color:var(--bad)}
+.r-warn{background:#fbf1df;border-color:#efd6a6}.r-warn .ri{background:#a86a12}.r-warn h3{color:#8a560c}
 .msg{white-space:pre-wrap;border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px;border-inline-start:4px solid var(--gold);background:var(--gold-soft)}
 .msg b{display:block;margin-bottom:2px;color:#0c6a69}
 .act-box{border:1.5px solid #efd7ad;background:#fffdf8;border-radius:14px;padding:14px;margin:14px 0}
@@ -1025,6 +1034,22 @@ function normalizeLookup(raw){
 const T = { ref:null, l4:null, files:[] };
 // روابط https داخل رسالة المكتب تصبح قابلة للضغط (النص مُهرَّب مسبقاً)
 const linkify = t => t.replace(/https:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--green);font-weight:700;word-break:break-all">${u.length > 45 ? 'صفحة المتابعة ↗' : u}</a>`);
+// داخل المنصة لا داعي لعبارة «يرجى الاستعلام في المنصة + الرابط» (الطالب في صفحة المتابعة أصلاً)
+const cleanMsg = m => String(m || '').replace(/(صدر توجيه بشأن طلبك)?[،,]?\s*يرجى الاستعلام عن الطلب في المنصة:?\s*https?:\/\/\S+/g, '').replace(/^\s*[•\-]\s*$/gm,'').replace(/\n{2,}/g,'\n').trim();
+function resultBox(r){
+  const D = {
+    approved: { t:'تمت الموافقة على طلبك', c:'ok', i:'✓' },
+    rejected: { t:'لم تتم الموافقة على طلبك', c:'bad', i:'✕' },
+    reserved: { t:'صدر توجيه بشأن طلبك', c:'warn', i:'!' },
+  }[r.decision];
+  const next = r.decision === 'reserved' ? 'يُرجى مراجعة مكتب الكلية للاطلاع على تفاصيل التوجيه.'
+    : r.referred_to ? `أُحيل طلبك إلى <b>${esc(r.referred_to)}</b> لاستكمال الإجراء${r.decision==='approved' ? '، وسيتم التواصل معك عند الحاجة' : ''}.`
+    : r.decision === 'approved' ? 'سيتولى مكتب الكلية استكمال الإجراء اللازم.' : '';
+  return `<div class="result r-${D.c}"><div class="ri">${D.i}</div><div>
+    <small>نتيجة طلبك · توجيه سعادة عميد الكلية</small>
+    <h3>${D.t}</h3>${next ? `<p>${next}</p>` : ''}
+    ${r.closed_at ? `<span class="rd">أُقفل الطلب في ${fmtDate(r.closed_at)}</span>` : ''}</div></div>`;
+}
 function completionBox(){
   return `<div class="act-box" id="cmpBox">
     <h3>استكمال الطلب</h3>
@@ -1123,8 +1148,8 @@ async function doTrack(){
       <div class="res-head"><span class="num">${esc(r.ref_no)}</span><span class="pill t-${s.tone}">${s.label}</span></div>
       <p class="sum">${LABELS.category[r.category]||''} — ${esc(r.summary||'')}</p>
       ${s.stage >= 0 ? `<div class="prog">${prog}</div>` : ''}
-      <p class="lead" style="margin:10px 0 0">${s.hint}</p>
-      ${r.student_message ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${linkify(esc(r.student_message))}</div>` : ''}
+      ${r.status === 'closed' && r.decision ? resultBox(r) : `<p class="lead" style="margin:10px 0 0">${s.hint}</p>`}
+      ${cleanMsg(r.student_message) ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${linkify(esc(cleanMsg(r.student_message)))}</div>` : ''}
       ${r.status === 'needs_info' ? completionBox() : ''}
       <ul class="tl">${ev}</ul>
       ${r.status === 'new' ? `<button class="wd-link" type="button" id="wdOpen">أرغب في سحب هذا الطلب</button><div id="wdSlot"></div>` : ''}`;
