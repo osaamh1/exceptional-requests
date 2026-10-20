@@ -493,7 +493,7 @@ function renderKpis(){
 }
 $('#kpis').addEventListener('click', e => {
   const b = e.target.closest('[data-k]'); if (!b) return;
-  S.kpi = S.kpi === b.dataset.k ? null : b.dataset.k; renderKpis(); renderList();
+  S.kpi = S.kpi === b.dataset.k ? null : b.dataset.k; renderKpis(); renderList(); closeIfHidden();
 });
 
 let TABS = [];
@@ -512,8 +512,12 @@ function buildTabs(){
 function renderTabs(){
   $('#tabs').innerHTML = TABS.map(t => `<button class="tab ${S.tab===t.id?'on':''}" data-t="${t.id}">${t.l}<span class="n">${S.rows.filter(t.f).length}</span></button>`).join('');
 }
-$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; S.tab = b.dataset.t; S.kpi = null; renderKpis(); renderTabs(); renderList(); });
-$('#q').addEventListener('input', e => { S.q = e.target.value.trim(); renderList(); });
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; S.tab = b.dataset.t; S.kpi = null; renderKpis(); renderTabs(); renderList(); closeIfHidden(); });
+$('#q').addEventListener('input', e => { S.q = e.target.value.trim(); renderList(); closeIfHidden(); });
+// عند تغيير التبويب أو البحث: تُغلق تفاصيل الطلب المفتوح إن لم يعد ضمن القائمة المعروضة
+function closeIfHidden(){
+  if (S.sel && !filtered().some(r => r.id === S.sel)) { S.sel = null; $('#detail').hidden = true; renderList(); }
+}
 
 /* ================= LIST ================= */
 function filtered(){
@@ -621,8 +625,8 @@ async function renderDetail(r, keepScroll){
 
   const acts = [];
   // الاستلام أولاً: لا رفع للعميد ولا طلب استكمال قبل أن يستلم الموظف الطلب
-  if (office && ['in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
   if (office && ['in_review','at_dean'].includes(r.status)) acts.push(`<button class="btn warn" data-a="info">طلب استكمال من الطالب</button>`);
+  if (office && ['in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
   if (office && decidedNotClosed(r)) acts.push(`<button class="btn teal" data-a="close">إقفال الطلب</button>`);
   if (office && r.status==='closed') acts.push(`<button class="btn line" data-a="info2">تعديل رقم إنجاز / رسالة الطالب</button>`);
   acts.push(`<button class="btn line" data-a="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة النموذج</button>`);
