@@ -209,13 +209,18 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .direct .row2{display:grid;grid-template-columns:1fr;gap:10px}
 
 /* timeline */
-.tl{list-style:none;margin:0;padding:0;position:relative}
-.tl::before{content:"";position:absolute;right:6px;top:6px;bottom:6px;width:2px;background:var(--line)}
-.tl li{position:relative;padding:0 24px 12px 0;font-size:13.5px}
-.tl li::before{content:"";position:absolute;right:1px;top:6px;width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--navy-2)}
-.tl li.n::before{border-color:#b9c3d3}
-.tl small{color:var(--muted);font-size:12px}
-.tl q{display:block;quotes:none;background:#f8f9fc;border-radius:8px;padding:5px 9px;margin-top:3px;font-size:13px;white-space:pre-wrap}
+.tl{list-style:none;margin:6px 0 0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;right:7px;top:10px;bottom:14px;width:2px;background:#e6eaf1}
+.tl li{position:relative;padding:0 30px 18px 0}
+.tl li:last-child{padding-bottom:4px}
+.tl li::before{content:"";position:absolute;right:1px;top:5px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--dot,var(--navy-2));box-sizing:border-box}
+.tl li.n::before{border-style:dashed;--dot:#9aa5b8}
+.tl .tl-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tl .tl-h b{font-size:14px;font-weight:700;color:var(--ink)}
+.tl .tl-h .pill{font-size:11.5px;flex-shrink:0}
+.tl .tl-m{color:var(--muted);font-size:12px;margin-top:2px}
+.tl .tl-m .int{background:#eef1f6;color:#5b6475;border-radius:6px;padding:1px 7px;margin-inline-start:6px;font-size:11px}
+.tl q{display:block;quotes:none;background:#f8f9fc;border-inline-start:3px solid var(--dot,var(--navy-2));border-radius:8px;padding:8px 12px;margin-top:8px;font-size:13px;line-height:1.8;white-space:pre-wrap;color:#2a3140}
 
 /* modal */
 .mod{position:fixed;inset:0;background:rgba(10,24,52,.5);backdrop-filter:blur(2px);display:none;place-items:center;z-index:60;padding:16px}
@@ -389,6 +394,8 @@ const PHRASES = {
               rejected:'نعتذر، لم تتم الموافقة على طلبك.',
               reserved:'صدر توجيه بشأن طلبك، يرجى الاستعلام عن الطلب في المنصة: ' + STUDENT_TRACK_URL },
 };
+const DOT = { new:'var(--info)', submitted:'var(--info)', in_review:'var(--navy-2)', needs_info:'var(--warn)', at_dean:'var(--violet)',
+  approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', referred:'var(--teal)', closed:'var(--teal)', withdrawn:'#9aa5b8', note:'#9aa5b8' };
 const EVENT = {
   submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب', info_cancel:'أُلغي طلب الاستكمال وعاد للمراجعة',
   forward:'رُفع إلى العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
@@ -638,8 +645,15 @@ async function renderDetail(r, keepScroll){
       return `<a class="file" href="${esc(f.url||'#')}" target="_blank" rel="noopener"><div class="th">${img ? `<img src="${esc(f.url)}" alt="">` : esc((f.name.split('.').pop()||'').toUpperCase())}</div><div class="fn">${esc(f.name)}</div>${f.stage==='completion' ? '<span class="stg">مرفق استكمال</span>' : ''}</a>`;
     }).join('')}</div>` : '<div class="txt" style="color:var(--muted)">لا توجد مرفقات</div>';
 
-  const tl = events.map(e => `<li class="${e.is_public?'':'n'}"><b>${EVENT[e.action]||e.action}</b>${e.to_status && e.action!=='submitted' ? ` ← <span class="pill t-${e.to_status}">${STATUS[e.to_status]?.l||e.to_status}</span>`:''}
-      <small> · ${hijri(e.created_at)} ${time(e.created_at)}${e.actor ? ' · ' + esc(who(e.actor)) : ''}</small>${e.note ? `<q>${esc(e.note)}</q>` : ''}</li>`).join('');
+  const tl = events.map(e => {
+    const dot = DOT[e.to_status] || DOT[e.action] || 'var(--navy-2)';
+    const pill = e.to_status && e.action!=='submitted' ? `<span class="pill t-${e.to_status}">${STATUS[e.to_status]?.l||e.to_status}</span>` : '';
+    const by = e.actor ? esc(who(e.actor)) : (e.action==='submitted' || e.action==='completed' ? 'الطالب' : '');
+    return `<li class="${e.is_public?'':'n'}" style="--dot:${dot}">
+      <div class="tl-h"><b>${EVENT[e.action]||e.action}</b>${pill}</div>
+      <div class="tl-m">${by ? by + ' · ' : ''}${hijri(e.created_at)} · ${time(e.created_at)}${e.is_public ? '' : '<span class="int">داخلية</span>'}</div>
+      ${e.note ? `<q>${esc(e.note)}</q>` : ''}</li>`;
+  }).join('');
 
   const deanBox = r.dean_decision ? `<div class="box dean"><div class="dc">${DECISION[r.dean_decision]}</div>
       ${r.referred_to ? `<div>ويُحال إلى: <b>${esc(r.referred_to)}</b></div>` : ''}
