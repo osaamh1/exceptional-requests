@@ -115,6 +115,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .q i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:13px;font-family:"IBM Plex Sans Arabic",sans-serif;flex:none}
 .q em{color:var(--bad);font-style:normal}
 .hint.cnt{justify-content:flex-end;opacity:.75}
+.reasons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:600px){.reasons{grid-template-columns:repeat(2,1fr)}}
+.reasons button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px 8px;min-height:92px;text-align:center;border:1.5px solid var(--line);background:#fafbfd;border-radius:14px;font-weight:600;font-size:14px;line-height:1.5;cursor:pointer;transition:.15s}
+.reasons button svg{width:26px;height:26px;color:var(--gold)}
+.reasons button:hover{border-color:#c4cede}
+.reasons button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+.reasons button.on svg{color:var(--green)}
+.f.bad .reasons{border-radius:14px;outline:1.5px solid var(--bad);outline-offset:4px}
 .seg button.on,.chips button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{font-weight:500;font-size:14.5px}
@@ -366,11 +374,11 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
           </div>
           <div class="f full qf" data-f="bypass_reason">
             <span class="q"><i>3</i>سبب عدم تقديمه عبر النظام الإلكتروني <em>*</em></span>
-            <div class="chips" data-group="bypass_reason">
-              <button type="button" data-v="deadline">انتهاء المدة المحددة</button>
-              <button type="button" data-v="unavailable">الطلب غير متاح في النظام</button>
-              <button type="button" data-v="technical">تعذّر تقني</button>
-              <button type="button" data-v="other">سبب آخر</button>
+            <div class="reasons" data-group="bypass_reason">
+              <button type="button" data-v="deadline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12"/><path d="M6 22h12"/><path d="M7 2v4a5 5 0 0 0 5 5 5 5 0 0 0 5-5V2"/><path d="M7 22v-4a5 5 0 0 1 5-5 5 5 0 0 1 5 5v4"/><path d="M9.5 19.5h5"/></svg><span>انتهاء المدة المحددة</span></button>
+              <button type="button" data-v="unavailable"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8"/><path d="M12 16v5"/><path d="m10 8 4 4"/><path d="m14 8-4 4"/></svg><span>الطلب غير متاح في النظام</span></button>
+              <button type="button" data-v="technical"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>تعذّر تقني</span></button>
+              <button type="button" data-v="other"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/></svg><span>سبب آخر</span></button>
             </div>
             <div class="err">اختر السبب.</div>
           </div>
