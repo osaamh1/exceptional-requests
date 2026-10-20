@@ -231,7 +231,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .tl::before{content:"";position:absolute;right:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
 .tl li{position:relative;padding:0 26px 14px 0;font-size:14px}
 .tl li::before{content:"";position:absolute;right:2px;top:7px;width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--green-2)}
-.tl li:last-child::before{background:var(--green-2)}
+.tl li:first-child::before{background:var(--green-2);box-shadow:0 0 0 4px rgba(17,144,143,.18)}
+.tl li:first-child b{color:var(--green-2)}
+.tl li:not(:first-child){opacity:.78}
 .tl small{display:block;color:var(--muted);font-size:12.5px}
 .empty{text-align:center;color:var(--muted);padding:18px;font-size:14.5px}
 
@@ -1111,7 +1113,7 @@ async function doTrack(){
       const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
       return `${i?`<div class="bar ${i<=s.stage?'done':''}"><i></i></div>`:''}<div class="st ${cls}"><div class="dot">${i < s.stage || (i===3&&s.stage===3) ? '✓' : i+1}</div><span>${i===s.stage && s.stage<3 ? s.label : n}</span></div>`;
     }).join('');
-    const EV = { submitted:'تم تقديم الطلب', completed:'أرسلتَ الاستكمال', withdrawn:'سحبتَ الطلب', info_request:'طُلب منك استكمال الطلب' };
+    const EV = { submitted:'تم تقديم الطلب', take:'استلم مكتب الكلية طلبك وبدأ مراجعته', forward:'رفع المكتب طلبك إلى سعادة العميد للتوجيه', return:'أعاد سعادة العميد الطلب للمكتب لاستكمال المراجعة', completed:'أرسلتَ الاستكمال', withdrawn:'سحبتَ الطلب', info_request:'طُلب منك استكمال الطلب', info_cancel:'عاد طلبك للمراجعة' };
     const ev = (r.events||[]).slice().reverse().map(e => {
       const CL = { approved:'صدر التوجيه بالموافقة وأُقفل الطلب', rejected:'صدر التوجيه بعدم الموافقة وأُقفل الطلب' };
       const t = e.action==='close' ? (CL[r.decision] || 'صدر التوجيه وأُقفل الطلب') : (EV[e.action] || (STATUS[e.to_status]?.label || 'تحديث'));
