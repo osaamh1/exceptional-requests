@@ -254,7 +254,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .pf .ph .t{text-align:center}
 .pf .ph .t h1{font-size:17pt;font-weight:800;color:var(--navy);line-height:1.5}
 .pf .ph .t div{font-size:10pt;color:#5b6475;font-weight:500}
-.pf .ph .meta{font-size:10pt;text-align:left;line-height:1.9}
+.pf .ph .meta{font-size:8.5pt;text-align:left;line-height:1.8;justify-self:end;align-self:start;padding-top:4px}
 .pf .ph .meta div{white-space:nowrap;color:#5b6475}
 .pf .ph .meta b{color:#1a1f2b;font-weight:700}
 .pf .acc{height:3px;background:linear-gradient(90deg,transparent,var(--teal),transparent);margin:2px 0 20px}
@@ -264,7 +264,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .pf .intro b{font-weight:700}
 .pf .sec-t{font-size:12pt;font-weight:800;color:var(--navy);margin:18px 0 8px;padding-bottom:4px;border-bottom:1.5px solid #dfe5ee}
 .pf table{width:100%;border-collapse:collapse;margin:0 0 8px;font-size:10.5pt}
-.pf th,.pf td{border:1px solid #c9d1de;padding:5px 10px;text-align:right;vertical-align:top}
+.pf th,.pf td{border:1px solid #c9d1de;padding:5px 10px;text-align:center;vertical-align:middle}
 .pf th{background:#eef2f8;color:var(--navy);width:1%;white-space:nowrap;font-weight:700}
 .pf td{font-weight:500}
 .pf .blk{margin:10px 0}
@@ -272,8 +272,8 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .pf .blk div{white-space:pre-wrap;border:1px solid #dfe5ee;border-radius:6px;padding:6px 12px;background:#fbfcfe;font-size:11pt}
 .pf .dir{margin-top:16px;border:2px solid var(--navy);border-radius:10px;padding:8px 16px 10px;page-break-inside:avoid;break-inside:avoid}
 .pf .dir .hd{color:var(--navy);font-size:12pt;font-weight:700;margin-bottom:4px}
-.pf .dir .dc{font-size:15pt;font-weight:800;margin:2px 0}
-.pf .dir .note{font-size:13pt;font-weight:800;margin:4px 0;white-space:pre-wrap}
+.pf .dir .dc{font-size:13pt;font-weight:800;margin:2px 0}
+.pf .dir .note{font-size:11.5pt;font-weight:800;margin:4px 0;white-space:pre-wrap}
 .pf .dir .approved{color:#13693f}.pf .dir .rejected{color:#a2311f}.pf .dir .reserved{color:#8a560c}
 .pf .dir .refl{font-size:11pt;font-weight:500}
 .pf .dir .refl b{font-weight:700}
@@ -281,6 +281,8 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .pf .dir .sign div{text-align:center;min-width:60mm}
 .pf .dir .sign .ti{font-size:11pt;font-weight:600}
 .pf .dir .sign .nm{font-size:12.5pt;font-weight:800;color:var(--navy)}
+.pf .flist a{color:var(--navy);text-decoration:underline;text-underline-offset:3px}
+.pf .flist .hint{font-size:8.5pt;color:#8a93a3;margin-inline-start:6px}
 .pf .dir .empty-dir{height:42mm;border:1px dashed #b9c3d3;border-radius:8px;display:grid;place-items:center;color:#999;font-size:11pt}
 .pf .stamp{font-size:8.5pt;color:#6b7383;margin-top:9px;border-top:1px dashed #ccd;padding-top:5px;display:flex;justify-content:space-between;gap:10px;font-weight:500}
 </style>
@@ -883,8 +885,14 @@ $('#btnSettings').addEventListener('click', () => {
 });
 
 /* ================= PRINT: official form ================= */
-function printForm(r){
-  const st = S.settings, files = S.cache[r.id]?.files || [];
+const LINK_DAYS = 7;
+async function printForm(r){
+  const st = S.settings;
+  // fresh signed links (valid LINK_DAYS) so attachments are clickable in the saved PDF
+  const files = await Promise.all((S.cache[r.id]?.files || []).map(async f => {
+    try { const { data } = await sb.storage.from(CONFIG.BUCKET).createSignedUrl(f.path, LINK_DAYS*86400); return { ...f, plink: data?.signedUrl }; }
+    catch { return { ...f, plink: f.url }; }
+  }));
   const hon = H();
   const dir = r.dean_decision ? `
       <div class="dc ${r.dean_decision}">${DECISION[r.dean_decision]}</div>
@@ -900,7 +908,6 @@ function printForm(r){
       <div class="meta">
         <div>رقم الطلب: <b class="ltr">${esc(r.ref_no)}</b></div>
         <div>التاريخ: <b>${hijri(r.created_at)}</b></div>
-        ${r.enjaz_no ? `<div>معاملة إنجاز: <b class="ltr">${esc(r.enjaz_no)}</b></div>` : ''}
       </div>
     </div>
     <div class="acc"></div>
@@ -908,17 +915,17 @@ function printForm(r){
     <p class="intro">أتقدّم إليكم بطلبي هذا رقم (<b class="ltr">${esc(r.ref_no)}</b>) وتاريخ (<b>${hijri(r.created_at)}</b>) وفق البيانات أدناه:</p>
     <div class="sec-t">بيانات الطلب</div>
     <table>
-      <tr><th>نوع الطلب</th><td>${CATEGORY[r.category]}</td><th>المرفقات</th><td>${files.length ? files.length + ' مرفق' : 'لا توجد'}</td></tr>
+      <tr><th>نوع الطلب</th><td>${CATEGORY[r.category]}</td><th>المرفقات</th><td>${files.length===1 ? 'مرفق واحد' : files.length===2 ? 'مرفقان' : files.length ? files.length + ' مرفقات' : 'لا توجد'}</td></tr>
       <tr><th>المطلوب</th><td colspan="3">${esc(r.summary)}</td></tr>
       <tr><th>سبب عدم التقديم إلكترونياً</th><td colspan="3">${r.bypass_reason==='other' ? esc(r.bypass_other) : BYPASS[r.bypass_reason]}</td></tr>
     </table>
     <div class="blk"><h4>المبررات والظروف</h4><div>${esc(r.justification)}</div></div>
-    ${files.length ? `<div class="blk"><h4>قائمة المرفقات</h4><div>${files.map((f,i)=>`${i+1}. ${esc(f.name)}`).join('&nbsp;&nbsp;&nbsp; ')}</div></div>` : ''}
+    ${files.length ? `<div class="blk flist"><h4>قائمة المرفقات <span class="hint">(اضغط على اسم المرفق لفتحه — الرابط صالح ${LINK_DAYS} أيام)</span></h4><div>${files.map((f,i)=>`${i+1}. ${f.plink ? `<a href="${esc(f.plink)}" target="_blank">${esc(f.name)}</a>` : esc(f.name)}`).join('&nbsp;&nbsp;&nbsp; ')}</div></div>` : ''}
     <div class="sec-t">بيانات الطالب</div>
     <table>
-      <tr><th>الاسم</th><td>${esc(r.student_name)}</td><th>الرقم الجامعي</th><td class="ltr" style="text-align:right">${esc(r.university_id)}</td></tr>
+      <tr><th>الاسم</th><td>${esc(r.student_name)}</td><th>الرقم الجامعي</th><td class="ltr">${esc(r.university_id)}</td></tr>
       <tr><th>القسم</th><td>${esc(deptText(r))}</td><th>المرحلة</th><td>${LEVEL[r.level]} (${GENDER[r.gender]})</td></tr>
-      <tr><th>الجوال</th><td class="ltr" style="text-align:right">${esc(r.mobile)}</td><th>البريد الجامعي</th><td class="ltr" style="text-align:right">${esc(r.student_email||'')}</td></tr>
+      <tr><th>الجوال</th><td class="ltr">${esc(r.mobile)}</td><th>البريد الجامعي</th><td class="ltr">${esc(r.student_email||'')}</td></tr>
     </table>
     ${(S.cache[r.id]?.events || []).filter(e => e.action==='completed' && e.note).map(e => `<div class="blk"><h4>استكمال الطالب (${hijri(e.created_at)})</h4><div>${esc(e.note)}</div></div>`).join('')}
     ${r.office_note ? `<div class="blk"><h4>مرئيات مكتب الكلية</h4><div>${esc(r.office_note)}</div></div>` : ''}
