@@ -142,6 +142,16 @@ button,input,select,textarea{font:inherit;color:inherit}
 .drop svg{width:34px;height:34px;color:var(--green-2)}
 .drop b{display:block;margin-top:6px}
 .drop small{color:var(--muted)}
+.cam{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;border:1.5px solid var(--green-2);background:#fff;color:var(--green-2);border-radius:12px;padding:12px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.cam svg{width:20px;height:20px}.cam:active{background:var(--green-soft)}
+.files .ic.th{background:#eef1f6 center/cover no-repeat;border:1px solid var(--line)}
+.files .ic.pdf{background:#fbe9e5;color:#b0412e}.files .ic.doc{background:#e7eff8;color:#2a5d8f}
+.files .x{display:flex;align-items:center;gap:4px;border:1px solid var(--line);background:#fff;color:#7a8292;border-radius:9px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer}
+.files .x:hover{border-color:#e3b3a8;color:var(--bad);background:var(--bad-soft)}
+.files .x svg{width:15px;height:15px}
+.nofiles{margin-top:14px;border:1.5px solid #efd6a6;background:#fbf1df;border-radius:14px;padding:14px 16px;animation:in .25s}
+.nofiles b{color:#8a560c}.nofiles p{margin:4px 0 10px;font-size:14px;line-height:1.8}
+.nofiles .nfb{display:flex;gap:8px;flex-wrap:wrap}
 .files{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
 .files li{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
 .files li.fresh{animation:in .25s}
@@ -416,8 +426,15 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
           <b>اسحب الملفات هنا أو اضغط للاختيار</b>
           <small>PDF، صور، Word — حتى 5 ملفات · الصور تُحسَّن تلقائياً لتُرفع أسرع</small>
         </div>
+        <button class="cam" id="camBtn" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>تصوير مستند بالكاميرا</button>
         <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.doc,.docx" hidden>
+        <input type="file" id="camInput" accept="image/*" capture="environment" hidden>
         <ul class="files" id="fileList"></ul>
+        <div class="nofiles" id="noFiles" hidden>
+          <b>لم تُرفق أي مستند</b>
+          <p>الطلبات بدون مرفقات داعمة قد يتأخر البت فيها، وقد يُطلب منك استكمالها لاحقاً. هل تريد المتابعة؟</p>
+          <div class="nfb"><button class="btn pri" type="button" id="nfAdd">أرفق الآن</button><button class="btn ghost" type="button" id="nfGo">متابعة بدون مرفقات</button></div>
+        </div>
         <div class="tips"><b>أمثلة على مرفقات داعمة:</b>
           <ul><li>تقرير طبي أو إجازة مرضية معتمدة</li><li>خطاب من جهة العمل أو جهة رسمية</li><li>لقطة شاشة لرسالة الخطأ في النظام</li><li>السجل الأكاديمي أو الجدول الدراسي</li></ul>
         </div>
@@ -823,6 +840,7 @@ $('#nextBtn').addEventListener('click', async () => {
     checking = false; $('#nextBtn').disabled = false;
     if (blocked) return;
   }
+  if (S.step === 2 && !S.files.length && !S.noFilesOk) { $('#noFiles').hidden = false; $('#noFiles').scrollIntoView({ behavior:'smooth', block:'center' }); return; }
   S.step < 3 ? go(S.step+1) : submit();
 });
 $('#prevBtn').addEventListener('click', () => go(S.step-1));
@@ -877,7 +895,7 @@ function addFiles(list){
     if (S.files.some(x => x.orig.name===f.name && x.orig.size===f.size)) continue;
 
     const entry = { id:++fileSeq, orig:f, file:f, busy:isImg };
-    S.files.push(entry);
+    S.files.push(entry); $('#noFiles').hidden = true;
     if (isImg) {
       compressImage(f)
         .then(out => { entry.file = out; })
@@ -905,9 +923,15 @@ function renderFiles(){
       meta = `<s>${fmtSize(e.orig.size)}</s> ← ${fmtSize(e.file.size)} <span class="saved">وفّرنا ${pct}%</span>`;
     } else meta = fmtSize(e.file.size);
     const fresh = !e.shown; e.shown = true;
-    return `<li class="${e.busy?'busy':''} ${fresh?'fresh':''}"><div class="ic">${e.busy ? '<i class="mini"></i>' : esc(ext)}</div>
+    const isImg = /^image\//.test(e.file.type || '') || IMG_EXT.includes(ext.toLowerCase());
+    if (isImg && !e.busy && !e.thumb) { try { e.thumb = URL.createObjectURL(e.file); } catch {} }
+    const kind = ext === 'PDF' ? 'pdf' : (ext === 'DOC' || ext === 'DOCX') ? 'doc' : '';
+    const ic = e.busy ? '<div class="ic"><i class="mini"></i></div>'
+      : e.thumb ? `<div class="ic th" style="background-image:url('${e.thumb}')"></div>`
+      : `<div class="ic ${kind}">${esc(ext)}</div>`;
+    return `<li class="${e.busy?'busy':''} ${fresh?'fresh':''}">${ic}
       <div class="nm"><div>${esc(e.orig.name)}</div><small>${meta}</small></div>
-      <button class="x" type="button" data-id="${e.id}" aria-label="حذف">${X}</button></li>`;
+      <button class="x" type="button" data-id="${e.id}" aria-label="حذف ${esc(e.orig.name)}">${X}<span>حذف</span></button></li>`;
   }).join('');
 }
 const filesBusy = () => S.files.some(e => e.busy);
@@ -915,10 +939,20 @@ const drop = $('#drop'), fi = $('#fileInput');
 drop.addEventListener('click', () => fi.click());
 drop.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); fi.click(); } });
 fi.addEventListener('change', () => { addFiles(fi.files); fi.value=''; });
+// زر الكاميرا يظهر في الأجهزة اللمسية (الجوال)
+if (matchMedia('(pointer:coarse)').matches) $('#camBtn').hidden = false;
+$('#camBtn').addEventListener('click', () => $('#camInput').click());
+$('#camInput').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) { const ext = (f.type.split('/')[1] || 'jpg').replace('jpeg','jpg'); addFiles([new File([f], `مستند-${S.files.length+1}.${ext}`, { type:f.type })]); }
+  e.target.value = '';
+});
+$('#nfAdd').addEventListener('click', () => { $('#noFiles').hidden = true; fi.click(); });
+$('#nfGo').addEventListener('click', () => { S.noFilesOk = true; $('#noFiles').hidden = true; go(3); });
 ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
 ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
 drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
-$('#fileList').addEventListener('click', e => { const b = e.target.closest('.x'); if (b) { S.files = S.files.filter(x => x.id !== +b.dataset.id); renderFiles(); } });
+$('#fileList').addEventListener('click', e => { const b = e.target.closest('.x'); if (b) { const gone = S.files.find(x => x.id === +b.dataset.id); if (gone?.thumb) URL.revokeObjectURL(gone.thumb); S.files = S.files.filter(x => x.id !== +b.dataset.id); renderFiles(); } });
 
 /* ---------------- Review ---------------- */
 function renderReview(){
@@ -991,7 +1025,7 @@ $('#goTrack').addEventListener('click', () => {
   switchTab('track'); $('#t_ref').value = S.data.university_id; $('#t_last4').value = S.data.mobile.slice(-4); doTrack();
 });
 $('#newReq').addEventListener('click', () => {
-  FIELDS.forEach(f => S.data[f] = ''); S.files = [];
+  FIELDS.forEach(f => S.data[f] = ''); S.files = []; S.noFilesOk = false;
   $$('#wizard input:not([type=checkbox]):not([type=file]), #wizard textarea, #wizard select').forEach(x => x.value='');
   $('#agree').checked = false;
   $$('.on[data-v]').forEach(b => b.classList.remove('on'));
