@@ -107,6 +107,37 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .search svg{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted)}
 
 /* list */
+.home{display:flex;flex-direction:column;gap:14px}
+.detail:not([hidden]) ~ .home{display:none}
+@media (max-width:980px){.home{display:none}}
+.hcard{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#1d4690 60%,var(--teal) 140%);color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -60px -80px auto;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero small{opacity:.8;font-size:13px}
+.hero h2{margin:2px 0 14px;font-family:"Noto Kufi Arabic";font-size:21px}
+.hero .st{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;position:relative;z-index:1}
+.hero .st .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:18px;flex:none}
+.hero .st b{display:block;font-size:15px}.hero .st span{font-size:13px;opacity:.85}
+.hero .st button{margin-inline-start:auto;background:#fff;color:var(--navy);border:0;border-radius:10px;padding:8px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.hcard h4{margin:0 0 12px;color:var(--navy);font-size:14.5px;display:flex;align-items:center;gap:8px}
+.hcard h4 small{color:var(--muted);font-weight:500;margin-inline-start:auto;font-size:12px}
+.wk{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.wk div{background:#f6f8fc;border-radius:12px;padding:12px 14px}
+.wk b{display:block;font-size:24px;color:var(--navy);font-family:"Noto Kufi Arabic";line-height:1.3}
+.wk span{font-size:12.5px;color:var(--muted)}
+.rec{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;width:100%;border:0;background:none;padding:9px 4px;border-bottom:1px solid #eef1f6;font:inherit;text-align:right;cursor:pointer;color:var(--ink)}
+.rec:last-child{border-bottom:0}.rec:hover{background:#f8fafd}
+.rec .rf{font-weight:700;color:var(--navy);font-size:13px}.rec .n{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec .a{font-size:12px;color:var(--muted)}.rec .pill{font-size:11.5px}
+.qk{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.qk button,.qk a{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid var(--line);background:#fafbfd;border-radius:12px;padding:12px;font:inherit;text-align:right;cursor:pointer;color:var(--ink);text-decoration:none}
+.qk button:hover,.qk a:hover{border-color:#b9c6dc;background:#fff}
+.qk i{font-style:normal;font-size:18px}.qk b{font-size:13.5px}.qk span{font-size:12px;color:var(--muted)}
+.hnote{font-size:12.5px;color:var(--muted);text-align:center;padding:2px 0}
+.empty2{text-align:center;padding:34px 20px;background:#fff;border-radius:var(--r);box-shadow:var(--shadow)}
+.empty2 .ei{width:58px;height:58px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;background:var(--ok-soft);color:var(--ok);font-size:26px}
+.empty2 b{display:block;font-size:15.5px;color:var(--ink)}.empty2 p{margin:4px 0 0;color:var(--muted);font-size:13.5px;line-height:1.8}
+.empty2 button{margin-top:12px}
 .layout{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:16px;align-items:start}
 @media (max-width:980px){.layout{grid-template-columns:1fr}}
 .list{display:flex;flex-direction:column;gap:8px}
@@ -436,6 +467,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
     <div class="layout">
       <div class="list" id="list"></div>
       <section class="detail" id="detail" hidden></section>
+      <section class="home" id="home"></section>
     </div>
   </main>
 
@@ -620,7 +652,7 @@ async function load(silent){
   if (error) { $('#list').innerHTML = `<div class="empty">${esc(errText(error))}</div>`; return; }
   S.rows = data || [];
   await loadNotes();
-  renderKpis(); renderTabs(); renderList();
+  renderKpis(); renderTabs(); renderList(); renderHome();
   if (S.sel) { const r = S.rows.find(x => x.id === S.sel); if (r) renderDetail(r, silent); }
 }
 /* ================= NOTES NOTIFICATIONS ================= */
@@ -663,6 +695,57 @@ async function markNotesRead(id){
   renderNotifs(); renderList();
   await sb.rpc('mark_notes_read', { p_request: id });
 }
+
+/* ================= HOME (لوحة البداية عند عدم فتح طلب) ================= */
+function emptyState(){
+  if (S.q) return `<div class="empty2"><div class="ei" style="background:#eef1f6;color:var(--muted)">🔍</div><b>لا توجد نتائج لـ«${esc(S.q)}»</b><p>جرّب الاسم أو الرقم الجامعي أو رقم الطلب.</p></div>`;
+  const dean = S.me.role === 'dean';
+  const M = {
+    action: dean ? ['لا توجد طلبات بانتظار توجيهك','ستظهر هنا الطلبات التي يرفعها مكتب الكلية لسعادتكم.'] : ['لا توجد طلبات تحتاج إجراء','كل طلب جديد يظهر هنا فور وصوله، ويصلكم تنبيه عبر تلقرام.'],
+    student: ['لا توجد طلبات لدى الطلاب','الطلبات التي يُطلب فيها استكمال تنتظر هنا حتى يرد الطالب.'],
+    dean: ['لا توجد طلبات لدى العميد','الطلبات المرفوعة للتوجيه تظهر هنا حتى يصدر فيها التوجيه.'],
+    closed: ['لا توجد طلبات مكتملة بعد','الطلبات المقفلة والمسحوبة تُحفظ هنا للرجوع إليها.'],
+    done: ['لم تصدر توجيهات بعد','التوجيهات التي تعتمدونها تُحفظ هنا للرجوع إليها.'],
+    all: ['لا توجد طلبات حتى الآن','أول طلب يقدّمه الطلاب سيظهر هنا.'],
+  }[S.kpi ? 'all' : S.tab] || ['لا توجد طلبات هنا',''];
+  return `<div class="empty2"><div class="ei">✓</div><b>${M[0]}</b><p>${M[1]}</p>${S.tab !== 'all' && S.rows.length ? '<button class="btn line" type="button" data-showall>عرض كل الطلبات</button>' : ''}</div>`;
+}
+$('#list').addEventListener('click', e => { if (e.target.closest('[data-showall]')) { S.tab='all'; S.kpi=null; renderKpis(); renderTabs(); renderList(); } }, true);
+function renderHome(){
+  const el = $('#home'); if (!el || !S.me) return;
+  const dean = S.me.role === 'dean', first = (S.me.full_name||'').split(' ')[0];
+  const hr = +new Intl.DateTimeFormat('en-US',{hour:'numeric',hour12:false,timeZone:'Asia/Riyadh'}).format(new Date());
+  const greet = hr < 12 ? 'صباح الخير' : 'مساء الخير';
+  const today = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+  const act = S.rows.filter(TABS[0].f).length;
+  const st = act
+    ? `<div class="st"><div class="ic">📥</div><div><b>${dean ? `${act} ${act===1?'طلب بانتظار توجيهك':'طلبات بانتظار توجيهك'}` : `${act} ${act===1?'طلب يحتاج إجراء':'طلبات تحتاج إجراء'}`}</b><span>اختر طلباً من القائمة لعرض تفاصيله</span></div></div>`
+    : `<div class="st"><div class="ic">✓</div><div><b>${dean ? 'لا توجد طلبات بانتظار توجيهك' : 'لا توجد طلبات تحتاج إجراء'}</b><span>أنتم على اطلاع بكل شيء — أحسنتم</span></div></div>`;
+  const wkFrom = Date.now() - 7*864e5, inWk = iso => iso && new Date(iso) > wkFrom;
+  const recent = S.rows.slice().sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at)).slice(0, 5);
+  const office = ['admin','office'].includes(S.me.role);
+  const STUDENT_URL = STUDENT_TRACK_URL.replace('#track','');
+  el.innerHTML = `
+    <div class="hcard hero"><small>${today}</small><h2>${greet}، ${esc(first)}</h2>${st}</div>
+    <div class="hcard"><h4>📅 آخر 7 أيام</h4><div class="wk">
+      <div><b>${S.rows.filter(r => inWk(r.created_at)).length}</b><span>طلبات وصلت</span></div>
+      <div><b>${S.rows.filter(r => inWk(r.decided_at)).length}</b><span>صدر فيها توجيه</span></div>
+      <div><b>${S.rows.filter(r => inWk(r.closed_at)).length}</b><span>أُقفلت</span></div></div></div>
+    ${recent.length ? `<div class="hcard"><h4>🕓 آخر التحديثات <small>اضغط لفتح الطلب</small></h4>
+      ${recent.map(r => `<button class="rec" type="button" data-hopen="${r.id}"><span class="rf ltr">${esc(r.ref_no)}</span><span class="n">${esc(r.student_name)}</span><span class="pill ${pillClass(r)}">${statusLabel(r)}</span><span class="a">${ago(r.updated_at)}</span></button>`).join('')}</div>` : ''}
+    <div class="hcard"><h4>⚡ اختصارات</h4><div class="qk">
+      <button type="button" data-hrep><i>📊</i><b>التقارير</b><span>إحصاءات وتصدير</span></button>
+      ${office ? `<button type="button" data-hcopy="${STUDENT_URL}"><i>🔗</i><b>رابط تقديم الطلبات</b><span>نسخ الرابط لإرساله للطلاب</span></button>
+      <a href="poster.html" target="_blank" rel="noopener"><i>🖨</i><b>ملصق الباركود</b><span>للطباعة والتعليق</span></a>` : `<button type="button" data-hall><i>🗂</i><b>كل الطلبات</b><span>الأرشيف الكامل</span></button>`}
+    </div></div>
+    ${office ? '<div class="hnote">🔔 تصلكم الطلبات الجديدة عبر تلقرام فور تقديمها</div>' : ''}`;
+}
+$('#home').addEventListener('click', async e => {
+  const o = e.target.closest('[data-hopen]'); if (o) { if (!filtered().some(x => x.id === o.dataset.hopen)) { S.tab='all'; S.kpi=null; renderKpis(); renderTabs(); } openReq(o.dataset.hopen); return; }
+  if (e.target.closest('[data-hrep]')) return openReport();
+  if (e.target.closest('[data-hall]')) { S.tab='all'; S.kpi=null; renderKpis(); renderTabs(); renderList(); return; }
+  const c = e.target.closest('[data-hcopy]'); if (c) { try { await navigator.clipboard.writeText(c.dataset.hcopy); toast('نُسخ الرابط ✓','ok'); } catch { toast(c.dataset.hcopy); } }
+});
 
 /* سوابق الطالب المشابهة: نفس الرقم الجامعي ونفس نوع الطلب */
 function historyBox(r){
@@ -741,7 +824,7 @@ function filtered(){
 }
 function renderList(){
   const rows = filtered();
-  if (!rows.length) { $('#list').innerHTML = '<div class="empty">لا توجد طلبات هنا 🌿</div>'; return; }
+  if (!rows.length) { $('#list').innerHTML = emptyState(); return; }
   $('#list').innerHTML = rows.map(r => `
     <div class="item ${S.sel===r.id?'on':''}" data-id="${r.id}">
       <div class="nm"><span class="lb">الاسم:</span> ${esc(r.student_name)}</div>
