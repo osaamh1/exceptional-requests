@@ -108,6 +108,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .gnd .g-f.on{background:#fbe1ec;border-color:#e58ab3;color:#b0386d;box-shadow:0 0 0 3px #fcedf3}
 .gnd .g-m.on span{color:#1f6b45}.gnd .g-f.on span{color:#9c2f60}
 .other-f{animation:in .25s ease}
+/* question headings on the request step */
+.qf{padding-top:4px}
+.qf ~ .qf{border-top:1px dashed var(--line);padding-top:18px}
+.q{display:flex!important;align-items:center;gap:9px;font-family:"Noto Kufi Arabic",sans-serif;font-size:16px!important;font-weight:700!important;color:var(--green);margin-bottom:10px!important}
+.q i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:13px;font-family:"IBM Plex Sans Arabic",sans-serif;flex:none}
+.q em{color:var(--bad);font-style:normal}
+.hint.cnt{justify-content:flex-end;opacity:.75}
 .seg button.on,.chips button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{font-weight:500;font-size:14.5px}
@@ -344,22 +351,21 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
 
       <!-- STEP 2 -->
       <div class="step" data-step="1">
-        <h2>طلبك</h2>
-        <p class="lead">كلما كان الطلب أوضح، كان البت فيه أسرع.</p>
-        <div class="grid">
-          <div class="f full" data-f="category">
-            <span class="lbl">نوع الطلب <em>*</em></span>
+        <h2>بيانات الطلب</h2>
+        <div class="grid" style="margin-top:14px">
+          <div class="f full qf" data-f="category">
+            <span class="q"><i>1</i>نوع الطلب <em>*</em></span>
             <div class="cats" id="cats"></div>
             <div class="err">اختر نوع الطلب.</div>
           </div>
-          <div class="f full" data-f="summary">
-            <label for="summary">ما المطلوب تحديداً؟ <em>*</em></label>
+          <div class="f full qf" data-f="summary">
+            <label class="q" for="summary"><i>2</i>طلبك باختصار <em>*</em></label>
             <textarea class="textarea" id="summary" maxlength="300" style="min-height:80px" placeholder="مثال: إضافة مقرر (فقه المعاملات 2) بعد انتهاء فترة الحذف والإضافة"></textarea>
-            <div class="hint"><span>سطر أو سطرين يلخّصان طلبك.</span><span id="c-summary">0 / 300</span></div>
-            <div class="err">اكتب ملخص طلبك (5 أحرف على الأقل).</div>
+            <div class="hint cnt"><span id="c-summary">0 / 300</span></div>
+            <div class="err">اكتب طلبك (5 أحرف على الأقل).</div>
           </div>
-          <div class="f full" data-f="bypass_reason">
-            <span class="lbl">لماذا لم يُقدَّم عبر النظام الإلكتروني؟ <em>*</em></span>
+          <div class="f full qf" data-f="bypass_reason">
+            <span class="q"><i>3</i>سبب عدم تقديمه عبر النظام الإلكتروني <em>*</em></span>
             <div class="chips" data-group="bypass_reason">
               <button type="button" data-v="deadline">انتهاء المدة المحددة</button>
               <button type="button" data-v="unavailable">الطلب غير متاح في النظام</button>
@@ -373,10 +379,10 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
             <input class="input" id="bypass_other" maxlength="200">
             <div class="err">وضّح السبب.</div>
           </div>
-          <div class="f full" data-f="justification">
-            <label for="justification">المبررات والظروف <em>*</em></label>
-            <textarea class="textarea" id="justification" maxlength="3000" style="min-height:150px" placeholder="اشرح ظروفك وأسباب طلبك، وأي تفاصيل تساعد على اتخاذ القرار…"></textarea>
-            <div class="hint"><span>اذكر التواريخ والوقائع إن وُجدت.</span><span id="c-justification">0 / 3000</span></div>
+          <div class="f full qf" data-f="justification">
+            <label class="q" for="justification"><i>4</i>المبررات والظروف <em>*</em></label>
+            <textarea class="textarea" id="justification" maxlength="3000" style="min-height:150px" placeholder="اشرح ظروفك وأسباب طلبك، مع ذكر التواريخ والوقائع إن وُجدت…"></textarea>
+            <div class="hint cnt"><span id="c-justification">0 / 3000</span></div>
             <div class="err">اكتب المبررات (10 أحرف على الأقل).</div>
           </div>
         </div>
@@ -905,7 +911,7 @@ function renderReview(){
       (CONFIG.EMAIL_ENABLED ? row('البريد الجامعي', `<span dir="ltr">${esc(d.university_id)}@${CONFIG.EMAIL_DOMAIN}</span>`) : '') +
       row('الجوال', `<span dir="ltr">${esc(d.mobile)}</span>`) +
       row('المرحلة والقسم', `${LABELS.gender[d.gender]} · ${LABELS.level[d.level]} · ${d.department==='other' ? `قسم ${esc(d.dept_other)} — ${esc(d.college)}` : `قسم ${esc(d.department)}`}`)) +
-    sec('طلبك', 1,
+    sec('بيانات الطلب', 1,
       row('نوع الطلب', LABELS.category[d.category]) +
       row('المطلوب', esc(d.summary)) +
       row('سبب عدم التقديم إلكترونياً', d.bypass_reason==='other' ? esc(d.bypass_other) : LABELS.bypass_reason[d.bypass_reason]) +
