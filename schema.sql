@@ -343,3 +343,6 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 --   انظر migrations: p2_* و p3_* في Supabase → Database → Migrations
 
 -- تحديث: عمود college للمتقدمين من خارج كلية الشريعة (null = كلية الشريعة) — migration p5_college_for_outside_applicants
+
+-- p8_needs_info_flow: req_cancel_info(p_id) — يعيد الطلب من «بانتظار استكمال» إلى «قيد المراجعة»؛
+--   req_forward صار من in_review فقط (لا رفع للعميد والطلب لدى الطالب)

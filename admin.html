@@ -141,6 +141,8 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .take-card svg{width:14px;height:14px}
 .take-card:hover{background:#1f9d63;border-color:#1f9d63;color:#fff;box-shadow:0 2px 8px rgba(31,157,99,.25)}
 .take-card:disabled{opacity:.6;cursor:wait}
+.waitst{background:var(--warn-soft);color:#7a4b06;border-radius:12px;padding:10px 14px;margin-top:14px;font-size:13.5px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.waitst .btn{padding:6px 12px;font-size:12.5px}
 .atdean{background:var(--violet-soft);color:#4a3d99;border-radius:12px;padding:10px 14px;margin-top:14px;font-size:13.5px}
 .recv{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#e9f7ef;border:1px solid #bfe5cf;border-radius:12px;padding:12px 14px;margin-top:14px}
 .recv div{flex:1;min-width:200px}
@@ -388,7 +390,7 @@ const PHRASES = {
               reserved:'صدر توجيه بشأن طلبك، يرجى الاستعلام عن الطلب في المنصة: ' + STUDENT_TRACK_URL },
 };
 const EVENT = {
-  submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب',
+  submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب', info_cancel:'أُلغي طلب الاستكمال وعاد للمراجعة',
   forward:'رُفع إلى العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
   close:'أُقفل الطلب', enjaz:'سُجّل رقم معاملة إنجاز', student_message:'حُدّثت الرسالة الظاهرة للطالب',
   note:'ملاحظة داخلية', reopen:'أُعيد فتح الطلب', status:'تغيّرت الحالة',
@@ -533,7 +535,8 @@ function buildTabs(){
     { id:'done',   l:'التوجيهات الصادرة', f:r => !!r.dean_decision },
     { id:'all',    l:'الكل',               f:() => true },
   ] : [
-    { id:'action', l:'تحتاج إجراء', f:r => ['new','in_review','needs_info'].includes(r.status) || decidedNotClosed(r) },
+    { id:'action', l:'تحتاج إجراء', f:r => ['new','in_review'].includes(r.status) || decidedNotClosed(r) },
+    { id:'student', l:'لدى الطالب', f:r => r.status==='needs_info' },
     { id:'dean',   l:'لدى العميد',  f:r => r.status==='at_dean' },
     { id:'closed', l:'المكتملة',    f:r => ['closed','withdrawn'].includes(r.status) },
     { id:'all',    l:'الكل',        f:() => true },
@@ -665,7 +668,7 @@ async function renderDetail(r, keepScroll){
   const acts = [];
   // الاستلام أولاً: لا رفع للعميد ولا طلب استكمال قبل أن يستلم الموظف الطلب
   if (office && r.status==='in_review') acts.push(`<button class="btn warn" data-a="info">طلب استكمال من الطالب</button>`);
-  if (office && ['in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
+  if (office && r.status==='in_review') acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
   if (office && decidedNotClosed(r)) acts.push(`<button class="btn teal" data-a="close">إقفال الطلب</button>`);
   if (office && r.status==='closed') acts.push(`<button class="btn line" data-a="info2">تعديل رقم إنجاز / رسالة الطالب</button>`);
   acts.push(`<button class="btn line" data-a="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة النموذج</button>`);
@@ -678,6 +681,7 @@ async function renderDetail(r, keepScroll){
       <span class="sp"></span><small style="color:var(--muted)">قُدّم ${hijri(r.created_at)}</small>
     </div>
     <div class="d-body">
+      ${office && r.status==='needs_info' ? `<div class="waitst"><span><b>الطلب لدى الطالب للاستكمال.</b> عند إرسال الطالب للاستكمال يعود تلقائياً إلى «تحتاج إجراء» ويصلكم تنبيه.</span><button class="btn line" data-a="cancelinfo" type="button">إلغاء طلب الاستكمال</button></div>` : ''}
       ${office && r.status==='at_dean' ? `<div class="atdean">الطلب لدى ${H()} العميد للتوجيه، ولا يمكن تعديله من المكتب. إن احتاج استكمالاً فسيعيده ${H()} العميد إلى المكتب.</div>` : ''}
       ${office && r.status==='new' ? `<div class="recv"><div><b>لم يُستلم هذا الطلب بعد</b><span>استلمه أولاً لتتمكن من مراجعته ورفعه لـ${H()} العميد.</span></div><button class="btn take" data-a="take" type="button">${TAKE_ICON}استلام الطلب</button></div>` : ''}
       <div class="sec"><h3>👤 مقدّم الطلب</h3><div class="kv">
@@ -762,6 +766,8 @@ function act(a, r){
     v => sb.rpc('req_note', { p_id:r.id, p_note:v.n }), 'أُضيفت الملاحظة');
   if (a==='reopen') return formBox('إعادة فتح الطلب', [{ id:'n', label:'سبب إعادة الفتح (يُمسح التوجيه الحالي ويعود الطلب للعميد)', area:true, required:true }], 'إعادة فتح',
     v => sb.rpc('req_reopen', { p_id:r.id, p_note:v.n }), 'أُعيد فتح الطلب');
+  if (a==='cancelinfo') return confirmBox('إلغاء طلب الاستكمال', 'سيعود الطلب إلى «قيد المراجعة» وتُحذف رسالة الاستكمال من صفحة الطالب. يُستخدم هذا إذا لم يعد الاستكمال لازماً أو تأخر الطالب في الرد.', 'إلغاء الاستكمال')
+    .then(ok => ok && run(() => sb.rpc('req_cancel_info', { p_id:r.id }), 'عاد الطلب للمراجعة'));
   if (a==='print') return printForm(r);
 }
 
