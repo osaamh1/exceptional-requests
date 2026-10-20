@@ -236,6 +236,59 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ut td,.ut th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right}
 .ut th{color:var(--muted);font-weight:600;font-size:12.5px}
 
+/* ---- التقارير ---- */
+.rbtn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:10px;height:36px;padding:0 12px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:600}
+.rbtn svg{width:18px;height:18px}.rbtn:hover{background:rgba(255,255,255,.2)}
+@media (max-width:720px){.rbtn span{display:none}.rbtn{padding:0 9px}}
+.rhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.rhead h2{margin:0;font-family:"Noto Kufi Arabic";color:var(--navy);font-size:22px}
+.rper{color:var(--muted);font-size:14px;margin-top:4px}
+.rctl{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;margin-bottom:14px}
+.rctl .chips{display:flex;flex-wrap:wrap;gap:6px}
+.rctl .chips button{border:1px solid var(--line);background:#fafbfd;border-radius:999px;padding:6px 13px;cursor:pointer;font:inherit;font-size:13px}
+.rctl .chips button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.rdates{display:flex;gap:10px}.rdates label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.rdates .input{width:auto;padding:6px 10px;font-size:14px}
+.ract{display:flex;flex-wrap:wrap;gap:8px;margin-inline-start:auto}
+.rtiles{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
+.rtile{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px}
+.rtile b{display:block;font-size:28px;color:var(--navy);font-family:"Noto Kufi Arabic";line-height:1.3}
+.rtile b.sm{font-size:18px;padding:5px 0 3px}
+.rtile span{color:var(--muted);font-size:13px}.rtile em{display:block;font-style:normal;font-size:11.5px;color:var(--teal);margin-top:2px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.rcard{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;break-inside:avoid}
+.rcard.wide{grid-column:1/-1}
+.rcard h4{margin:0 0 10px;color:var(--navy);font-size:14.5px}.rcard h4 small{color:var(--muted);font-weight:500}
+.rbar{display:grid;grid-template-columns:minmax(80px,38%) 1fr auto;gap:8px;align-items:center;font-size:13px;margin:7px 0}
+.rbar .k{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbar .tr{height:10px;background:#eef1f6;border-radius:999px;overflow:hidden;display:flex;direction:rtl;justify-content:flex-start}
+.rbar .tr i{display:block;height:100%;background:var(--navy-2);border-radius:999px}
+.rbar .v{font-weight:700;min-width:54px;text-align:left}.rbar .v small{color:var(--muted);font-weight:500}
+.stack{display:flex;gap:2px;height:16px;border-radius:999px;overflow:hidden;margin:4px 0 10px}
+.stack i{display:block}
+.lg{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13.5px}.lg span{display:flex;align-items:center;gap:6px}
+.lg i{width:10px;height:10px;border-radius:3px;display:inline-block}.lg small{color:var(--muted)}
+.rempty{color:var(--muted);font-size:13px;padding:6px 0}
+.tw{overflow-x:auto}
+.rtbl{width:100%;border-collapse:collapse;font-size:13px}
+.rtbl th{background:#f3f6fb;color:var(--navy);font-weight:700;text-align:right;padding:8px 10px;white-space:nowrap}
+.rtbl td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.rtbl tbody tr[data-open]{cursor:pointer}.rtbl tbody tr[data-open]:hover{background:#f8fafd}
+.dtx{font-weight:700}.dtx.approved{color:var(--ok)}.dtx.rejected{color:var(--bad)}.dtx.reserved{color:#a86a12}
+@media (max-width:1100px){.rtiles{grid-template-columns:repeat(3,1fr)}.rgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){.rtiles{grid-template-columns:1fr 1fr}.rgrid{grid-template-columns:1fr}.ract{margin-inline-start:0}.rhead h2{font-size:19px}}
+/* نسخة الطباعة */
+.rptdoc,.rptdoc *{font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",sans-serif}
+.rptdoc{color:#1a1f2b;font-size:10pt}
+.rptdoc .rph{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border-bottom:2px solid var(--navy);padding-bottom:10px;margin-bottom:14px}
+.rptdoc .rph img{height:52px}.rptdoc .rph h1{margin:0;font-size:16pt;color:var(--navy)}
+.rptdoc .rph div{color:#5b6475;font-size:9.5pt}.rptdoc .rpm{text-align:left;font-size:8.5pt;line-height:1.8}
+.rptdoc .rtiles{grid-template-columns:repeat(6,1fr);gap:6px}
+.rptdoc .rtile,.rptdoc .rcard{box-shadow:none;border:1px solid #dfe5ee;padding:9px 11px}
+.rptdoc .rtile b{font-size:18pt}.rptdoc .rtile b.sm{font-size:11pt}.rptdoc .rtile span{font-size:8.5pt}
+.rptdoc .rgrid{grid-template-columns:1fr 1fr;gap:8px}
+.rptdoc .rbar{font-size:9pt;margin:4px 0}.rptdoc .rtbl{font-size:8.5pt}.rptdoc .rtbl td,.rptdoc .rtbl th{padding:4px 6px;white-space:normal}
+.rptdoc .tblc{break-inside:auto}.rptdoc .rtbl tr{break-inside:avoid}
 /* إشعارات الملاحظات (بشكل إشعار الجوال) */
 #notifs{position:fixed;top:74px;left:16px;width:min(370px,calc(100% - 32px));z-index:70;display:flex;flex-direction:column;gap:10px;pointer-events:none}
 .ntf{pointer-events:auto;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-radius:18px;box-shadow:0 14px 40px rgba(18,48,107,.22),0 2px 6px rgba(18,48,107,.08);padding:12px 14px 13px;cursor:pointer;border:1px solid #e3e8f0;animation:ntfIn .45s cubic-bezier(.2,.9,.3,1.2)}
@@ -253,6 +306,15 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ntf.more{padding:8px 14px;text-align:center;font-size:12.5px;color:var(--muted);font-weight:600;animation:none}
 .tag.nnote{background:#fff1d6;color:#8a560c;font-weight:700;animation:pulseN 1.6s ease-in-out 3}
 @keyframes pulseN{50%{box-shadow:0 0 0 4px rgba(192,122,18,.18)}}
+.hist{background:#f5f7fc;border:1px solid #dfe5f1;border-radius:14px;padding:12px 14px;margin-top:14px}
+.hist h4{margin:0 0 8px;font-size:14px;color:var(--navy)}
+.hist h4 small{color:var(--muted);font-weight:500}
+.hrow{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-top:6px;cursor:pointer;font:inherit;text-align:right;color:var(--ink)}
+.hrow:hover{border-color:#b9c6dc}
+.hrow .rf{font-weight:700;color:var(--navy);font-size:13px}
+.hrow .hs{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .hd{font-size:12px;color:var(--muted)}
+@media (max-width:720px){.hrow{grid-template-columns:auto 1fr auto}.hrow .hd{display:none}}
 .newnote{background:linear-gradient(180deg,#fff8ea,#fff3dc);border:1px solid #f1d9a8;border-radius:14px;padding:12px 16px;margin-top:14px}
 .newnote h4{margin:0 0 6px;font-size:14px;color:#8a560c;display:flex;align-items:center;gap:6px}
 .newnote .it+.it{border-top:1px dashed #ecd3a0;margin-top:8px;padding-top:8px}
@@ -271,7 +333,10 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
   @page{size:A4;margin:0}
   body{background:#fff}
   body>*:not(#print){display:none!important}
-  #print{display:block;padding:10mm 14mm 8mm}
+  #print{display:block}
+  .pf{padding:10mm 14mm 8mm}
+  .pf + .pf{break-before:page}
+  .rptdoc{padding:11mm 13mm}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 /* ---- one font family (the title's font) with a clear size scale ----
@@ -353,6 +418,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
     <img src="assets/logo-white.png" alt="جامعة القصيم — كلية الشريعة">
     <div class="ttl">لوحة الطلبات الاستثنائية</div>
     <div class="sp"></div>
+    <button class="rbtn" id="btnReport" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></svg><span>التقارير</span></button>
     <div class="who"><span class="nm" id="meName"></span><span class="role" id="meRole"></span><span class="deleg" id="meDeleg" hidden>مفوَّض بالتوجيه</span></div>
     <button class="ibtn" id="btnRefresh" title="تحديث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
     <button class="ibtn" id="btnSettings" title="الإعدادات" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -360,7 +426,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
     <button class="ibtn" id="btnLogout" title="تسجيل الخروج"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
   </div></header>
 
-  <main class="app">
+  <main class="app" id="vMain">
     <div class="kpis" id="kpis"></div>
     <div class="bar">
       <div class="tabs" id="tabs"></div>
@@ -370,6 +436,26 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
       <div class="list" id="list"></div>
       <section class="detail" id="detail" hidden></section>
     </div>
+  </main>
+
+  <main class="app rpt" id="vReport" hidden>
+    <div class="rhead">
+      <div><h2>التقرير الدوري</h2><div class="rper" id="rPeriod"></div></div>
+      <button class="btn line" id="rBack" type="button">رجوع للطلبات</button>
+    </div>
+    <div class="rctl">
+      <div class="chips" id="rPresets">
+        <button type="button" data-p="month">الشهر الحالي</button><button type="button" data-p="prev">الشهر الماضي</button>
+        <button type="button" data-p="d90">آخر 90 يوماً</button><button type="button" data-p="year">العام الهجري</button><button type="button" data-p="all">كل الفترات</button>
+      </div>
+      <div class="rdates"><label>من <input class="input" type="date" id="rFrom"></label><label>إلى <input class="input" type="date" id="rTo"></label></div>
+      <div class="ract">
+        <button class="btn pri" id="rPrint" type="button">طباعة التقرير / PDF</button>
+        <button class="btn line" id="rExcel" type="button">تصدير Excel</button>
+        <button class="btn teal" id="rForms" type="button"><span>تصدير النماذج المقفلة</span></button>
+      </div>
+    </div>
+    <div id="rBody"></div>
   </main>
 </div>
 
@@ -517,6 +603,7 @@ async function boot(){
   $('#meRole').textContent = ROLES[me.role] || me.role;
   $('#meDeleg').hidden = !(S.canDirect && me.role !== 'dean');
   $('#btnSettings').hidden = !['admin','dean'].includes(me.role);
+  $('#btnReport').hidden = me.role === 'referral';
   show('vApp'); bumpIdle();
   buildTabs();
   await load();
@@ -576,6 +663,20 @@ async function markNotesRead(id){
   await sb.rpc('mark_notes_read', { p_request: id });
 }
 
+/* سوابق الطالب المشابهة: نفس الرقم الجامعي ونفس نوع الطلب */
+function historyBox(r){
+  const prev = S.rows.filter(x => x.id !== r.id && x.university_id === r.university_id && x.category === r.category && x.status !== 'withdrawn')
+    .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  if (!prev.length) return '';
+  const n = prev.length, cnt = n===1 ? 'طلب سابق مشابه' : n===2 ? 'طلبان سابقان مشابهان' : `${n} طلبات سابقة مشابهة`;
+  return `<div class="hist"><h4>🗂 للطالب ${cnt} <small>(${CATEGORY[r.category]})</small></h4>
+    ${prev.map(x => `<button class="hrow" type="button" data-open="${x.id}">
+      <span class="rf ltr">${esc(x.ref_no)}</span>
+      <span class="hs">${esc(x.summary)}</span>
+      <span class="hd">${hijri(x.created_at)}</span>
+      <span class="pill ${pillClass(x)}">${x.dean_decision ? DECISION[x.dean_decision] : statusLabel(x)}</span>
+    </button>`).join('')}</div>`;
+}
 const canTake = r => r.status==='new' && ['admin','office'].includes(S.me?.role);
 const TAKE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 const deptText = r => r.college ? `${r.department} — ${r.college}` : r.department;
@@ -764,6 +865,7 @@ async function renderDetail(r, keepScroll){
     </div>
     <div class="d-body">
       ${(S.freshNotes[r.id] || []).length ? `<div class="newnote"><h4>📝 ${S.freshNotes[r.id].length > 1 ? 'ملاحظات جديدة' : 'ملاحظة جديدة'}</h4>${S.freshNotes[r.id].slice().reverse().map(n => `<div class="it"><div class="by">${esc(n.actor_name||'')} · ${hijri(n.created_at)} · ${time(n.created_at)}</div><div class="tx">${esc(n.note)}</div></div>`).join('')}</div>` : ''}
+      ${historyBox(r)}
       ${office && r.status==='needs_info' ? `<div class="waitst"><span><b>الطلب لدى الطالب للاستكمال.</b> عند إرسال الطالب للاستكمال يعود تلقائياً إلى «تحتاج إجراء» ويصلكم تنبيه.</span><button class="btn line" data-a="cancelinfo" type="button">إلغاء طلب الاستكمال</button></div>` : ''}
       ${office && r.status==='at_dean' ? `<div class="atdean">الطلب لدى ${H()} العميد للتوجيه، ولا يمكن تعديله من المكتب. إن احتاج استكمالاً فسيعيده ${H()} العميد إلى المكتب.</div>` : ''}
       ${office && r.status==='new' ? `<div class="recv"><div><b>لم يُستلم هذا الطلب بعد</b><span>استلمه أولاً لتتمكن من مراجعته ورفعه لـ${H()} العميد.</span></div><button class="btn take" data-a="take" type="button">${TAKE_ICON}استلام الطلب</button></div>` : ''}
@@ -797,7 +899,10 @@ ${esc(r.student_message).replace(/https:\/\/\S+/g, u => `<a href="${u}" target="
 
   $('#dClose').onclick = () => { D.hidden = true; S.sel = null; renderList(); };
   D.querySelector('.d-actions').onclick = e => { const b = e.target.closest('[data-a]'); if (b) act(b.dataset.a, r); };
-  D.querySelector('.d-body').onclick = e => { const b = e.target.closest('[data-a]'); if (b) act(b.dataset.a, r); };
+  D.querySelector('.d-body').onclick = e => {
+    const o = e.target.closest('[data-open]');
+    if (o) { if (!filtered().some(x => x.id === o.dataset.open)) { S.tab='all'; S.kpi=null; S.q=''; $('#q').value=''; renderKpis(); renderTabs(); } openReq(o.dataset.open); return; }
+    const b = e.target.closest('[data-a]'); if (b) act(b.dataset.a, r); };
   if (canDecideNow) wireComposer(r);
 }
 
@@ -975,16 +1080,11 @@ $('#btnSettings').addEventListener('click', () => {
 
 /* ================= PRINT: official form ================= */
 const LINK_DAYS = 7;
-async function printForm(r){
+function formHTML(r, files, events){
   const st = S.settings;
-  // fresh signed links (valid LINK_DAYS) so attachments are clickable in the saved PDF
-  const files = await Promise.all((S.cache[r.id]?.files || []).map(async f => {
-    try { const { data } = await sb.storage.from(CONFIG.BUCKET).createSignedUrl(f.path, LINK_DAYS*86400); return { ...f, plink: data?.signedUrl }; }
-    catch { return { ...f, plink: f.url }; }
-  }));
   const hon = H();
   // صاحب المرئيات: من رفع الطلب للعميد (آخر رفع)، وإلا مستلم الطلب — باسمه الرسمي من الحسابات
-  const fwd = (S.cache[r.id]?.events || []).filter(e => e.action==='forward' && e.actor).pop();
+  const fwd = events.filter(e => e.action==='forward' && e.actor).pop();
   const pick = id => { const p = S.people[id]; return p && p.role !== 'admin' ? p.full_name : ''; };
   const staffName = (fwd && pick(fwd.actor)) || pick(r.assigned_to);
   const dir = r.dean_decision ? `
@@ -993,7 +1093,7 @@ async function printForm(r){
       ${r.dean_note ? `<div class="note ${r.dean_decision}">${esc(r.dean_note)}</div>` : ''}
       <div class="sign"><div><div class="ti">${esc(st.dean_title || 'عميد كلية الشريعة')}</div><div class="nm">${esc(deanName())}</div></div></div>`
     : `<div class="empty-dir">لم يصدر التوجيه بعد</div>`;
-  $('#print').innerHTML = `
+  return `
   <div class="pf">
     <div class="ph">
       <img src="assets/logo.png" alt="">
@@ -1020,14 +1120,161 @@ async function printForm(r){
       <tr><th>القسم</th><td>${esc(deptText(r))}</td><th>المرحلة</th><td>${LEVEL[r.level]} (${GENDER[r.gender]})</td></tr>
       <tr><th>الجوال</th><td class="ltr">${esc(r.mobile)}</td><th>البريد الجامعي</th><td class="ltr">${esc(r.student_email||'')}</td></tr>
     </table>
-    ${(S.cache[r.id]?.events || []).filter(e => e.action==='completed' && e.note).map(e => `<div class="blk"><h4>استكمال الطالب (${hijri(e.created_at)})</h4><div>${esc(e.note)}</div></div>`).join('')}
+    ${events.filter(e => e.action==='completed' && e.note).map(e => `<div class="blk"><h4>استكمال الطالب (${hijri(e.created_at)})</h4><div>${esc(e.note)}</div></div>`).join('')}
     ${r.office_note ? `<div class="blk"><h4>مرئيات الموظف${staffName ? `: <span class="stf">${esc(staffName)}</span>` : ''}</h4><div>${esc(r.office_note)}</div></div>` : ''}
     <div class="dir"><div class="hd">توجيه ${hon} عميد الكلية</div>${dir}</div>
     <div class="stamp"><span>${r.decided_at ? `اعتُمد التوجيه إلكترونياً عبر بوابة الطلبات الاستثنائية بتاريخ ${hijri(r.decided_at)} الساعة ${time(r.decided_at)}` : 'بوابة الطلبات الاستثنائية — كلية الشريعة'}</span><span class="ltr">${esc(r.ref_no)}</span></div>
   </div>`;
-  const imgs = [...$('#print').querySelectorAll('img')];
-  Promise.all(imgs.map(i => i.complete ? 1 : new Promise(res => { i.onload = i.onerror = res; }))).then(() => setTimeout(() => window.print(), 120));
 }
+async function signFiles(files){
+  if (!files.length) return files;
+  try {
+    const { data } = await sb.storage.from(CONFIG.BUCKET).createSignedUrls(files.map(f => f.path), LINK_DAYS*86400);
+    return files.map((f,i) => ({ ...f, plink: data?.[i]?.signedUrl || f.url }));
+  } catch { return files; }
+}
+function doPrint(){
+  const imgs = [...$('#print').querySelectorAll('img')];
+  Promise.all(imgs.map(i => i.complete ? 1 : new Promise(res => { i.onload = i.onerror = res; }))).then(() => setTimeout(() => window.print(), 150));
+}
+async function printForm(r){
+  // fresh signed links (valid LINK_DAYS) so attachments are clickable in the saved PDF
+  const files = await signFiles(S.cache[r.id]?.files || []);
+  $('#print').innerHTML = formHTML(r, files, S.cache[r.id]?.events || []);
+  doPrint();
+}
+
+/* ================= REPORTS ================= */
+const R = { from:null, to:null, preset:'month' };
+const hParts = d => { const o = {}; new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(d).forEach(p => o[p.type] = +p.value || o[p.type]); return o; };
+const dayStart = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+const isoDay = d => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+function hijriStart(level){ // level: 'month' | 'year'
+  let d = dayStart(new Date());
+  for (let i = 0; i < 400; i++) { const h = hParts(d); if (h.day === 1 && (level === 'month' || h.month === 1)) return d; d = new Date(d.getTime() - 864e5); }
+  return d;
+}
+function setPreset(p){
+  const today = dayStart(new Date()); R.preset = p;
+  if (p === 'month') { R.from = hijriStart('month'); R.to = today; }
+  else if (p === 'prev') { const ms = hijriStart('month'); const end = new Date(ms.getTime() - 864e5); let d = end; for (let i=0;i<32;i++){ if (hParts(d).day===1) break; d = new Date(d.getTime()-864e5); } R.from = d; R.to = end; }
+  else if (p === 'd90') { R.from = new Date(today.getTime() - 89*864e5); R.to = today; }
+  else if (p === 'year') { R.from = hijriStart('year'); R.to = today; }
+  else if (p === 'all') { const first = S.rows.reduce((m,r) => Math.min(m, +new Date(r.created_at)), Date.now()); R.from = dayStart(first); R.to = today; }
+}
+const inRange = r => { const t = new Date(r.created_at); return t >= R.from && t < new Date(R.to.getTime() + 864e5); };
+const avgDays = (rows, a, b) => { const v = rows.filter(r => r[a] && r[b]).map(r => (new Date(r[b]) - new Date(r[a])) / 864e5); return v.length ? (v.reduce((x,y)=>x+y,0)/v.length) : null; };
+const fmtDays = v => v == null ? '—' : v < 1 ? 'أقل من يوم' : `${v.toFixed(1).replace('.0','')} يوم`;
+const pct = (n, d) => d ? Math.round(n*100/d) + '%' : '—';
+
+function rptData(){
+  const rows = S.rows.filter(inRange);
+  const dec = rows.filter(r => r.dean_decision);
+  const count = (arr, key, map) => { const m = {}; arr.forEach(r => { const k = key(r); if (k) m[k] = (m[k]||0) + 1; }); return Object.entries(m).map(([k,v]) => [map ? (map[k]||k) : k, v]).sort((a,b) => b[1]-a[1]); };
+  return {
+    rows, dec,
+    tiles: [
+      { l:'إجمالي الطلبات', v: rows.length },
+      { l:'صدر فيها توجيه', v: dec.length, s: pct(dec.length, rows.length - rows.filter(r=>r.status==='withdrawn').length) + ' من الطلبات القائمة' },
+      { l:'أُقفلت', v: rows.filter(r => r.status==='closed').length },
+      { l:'ما زالت مفتوحة', v: rows.filter(r => OPEN.includes(r.status)).length },
+      { l:'متوسط المدة حتى التوجيه', v: fmtDays(avgDays(rows,'created_at','decided_at')), small:true },
+      { l:'متوسط المدة حتى الإقفال', v: fmtDays(avgDays(rows,'created_at','closed_at')), small:true },
+    ],
+    decisions: ['approved','rejected','reserved'].map(k => [k, dec.filter(r => r.dean_decision===k).length]),
+    byCat: count(rows, r => r.category, CATEGORY),
+    byDept: count(rows, r => r.college ? 'من خارج الكلية' : r.department),
+    byRef: count(dec, r => r.referred_to),
+    byLevel: count(rows, r => `${GENDER[r.gender]||''} · ${LEVEL[r.level]||''}`),
+    byBypass: count(rows, r => r.bypass_reason, BYPASS),
+    withdrawn: rows.filter(r => r.status==='withdrawn').length,
+  };
+}
+const bars = (title, list, total) => `<div class="rcard"><h4>${title}</h4>${list.length ? list.map(([k,v]) =>
+  `<div class="rbar" title="${esc(k)}: ${v}"><span class="k">${esc(k)}</span><span class="tr"><i style="width:${Math.max(3, v*100/Math.max(...list.map(x=>x[1])))}%"></i></span><span class="v">${v}<small> · ${pct(v,total)}</small></span></div>`).join('') : '<div class="rempty">لا توجد بيانات</div>'}</div>`;
+
+function rptBody(d, forPrint){
+  const decTotal = d.dec.length;
+  const DC = { approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12' };
+  return `
+    <div class="rtiles">${d.tiles.map(t => `<div class="rtile"><b class="${t.small?'sm':''}">${t.v}</b><span>${t.l}</span>${t.s ? `<em>${t.s}</em>` : ''}</div>`).join('')}</div>
+    <div class="rgrid">
+      <div class="rcard wide"><h4>توجيهات ${H()} العميد <small>(${decTotal})</small></h4>
+        ${decTotal ? `<div class="stack">${d.decisions.filter(x=>x[1]).map(([k,v]) => `<i style="flex:${v};background:${DC[k]}" title="${DECISION[k]}: ${v}"></i>`).join('')}</div>
+        <div class="lg">${d.decisions.map(([k,v]) => `<span><i style="background:${DC[k]}"></i>${DECISION[k]} <b>${v}</b> <small>(${pct(v,decTotal)})</small></span>`).join('')}</div>` : '<div class="rempty">لم يصدر توجيه في هذه الفترة</div>'}
+      </div>
+      ${bars('حسب نوع الطلب', d.byCat, d.rows.length)}
+      ${bars('حسب القسم', d.byDept, d.rows.length)}
+      ${bars('سبب عدم التقديم إلكترونياً', d.byBypass, d.rows.length)}
+      ${bars('حسب الفئة والمرحلة', d.byLevel, d.rows.length)}
+      ${bars('الإحالات', d.byRef, decTotal)}
+    </div>
+    <div class="rcard wide tblc"><h4>تفاصيل الطلبات <small>(${d.rows.length})</small></h4>
+      ${d.rows.length ? `<div class="tw"><table class="rtbl"><thead><tr><th>رقم الطلب</th><th>التاريخ</th><th>الطالب</th><th>النوع</th><th>الحالة</th><th>التوجيه</th><th>الإحالة</th><th>إنجاز</th></tr></thead><tbody>
+      ${d.rows.slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).map(r => `<tr${forPrint?'':` data-open="${r.id}"`}><td class="ltr">${esc(r.ref_no)}</td><td>${hijri(r.created_at)}</td><td>${esc(r.student_name)}</td><td>${CATEGORY[r.category]||''}</td><td>${statusLabel(r)}</td><td>${r.dean_decision ? `<span class="dtx ${r.dean_decision}">${DECISION[r.dean_decision]}</span>` : '—'}</td><td>${esc(r.referred_to||'—')}</td><td class="ltr">${esc(r.enjaz_no||'—')}</td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="rempty">لا توجد طلبات في هذه الفترة</div>'}
+    </div>`;
+}
+const periodText = () => `من ${hijri(R.from)} إلى ${hijri(R.to)}`;
+function renderReport(){
+  const d = rptData();
+  $('#rFrom').value = isoDay(R.from); $('#rTo').value = isoDay(R.to);
+  $('#rPeriod').textContent = periodText();
+  document.querySelectorAll('#rPresets [data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === R.preset));
+  $('#rBody').innerHTML = rptBody(d, false);
+  const closed = d.rows.filter(r => r.status==='closed' && r.dean_decision).length;
+  $('#rForms').disabled = !closed; $('#rForms').querySelector('span').textContent = `تصدير النماذج المقفلة (${closed})`;
+}
+function openReport(){
+  if (!R.from) setPreset('month');
+  $('#vMain').hidden = true; $('#vReport').hidden = false; window.scrollTo(0,0); renderReport();
+}
+function closeReport(){ $('#vReport').hidden = true; $('#vMain').hidden = false; }
+$('#btnReport').onclick = () => $('#vReport').hidden ? openReport() : closeReport();
+$('#rBack').onclick = closeReport;
+$('#rPresets').onclick = e => { const b = e.target.closest('[data-p]'); if (!b) return; setPreset(b.dataset.p); renderReport(); };
+['rFrom','rTo'].forEach(id => $('#'+id).onchange = () => {
+  const f = $('#rFrom').value, t = $('#rTo').value; if (!f || !t) return;
+  R.from = dayStart(f + 'T00:00'); R.to = dayStart(t + 'T00:00'); if (R.to < R.from) [R.from, R.to] = [R.to, R.from];
+  R.preset = ''; renderReport();
+});
+$('#rBody').onclick = e => { const tr = e.target.closest('[data-open]'); if (!tr) return; closeReport(); S.tab='all'; S.kpi=null; renderKpis(); renderTabs(); openReq(tr.dataset.open); };
+
+$('#rPrint').onclick = () => {
+  const d = rptData();
+  $('#print').innerHTML = `<div class="rptdoc">
+    <div class="rph"><img src="assets/logo.png" alt=""><div><h1>تقرير الطلبات الاستثنائية</h1><div>مكتب كلية الشريعة · ${periodText()}</div></div><div class="rpm">أُعدّ في ${hijri(new Date())}<br>بواسطة: ${esc(S.me.full_name||'')}</div></div>
+    ${rptBody(d, true)}
+  </div>`;
+  doPrint();
+};
+$('#rExcel').onclick = () => {
+  const d = rptData();
+  const head = ['رقم الطلب','تاريخ التقديم','الاسم','الرقم الجامعي','الفئة','المرحلة','القسم','الكلية','الجوال','نوع الطلب','المطلوب','سبب عدم التقديم إلكترونياً','الحالة','التوجيه','الإحالة','نص التوجيه','تاريخ التوجيه','تاريخ الإقفال','رقم معاملة إنجاز'];
+  const q = v => { const t = String(v ?? '').replace(/\r?\n/g,' '); return /[",;]/.test(t) ? `"${t.replace(/"/g,'""')}"` : t; };
+  const lines = [head, ...d.rows.map(r => [r.ref_no, hijri(r.created_at), r.student_name, '‎'+r.university_id, GENDER[r.gender], LEVEL[r.level], r.department, r.college||'', '‎'+r.mobile,
+    CATEGORY[r.category], r.summary, r.bypass_reason==='other' ? r.bypass_other : BYPASS[r.bypass_reason], statusLabel(r), DECISION[r.dean_decision]||'', r.referred_to||'', r.dean_note||'',
+    r.decided_at ? hijri(r.decided_at) : '', r.closed_at ? hijri(r.closed_at) : '', r.enjaz_no||''])].map(a => a.map(q).join(','));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `تقرير-الطلبات-${isoDay(R.from)}-${isoDay(R.to)}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('تم تصدير الملف ✓','ok');
+};
+$('#rForms').onclick = async () => {
+  const list = rptData().rows.filter(r => r.status==='closed' && r.dean_decision).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  if (!list.length) return;
+  const btn = $('#rForms'); btn.disabled = true; toast(`جاري تجهيز ${list.length} نموذج…`);
+  try {
+    const ids = list.map(r => r.id);
+    const [{ data: files }, { data: events }] = await Promise.all([
+      sb.from('request_files').select('*').in('request_id', ids).order('created_at'),
+      sb.from('request_events').select('*').in('request_id', ids).in('action', ['forward','completed']).order('created_at'),
+    ]);
+    const signed = await signFiles(files || []);
+    $('#print').innerHTML = list.map(r => formHTML(r, signed.filter(f => f.request_id===r.id), (events||[]).filter(e => e.request_id===r.id))).join('');
+    doPrint();
+  } finally { btn.disabled = false; }
+};
 
 boot();
 </script>

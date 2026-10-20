@@ -312,9 +312,9 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
           </div>
           <div class="f" data-f="university_id">
             <label for="university_id">الرقم الجامعي <em>*</em></label>
-            <input class="input ltr" id="university_id" inputmode="numeric" maxlength="10" placeholder="441xxxxxx">
+            <input class="input ltr" id="university_id" inputmode="numeric" maxlength="9" placeholder="441xxxxxx">
             <div class="hint" data-email hidden><span>ستصلك التحديثات على: <span class="mail" id="mailPreview">—@qu.edu.sa</span></span></div>
-            <div class="err">الرقم الجامعي غير صحيح.</div>
+            <div class="err">الرقم الجامعي يتكون من 9 أرقام.</div>
           </div>
           <div class="f" data-f="mobile">
             <label for="mobile">رقم الجوال <em>*</em></label>
@@ -653,6 +653,8 @@ function errMsg(e){
   if (m.includes('BAD_STATE')) return 'تغيّرت حالة الطلب (ربما استلمه المكتب)، حدّث صفحة المتابعة.';
   if (m.includes('NOT_FOUND')) return 'لم نجد الطلب. تأكد من البيانات.';
   if (m.includes('OPEN_REQUEST')) return 'لديك طلب قائم لم يُبتّ فيه بعد، ولا يمكن تقديم طلب جديد حتى يصدر القرار فيه. تابع طلبك من صفحة المتابعة أو راجع مكتب الكلية.';
+  if (m.includes('requests_mobile_chk')) return 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.';
+  if (m.includes('requests_uid_chk')) return 'الرقم الجامعي يتكون من 9 أرقام.';
   if (m.includes('RATE_LIMIT')) return 'وصلت للحد المسموح (3 طلبات خلال 24 ساعة). حاول لاحقاً أو راجع المكتب.';
   if (m.includes('TOO_MANY_FILES')) return `الحد الأقصى ${CONFIG.MAX_FILES} مرفقات.`;
   if (/mime|type/i.test(m)) return 'نوع أحد الملفات غير مدعوم.';
@@ -734,7 +736,7 @@ function restoreDraft(){
 /* ---------------- Validation ---------------- */
 const RULES = [
   { student_name: v => v.trim().split(/\s+/).filter(Boolean).length >= 3,
-    university_id: v => /^\d{6,10}$/.test(v),
+    university_id: v => /^\d{9}$/.test(v),
     mobile: v => /^05\d{8}$/.test(v),
     gender: v => !!v, level: v => !!v, department: v => !!v,
     college: (v,d) => d.department!=='other' || v.trim().length >= 3,

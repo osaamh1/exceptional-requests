@@ -349,3 +349,6 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 
 -- p9_note_reads: جدول note_reads + my_unread_notes() + mark_notes_read(p_request)
 --   إشعارات الملاحظات الداخلية: كل مستخدم يرى ملاحظات غيره غير المقروءة (آخر 30 يوماً)
+
+-- p10: track_request يخفي التوجيه عن الطالب حتى إقفال الطلب
+-- p11: قيود: الجوال ^05[0-9]{8}$ والرقم الجامعي ^[0-9]{9}$ (NOT VALID — لا تمس الطلبات السابقة)

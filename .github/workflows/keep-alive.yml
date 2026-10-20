@@ -1,0 +1,19 @@
+# يمنع توقف مشروع Supabase المجاني (يتوقف بعد 7 أيام بلا نشاط)
+# يرسل طلباً خفيفاً للمنصة كل 3 أيام — لا يقرأ ولا يغيّر أي بيانات
+name: keep-alive
+on:
+  schedule:
+    - cron: '17 3 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          KEY=$(curl -s https://osaamh1.github.io/exceptional-requests/index.html | grep -o "SUPABASE_ANON_KEY: '[^']*'" | cut -d"'" -f2)
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "https://nwdmnjpzkkqtksetrelk.supabase.co/rest/v1/rpc/check_open_request" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+            -d '{"p_uid":"000000000","p_mobile":"0500000000"}')
+          echo "HTTP $code"; test "$code" = "200" -o "$code" = "204"
