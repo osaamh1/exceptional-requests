@@ -45,6 +45,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .textarea{resize:vertical;min-height:84px;line-height:1.8}
 label.l{display:block;font-weight:600;font-size:13.5px;margin:0 0 5px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.picks{display:flex;flex-wrap:wrap;gap:7px}
+.pick{border:1.5px solid #d3dbe8;background:#fff;border-radius:999px;padding:5px 13px;font-size:13px;cursor:pointer;color:var(--ink);font-weight:500;transition:.12s}
+.pick:hover{border-color:var(--navy-2)}
+.pick.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.pick.on::before{content:"✓ "}
+.pick.closing{border-style:dashed}
+.pick.closing.on{background:var(--teal);border-color:var(--teal);border-style:solid}
 .chip{border:1px dashed #c7d0de;background:#fff;border-radius:999px;padding:3px 11px;font-size:12.5px;cursor:pointer;color:var(--navy-2)}
 .chip:hover{background:var(--navy-soft);border-style:solid}
 
@@ -165,7 +172,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .file .th img{width:100%;height:100%;object-fit:cover}
 .file .fn{padding:5px 8px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right}
 .box{border-radius:12px;padding:12px 14px;font-size:14.5px}
-.box.office{background:var(--navy-soft)}
+.box.office{background:var(--navy-soft);white-space:pre-wrap}
 .box.dean{background:var(--teal-soft);border-inline-start:4px solid var(--teal)}
 .box.dean .dc{font-weight:800;font-size:16px}
 .box.stu{background:var(--warn-soft)}
@@ -353,6 +360,7 @@ const PHRASES = {
   rejected: ['يُعتذر لعدم استيفاء الشروط النظامية','يُعتذر لانتهاء المدة النظامية','لا يُوافق لعدم كفاية المبررات'],
   reserved: ['للدراسة والإفادة بالمرئيات','يُعرض على مجلس القسم','يُستكمل ما يثبت العذر','للاطلاع والإفادة'],
   forward:  ['المرفقات مكتملة','الطالب لديه عذر موثق','الطلب بعد انتهاء المدة بأيام قليلة','سبق للطالب طلب مماثل','يتطلب رأي القسم المختص'],
+  forwardClosing: 'لإطلاعكم وتوجيهكم',
   info:     ['يرجى إرفاق ما يثبت العذر','يرجى توضيح المقرر المطلوب ورمزه والشعبة','يرجى مراجعة مكتب الكلية لاستكمال الطلب'],
   close:    { approved:'تمت الموافقة على طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.',
               rejected:'نعتذر، لم تتم الموافقة على طلبك.',
@@ -661,7 +669,8 @@ async function renderDetail(r, keepScroll){
       ${composer}
       ${(r.student_message || r.enjaz_no) ? `<div class="sec"><h3>📮 المتابعة</h3>
         ${r.enjaz_no ? `<div class="txt"><b>رقم معاملة إنجاز:</b> <span class="ltr">${esc(r.enjaz_no)}</span></div>` : ''}
-        ${r.student_message ? `<div class="box stu" style="margin-top:8px"><b>الرسالة الظاهرة للطالب:</b> ${esc(r.student_message)}</div>` : ''}</div>` : ''}
+        ${r.student_message ? `<div class="box stu" style="margin-top:8px;white-space:pre-wrap"><b>الرسالة الظاهرة للطالب:</b>
+${esc(r.student_message)}</div>` : ''}</div>` : ''}
       <div class="sec"><h3>🕓 السجل ${role!=='referral' ? `<button class="note-link" data-a="note" type="button">＋ ملاحظة داخلية</button>` : ''}</h3><ul class="tl">${tl}</ul></div>
     </div>
     <div class="d-actions">${acts.join('')}</div>`;
@@ -705,9 +714,9 @@ async function run(fn, okMsg){
 }
 function act(a, r){
   if (a==='take') return run(() => sb.rpc('req_take', { p_id:r.id }), 'تم الاستلام ✓');
-  if (a==='forward') return formBox(`رفع الطلب لـ${H()} العميد`, [{ id:'n', label:'مرئيات المكتب (تظهر للعميد وفي النموذج المطبوع)', area:true, chips:PHRASES.forward, value:r.office_note||'' }], 'رفع للعميد',
+  if (a==='forward') return formBox(`رفع الطلب لـ${H()} العميد`, [{ id:'n', label:'مرئيات المكتب (تظهر للعميد وفي النموذج المطبوع)', area:true, pick:true, chips:PHRASES.forward, closing:PHRASES.forwardClosing, value:r.office_note||'' }], 'رفع للعميد',
     v => sb.rpc('req_forward', { p_id:r.id, p_office_note:v.n || null }), `رُفع لـ${H()} العميد ✓`);
-  if (a==='info') return formBox('طلب استكمال من الطالب', [{ id:'m', label:'الرسالة التي ستظهر للطالب في صفحة المتابعة', area:true, required:true, chips:PHRASES.info }], 'إرسال',
+  if (a==='info') return formBox('طلب استكمال من الطالب', [{ id:'m', label:'الرسالة التي ستظهر للطالب في صفحة المتابعة', area:true, required:true, pick:true, chips:PHRASES.info }], 'إرسال',
     v => sb.rpc('req_request_info', { p_id:r.id, p_message:v.m }), 'أصبح الطلب «بانتظار استكمال»');
   if (a==='close') return formBox('إقفال الطلب', [
       { id:'e', label:'رقم معاملة إنجاز (إن وُجد)', value:r.enjaz_no||'', ltr:true },
@@ -736,15 +745,51 @@ function confirmBox(title, html, okText){
     $('#mNo').onclick = () => { closeModal(); res(false); };
   });
 }
+/* «اختيار» العبارات الجاهزة: تُحدَّد وتُلغى بالضغط، وتُحفظ كل عبارة في سطر بنقطة،
+   ثم النص الحر، ثم العبارة الختامية (إن وُجدت واختيرت) في آخر سطر */
+function splitPicked(value, chips, closing){
+  const picked = new Set(); const free = [];
+  String(value||'').split('\n').forEach(line => {
+    const t = line.trim(); if (!t) return;
+    const b = t.replace(/^•\s*/, '');
+    if (t.startsWith('•') && chips.includes(b)) picked.add(b);
+    else if (closing && t === closing) picked.add(closing);
+    else free.push(line);
+  });
+  return { picked, free: free.join('\n') };
+}
+function composePicked(picked, free, chips, closing){
+  const lines = chips.filter(c => picked.has(c)).map(c => '• ' + c);
+  if (free.trim()) lines.push(free.trim());
+  if (closing && picked.has(closing)) lines.push(closing);
+  return lines.join('\n');
+}
 function formBox(title, fields, okText, submit, okMsg){
-  modal(title, fields.map(f => `<div><label class="l" for="mf_${f.id}">${f.label}${f.required?' <span style="color:var(--bad)">*</span>':''}</label>
-      ${f.area ? `<textarea class="textarea" id="mf_${f.id}">${esc(f.value||'')}</textarea>` : `<input class="input ${f.ltr?'ltr':''}" id="mf_${f.id}" value="${esc(f.value||'')}">`}
-      ${f.chips ? `<div class="chips">${f.chips.map(c=>`<button type="button" class="chip" data-for="mf_${f.id}">${esc(c)}</button>`).join('')}</div>` : ''}</div>`).join(''),
+  const P = {};
+  fields.forEach(f => { if (f.pick) { const sp = splitPicked(f.value, f.chips, f.closing); P[f.id] = sp.picked; f._free = sp.free; } });
+  modal(title, fields.map(f => {
+    const val = f.pick ? f._free : (f.value||'');
+    const chipList = f.pick ? [...f.chips, ...(f.closing ? [f.closing] : [])] : f.chips;
+    return `<div><label class="l" for="mf_${f.id}">${f.label}${f.required?' <span style="color:var(--bad)">*</span>':''}</label>
+      ${f.pick ? `<div class="picks" data-pick="${f.id}">${chipList.map(c=>`<button type="button" class="pick ${P[f.id].has(c)?'on':''} ${c===f.closing?'closing':''}" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+        <div class="l" style="margin:10px 0 5px;font-weight:600;color:var(--muted);font-size:12.5px">${f.freeLabel || 'نص إضافي (اختياري)'}</div>` : ''}
+      ${f.area ? `<textarea class="textarea" id="mf_${f.id}" ${f.pick?'style="min-height:70px"':''}>${esc(val)}</textarea>` : `<input class="input ${f.ltr?'ltr':''}" id="mf_${f.id}" value="${esc(val)}">`}
+      ${!f.pick && f.chips ? `<div class="chips">${f.chips.map(c=>`<button type="button" class="chip" data-for="mf_${f.id}">${esc(c)}</button>`).join('')}</div>` : ''}</div>`;
+  }).join(''),
     `<button class="btn pri" id="mOk">${okText}</button><button class="btn ghost" id="mNo">إلغاء</button>`);
-  $('#modC').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; const t = $('#'+c.dataset.for); t.value = t.value.trim() ? t.value.trim() + '، ' + c.textContent : c.textContent; t.focus(); };
+  $('#modC').onclick = e => {
+    const pk = e.target.closest('.pick');
+    if (pk) { const set = P[pk.parentElement.dataset.pick]; const v = pk.dataset.v; set.has(v) ? set.delete(v) : set.add(v); pk.classList.toggle('on', set.has(v)); return; }
+    const c = e.target.closest('.chip'); if (!c) return; const t = $('#'+c.dataset.for); t.value = t.value.trim() ? t.value.trim() + '، ' + c.textContent : c.textContent; t.focus();
+  };
   $('#mNo').onclick = closeModal;
   $('#mOk').onclick = async () => {
-    const v = {}; for (const f of fields) { v[f.id] = $('#mf_'+f.id).value.trim(); if (f.required && !v[f.id]) { toast('اكتب '+f.label.split('(')[0].trim(), 'error'); return; } }
+    const v = {};
+    for (const f of fields) {
+      const raw = $('#mf_'+f.id).value.trim();
+      v[f.id] = f.pick ? composePicked(P[f.id], raw, f.chips, f.closing) : raw;
+      if (f.required && !v[f.id]) { toast(f.pick ? 'اختر عبارة أو اكتب نصاً' : 'اكتب '+f.label.split('(')[0].trim(), 'error'); return; }
+    }
     $('#mOk').disabled = true;
     const ok = await run(() => submit(v), okMsg);
     if (ok) closeModal(); else $('#mOk').disabled = false;
