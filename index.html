@@ -1019,6 +1019,8 @@ function normalizeLookup(raw){
 
 /* ---------------- استكمال الطلب / سحب الطلب (للطالب) ---------------- */
 const T = { ref:null, l4:null, files:[] };
+// روابط https داخل رسالة المكتب تصبح قابلة للضغط (النص مُهرَّب مسبقاً)
+const linkify = t => t.replace(/https:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noopener" style="color:var(--green);font-weight:700;word-break:break-all">${u.length > 45 ? 'صفحة المتابعة ↗' : u}</a>`);
 function completionBox(){
   return `<div class="act-box" id="cmpBox">
     <h3>استكمال الطلب</h3>
@@ -1115,7 +1117,7 @@ async function doTrack(){
       <p class="sum">${LABELS.category[r.category]||''} — ${esc(r.summary||'')}</p>
       ${s.stage >= 0 ? `<div class="prog">${prog}</div>` : ''}
       <p class="lead" style="margin:10px 0 0">${s.hint}</p>
-      ${r.student_message ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${esc(r.student_message)}</div>` : ''}
+      ${r.student_message ? `<div class="msg"><b>رسالة من مكتب الكلية</b>${linkify(esc(r.student_message))}</div>` : ''}
       ${r.status === 'needs_info' ? completionBox() : ''}
       <ul class="tl">${ev}</ul>
       ${r.status === 'new' ? `<button class="wd-link" type="button" id="wdOpen">أرغب في سحب هذا الطلب</button><div id="wdSlot"></div>` : ''}`;

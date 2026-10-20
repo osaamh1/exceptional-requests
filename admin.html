@@ -51,6 +51,7 @@ label.l{display:block;font-weight:600;font-size:13.5px;margin:0 0 5px}
 .pick.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .pick.on::before{content:"✓ "}
 .pick.closing{border-style:dashed}
+.pick .lnk{font-weight:700;white-space:nowrap}
 .pick.closing.on{background:var(--teal);border-color:var(--teal);border-style:solid}
 .chip{border:1px dashed #c7d0de;background:#fff;border-radius:999px;padding:3px 11px;font-size:12.5px;cursor:pointer;color:var(--navy-2)}
 .chip:hover{background:var(--navy-soft);border-style:solid}
@@ -126,6 +127,12 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .t-referred,.t-approved{background:var(--ok-soft);color:var(--ok)}
 .t-rejected{background:var(--bad-soft);color:var(--bad)}
 .t-reserved{background:var(--warn-soft);color:var(--warn)}
+/* حالات التوجيه: ممتلئة بلون القرار مع رمز، لتتميّز عن زر «استلام الطلب» */
+.pill.dec{color:#fff;border-radius:7px;padding:2px 9px;display:inline-flex;align-items:center;gap:4px}
+.pill.dec::before{font-weight:900}
+.pill.dec-approved{background:#1f8a57}.pill.dec-approved::before{content:"✓"}
+.pill.dec-rejected{background:#b8432f}.pill.dec-rejected::before{content:"✕"}
+.pill.dec-reserved{background:#c07a12}.pill.dec-reserved::before{content:"!"}
 .t-closed,.t-withdrawn{background:#eceff3;color:var(--muted)}
 .btn.take{background:#1f9d63;color:#fff;box-shadow:0 2px 8px rgba(31,157,99,.25)}
 .btn.take:hover{background:#178553}
@@ -356,6 +363,7 @@ const REFERRALS = [
   'وكيل الكلية للشؤون الطلابية','وكيل الكلية للشؤون التعليمية',
   'قسم القرآن وعلومه','قسم الفقه','قسم أصول الفقه','قسم العقيدة','قسم السنة','قسم القانون',
 ];
+const STUDENT_TRACK_URL = 'https://osaamh1.github.io/exceptional-requests/#track';
 const PHRASES = {
   approved: ['لا مانع وفق الأنظمة واللوائح','لا مانع، مع استكمال الإجراءات النظامية','لا مانع استثناءً، ولمرة واحدة','للتنفيذ وفق الأنظمة'],
   rejected: ['يُعتذر لعدم استيفاء الشروط النظامية','يُعتذر لانتهاء المدة النظامية','لا يُوافق لعدم كفاية المبررات'],
@@ -365,7 +373,7 @@ const PHRASES = {
   info:     ['يرجى إرفاق ما يثبت العذر','يرجى توضيح المقرر المطلوب ورمزه والشعبة','يرجى مراجعة مكتب الكلية لاستكمال الطلب'],
   close:    { approved:'تمت الموافقة على طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.',
               rejected:'نعتذر، لم تتم الموافقة على طلبك.',
-              reserved:'صدر توجيه بشأن طلبك، يرجى مراجعة مكتب الكلية.' },
+              reserved:'صدر توجيه بشأن طلبك، يرجى الاستعلام عن الطلب في المنصة: ' + STUDENT_TRACK_URL },
 };
 const EVENT = {
   submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب',
@@ -545,12 +553,13 @@ function renderList(){
   $('#list').innerHTML = rows.map(r => `
     <div class="item ${S.sel===r.id?'on':''}" data-id="${r.id}">
       <div class="nm">${esc(r.student_name)}</div>
-      <div><span class="pill t-${r.status}">${statusLabel(r)}</span></div>
+      <div><span class="pill ${pillClass(r)}">${statusLabel(r)}</span></div>
       <div class="sm">${esc(r.summary)}</div>
       <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>${r.college ? `<span class="tag" style="background:var(--warn-soft);color:var(--warn)">${esc(r.college)}</span>` : ''}·${replied(r) ? '<span class="tag rep">↩ استكمل الطالب</span>' : ''}<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
       ${canTake(r) ? `<div class="take-row"><button class="take-card" data-take="${r.id}" type="button">${TAKE_ICON}استلام الطلب</button></div>` : ''}
     </div>`).join('');
 }
+const pillClass = r => ['approved','rejected','reserved','referred'].includes(r.status) && r.dean_decision ? `dec dec-${r.dean_decision}` : `t-${r.status}`;
 function statusLabel(r){
   if (r.status==='referred') return 'محال · ' + (DECISION[r.dean_decision]||'');
   return STATUS[r.status]?.l || r.status;
@@ -644,7 +653,7 @@ async function renderDetail(r, keepScroll){
   D.innerHTML = `
     <div class="d-head">
       <button class="ibtn d-close" style="background:#eef1f6;color:var(--ink)" id="dClose" aria-label="رجوع"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>
-      <span class="rf ltr">${esc(r.ref_no)}</span><span class="pill t-${r.status}">${statusLabel(r)}</span>
+      <span class="rf ltr">${esc(r.ref_no)}</span><span class="pill ${pillClass(r)}">${statusLabel(r)}</span>
       <span class="sp"></span><small style="color:var(--muted)">قُدّم ${hijri(r.created_at)}</small>
     </div>
     <div class="d-body">
@@ -672,7 +681,7 @@ async function renderDetail(r, keepScroll){
       ${(r.student_message || r.enjaz_no) ? `<div class="sec"><h3>📮 المتابعة</h3>
         ${r.enjaz_no ? `<div class="txt"><b>رقم معاملة إنجاز:</b> <span class="ltr">${esc(r.enjaz_no)}</span></div>` : ''}
         ${r.student_message ? `<div class="box stu" style="margin-top:8px;white-space:pre-wrap"><b>الرسالة الظاهرة للطالب:</b>
-${esc(r.student_message)}</div>` : ''}</div>` : ''}
+${esc(r.student_message).replace(/https:\/\/\S+/g, u => `<a href="${u}" target="_blank" rel="noopener">رابط المتابعة ↗</a>`)}</div>` : ''}</div>` : ''}
       <div class="sec"><h3>🕓 السجل ${role!=='referral' ? `<button class="note-link" data-a="note" type="button">＋ ملاحظة داخلية</button>` : ''}</h3><ul class="tl">${tl}</ul></div>
     </div>
     <div class="d-actions">${acts.join('')}</div>`;
@@ -722,11 +731,11 @@ function act(a, r){
     v => sb.rpc('req_request_info', { p_id:r.id, p_message:v.m }), 'أصبح الطلب «بانتظار استكمال»');
   if (a==='close') return formBox('إقفال الطلب', [
       { id:'e', label:'رقم معاملة إنجاز (إن وُجد)', value:r.enjaz_no||'', ltr:true },
-      { id:'m', label:'الرسالة الظاهرة للطالب', area:true, value: r.student_message || PHRASES.close[r.dean_decision] || '', chips:Object.values(PHRASES.close) },
+      { id:'m', label:'الرسالة الظاهرة للطالب', area:true, pick:true, chips:Object.values(PHRASES.close), value: r.student_message || PHRASES.close[r.dean_decision] || '' },
     ], 'إقفال', v => sb.rpc('req_close', { p_id:r.id, p_enjaz_no:v.e || null, p_student_message:v.m || null }), 'أُقفل الطلب ✓');
   if (a==='info2') return formBox('رقم إنجاز ورسالة الطالب', [
       { id:'e', label:'رقم معاملة إنجاز', value:r.enjaz_no||'', ltr:true },
-      { id:'m', label:'الرسالة الظاهرة للطالب في صفحة المتابعة', area:true, value:r.student_message||'', chips:[...Object.values(PHRASES.close), ...PHRASES.info] },
+      { id:'m', label:'الرسالة الظاهرة للطالب في صفحة المتابعة', area:true, pick:true, chips:[...Object.values(PHRASES.close), ...PHRASES.info], value:r.student_message||'' },
     ], 'حفظ', v => sb.rpc('req_update_info', { p_id:r.id, p_enjaz_no:v.e || null, p_student_message:v.m || null }), 'تم الحفظ ✓');
   if (a==='note') return formBox('ملاحظة داخلية', [{ id:'n', label:'لا تظهر للطالب ولا في النموذج المطبوع', area:true, required:true }], 'حفظ',
     v => sb.rpc('req_note', { p_id:r.id, p_note:v.n }), 'أُضيفت الملاحظة');
@@ -754,14 +763,15 @@ function splitPicked(value, chips, closing){
   String(value||'').split('\n').forEach(line => {
     const t = line.trim(); if (!t) return;
     const b = t.replace(/^•\s*/, '');
-    if (t.startsWith('•') && chips.includes(b)) picked.add(b);
+    if (chips.includes(b)) picked.add(b);
     else if (closing && t === closing) picked.add(closing);
     else free.push(line);
   });
   return { picked, free: free.join('\n') };
 }
 function composePicked(picked, free, chips, closing){
-  const lines = chips.filter(c => picked.has(c)).map(c => '• ' + c);
+  const sel = chips.filter(c => picked.has(c));
+  const lines = (sel.length + (free.trim() ? 1 : 0) > 1) ? sel.map(c => '• ' + c) : sel;
   if (free.trim()) lines.push(free.trim());
   if (closing && picked.has(closing)) lines.push(closing);
   return lines.join('\n');
@@ -773,7 +783,7 @@ function formBox(title, fields, okText, submit, okMsg){
     const val = f.pick ? f._free : (f.value||'');
     const chipList = f.pick ? [...f.chips, ...(f.closing ? [f.closing] : [])] : f.chips;
     return `<div><label class="l" for="mf_${f.id}">${f.label}${f.required?' <span style="color:var(--bad)">*</span>':''}</label>
-      ${f.pick ? `<div class="picks" data-pick="${f.id}">${chipList.map(c=>`<button type="button" class="pick ${P[f.id].has(c)?'on':''} ${c===f.closing?'closing':''}" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+      ${f.pick ? `<div class="picks" data-pick="${f.id}">${chipList.map(c=>`<button type="button" class="pick ${P[f.id].has(c)?'on':''} ${c===f.closing?'closing':''}" data-v="${esc(c)}">${esc(c).replace(/https:\/\/\S+/, '<span class="lnk">🔗 رابط المتابعة</span>')}</button>`).join('')}</div>
         <div class="l" style="margin:10px 0 5px;font-weight:600;color:var(--muted);font-size:12.5px">${f.freeLabel || 'نص إضافي (اختياري)'}</div>` : ''}
       ${f.area ? `<textarea class="textarea" id="mf_${f.id}" ${f.pick?'style="min-height:70px"':''}>${esc(val)}</textarea>` : `<input class="input ${f.ltr?'ltr':''}" id="mf_${f.id}" value="${esc(val)}">`}
       ${!f.pick && f.chips ? `<div class="chips">${f.chips.map(c=>`<button type="button" class="chip" data-for="mf_${f.id}">${esc(c)}</button>`).join('')}</div>` : ''}</div>`;
