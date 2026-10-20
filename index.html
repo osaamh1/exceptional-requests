@@ -63,9 +63,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* ---------- Stepper ---------- */
 .stepper{display:flex;align-items:center;margin:2px 0 22px;counter-reset:s}
-.st{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;width:64px;text-align:center}
+.st{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;width:76px;text-align:center}
 .st .dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;border:2px solid var(--line);background:#fff;color:var(--muted);transition:.25s}
-.st span{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}
+.st span{font-size:12px;color:var(--muted);font-weight:500;line-height:1.4}
 .st.on .dot{border-color:var(--green);color:var(--green);box-shadow:0 0 0 4px var(--green-soft)}
 .st.on span{color:var(--green);font-weight:700}
 .st.done .dot{background:var(--green);border-color:var(--green);color:#fff}
@@ -99,6 +99,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 .seg{display:flex;gap:8px}
 .seg button,.chips button{border:1.5px solid var(--line);background:#fafbfd;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;transition:.15s}
 .seg button{flex:1}
+.gnd button{display:flex;align-items:center;justify-content:center;gap:9px;padding:8px 12px}
+.gnd .av{width:34px;height:34px;flex:none;border-radius:50%}
+.gnd .g-m{background:#f1faf4;border-color:#cfe9d9;color:#2e8a5b}
+.gnd .g-f{background:#fdf2f7;border-color:#f3d0e0;color:#c2477f}
+.gnd .g-m span,.gnd .g-f span{color:var(--ink)}
+.gnd .g-m.on{background:#dff3e7;border-color:#5fbf8b;color:#1f7a4c;box-shadow:0 0 0 3px #e9f7ef}
+.gnd .g-f.on{background:#fbe1ec;border-color:#e58ab3;color:#b0386d;box-shadow:0 0 0 3px #fcedf3}
+.gnd .g-m.on span{color:#1f6b45}.gnd .g-f.on span{color:#9c2f60}
+.other-f{animation:in .25s ease}
 .seg button.on,.chips button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{font-weight:500;font-size:14.5px}
@@ -270,7 +279,7 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
 
       <!-- STEP 1 -->
       <div class="step on" data-step="0">
-        <h2>بياناتك</h2>
+        <h2>البيانات الشخصية</h2>
         <p class="lead">نحتاجها للتواصل معك بخصوص الطلب. يُقبل طلب واحد قائم لكل طالب حتى يُبتّ فيه.</p>
         <div class="open-req" id="openReq" hidden>
           <div class="oi">!</div>
@@ -282,9 +291,9 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
         </div>
         <div class="grid">
           <div class="f full" data-f="student_name">
-            <label for="student_name">الاسم الرباعي <em>*</em></label>
-            <input class="input" id="student_name" autocomplete="name" placeholder="مثال: عبدالله محمد صالح العتيبي">
-            <div class="err">اكتب اسمك الثلاثي على الأقل.</div>
+            <label for="student_name">الاسم الثلاثي <em>*</em></label>
+            <input class="input" id="student_name" autocomplete="name">
+            <div class="err">اكتب اسمك الثلاثي.</div>
           </div>
           <div class="f" data-f="university_id">
             <label for="university_id">الرقم الجامعي <em>*</em></label>
@@ -300,9 +309,9 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
           </div>
           <div class="f" data-f="gender">
             <span class="lbl">مقدّم الطلب <em>*</em></span>
-            <div class="seg" data-group="gender">
-              <button type="button" data-v="male">طالب</button>
-              <button type="button" data-v="female">طالبة</button>
+            <div class="seg gnd" data-group="gender">
+              <button type="button" data-v="male" class="g-m"><svg class="av" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#fff"/><path d="M8.5 44.5c1.6-8.3 7.6-12.8 15.5-12.8s13.9 4.5 15.5 12.8" fill="#f2f6f3" stroke="currentColor" stroke-width="1.5"/><path d="M24 32v8" stroke="currentColor" stroke-width="1.3"/><path d="M11.5 34.5 13.6 18C13.9 11.4 18.3 7.6 24 7.6s10.1 3.8 10.4 10.4l2.1 16.5-6.8-4.3L24 32.3l-5.7-2.0z" fill="#fff" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><ellipse cx="24" cy="21.2" rx="5.9" ry="7" fill="#f3d3b6"/><path d="M15.3 13.1c2.5-1.7 5.4-2.5 8.7-2.5s6.2.8 8.7 2.5" fill="none" stroke="#1c2421" stroke-width="2.3" stroke-linecap="round"/><path d="M14.6 16.1c2.7-1.5 5.8-2.2 9.4-2.2s6.7.7 9.4 2.2" fill="none" stroke="#1c2421" stroke-width="2.3" stroke-linecap="round"/></svg><span>طالب</span></button>
+              <button type="button" data-v="female" class="g-f"><svg class="av" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#fff"/><path d="M8 44c1.5-8.5 8-13 16-13s14.5 4.5 16 13" fill="currentColor" opacity=".9"/><path d="M24 8c-7 0-11.5 5.3-11.5 12.5 0 5.4 2.3 9.6 5.5 12.3 2 1.6 4 2.4 6 2.4s4-.8 6-2.4c3.2-2.7 5.5-6.9 5.5-12.3C35.5 13.3 31 8 24 8z" fill="currentColor"/><ellipse cx="24" cy="21.8" rx="6.3" ry="7.4" fill="#f6d9c0"/></svg><span>طالبة</span></button>
             </div>
             <div class="err">اختر أحد الخيارين.</div>
           </div>
@@ -319,6 +328,16 @@ footer .staff{margin-inline:auto;display:flex;width:max-content}
             <label for="department">القسم <em>*</em></label>
             <select class="select" id="department"><option value="">اختر القسم…</option></select>
             <div class="err">اختر القسم.</div>
+          </div>
+          <div class="f other-f" data-f="college" id="otherCollegeWrap" hidden>
+            <label for="college">اسم الكلية <em>*</em></label>
+            <input class="input" id="college" maxlength="120" placeholder="مثال: كلية العلوم">
+            <div class="err">اكتب اسم الكلية.</div>
+          </div>
+          <div class="f other-f" data-f="dept_other" id="otherDeptWrap" hidden>
+            <label for="dept_other">القسم <em>*</em></label>
+            <input class="input" id="dept_other" maxlength="120">
+            <div class="err">اكتب اسم القسم.</div>
           </div>
         </div>
       </div>
@@ -501,7 +520,7 @@ function studentStatus(r){
   return STATUS[r.status] || STATUS.new;
 }
 const STAGES = ['تم الاستلام','قيد المراجعة','لدى العميد','صدر القرار'];
-const STEP_NAMES = ['بياناتك','طلبك','المرفقات','الإرسال'];
+const STEP_NAMES = ['البيانات الشخصية','الطلب','المرفقات','الإرسال'];
 
 /* ---------------- helpers ---------------- */
 const $ = s => document.querySelector(s);
@@ -629,11 +648,11 @@ function errMsg(e){
 }
 
 /* ---------------- State ---------------- */
-const FIELDS = ['student_name','university_id','mobile','gender','level','department','category','summary','bypass_reason','bypass_other','justification'];
+const FIELDS = ['student_name','university_id','mobile','gender','level','department','college','dept_other','category','summary','bypass_reason','bypass_other','justification'];
 const S = { step:0, data:Object.fromEntries(FIELDS.map(f=>[f,''])), files:[] };
 
 /* ---------------- Build UI ---------------- */
-$('#department').insertAdjacentHTML('beforeend', DEPARTMENTS.map(d=>`<option>${d}</option>`).join(''));
+$('#department').insertAdjacentHTML('beforeend', DEPARTMENTS.map(d=>`<option>${d}</option>`).join('') + '<option value="other">أخرى (من خارج كلية الشريعة)</option>');
 $('#cats').innerHTML = CATEGORIES.map(c => `
   <button type="button" class="cat" data-v="${c.id}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[c.id]}</svg>
@@ -645,7 +664,7 @@ if (DEMO) $('#demoNote').hidden = false;
 if (CONFIG.EMAIL_ENABLED) $$('[data-email]').forEach(el => el.hidden = false);
 
 /* text inputs */
-['student_name','university_id','mobile','department','summary','bypass_other','justification'].forEach(id => {
+['student_name','university_id','mobile','department','college','dept_other','summary','bypass_other','justification'].forEach(id => {
   const el = $('#'+id);
   el.addEventListener('input', () => {
     if (id==='university_id' || id==='mobile') el.value = toLatin(el.value).replace(/\D/g,'');
@@ -670,6 +689,11 @@ function bindChoice(container, field){
 $$('[data-group]').forEach(g => bindChoice(g, g.dataset.group));
 bindChoice($('#cats'), 'category');
 
+function toggleOther(){
+  const on = S.data.department === 'other';
+  $('#otherCollegeWrap').hidden = !on; $('#otherDeptWrap').hidden = !on;
+}
+$('#department').addEventListener('change', () => { S.data.department = $('#department').value; toggleOther(); });
 function updateMail(){
   const u = S.data.university_id;
   $('#mailPreview').textContent = `${u || '—'}@${CONFIG.EMAIL_DOMAIN}`;
@@ -683,7 +707,8 @@ function restoreDraft(){
   let any = false;
   FIELDS.forEach(f => { if (d[f]) { S.data[f] = d[f]; any = true; } });
   if (!any) return;
-  ['student_name','university_id','mobile','department','summary','bypass_other','justification'].forEach(id => { $('#'+id).value = S.data[id] || ''; });
+  ['student_name','university_id','mobile','department','college','dept_other','summary','bypass_other','justification'].forEach(id => { $('#'+id).value = S.data[id] || ''; });
+  toggleOther();
   $$('[data-group]').forEach(g => g.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v===S.data[g.dataset.group])));
   $$('#cats .cat').forEach(b => b.classList.toggle('on', b.dataset.v===S.data.category));
   $('#bypassOtherWrap').hidden = S.data.bypass_reason!=='other';
@@ -697,7 +722,9 @@ const RULES = [
   { student_name: v => v.trim().split(/\s+/).filter(Boolean).length >= 3,
     university_id: v => /^\d{6,10}$/.test(v),
     mobile: v => /^05\d{8}$/.test(v),
-    gender: v => !!v, level: v => !!v, department: v => !!v },
+    gender: v => !!v, level: v => !!v, department: v => !!v,
+    college: (v,d) => d.department!=='other' || v.trim().length >= 3,
+    dept_other: (v,d) => d.department!=='other' || v.trim().length >= 2 },
   { category: v => !!v,
     summary: v => v.trim().length >= 5,
     bypass_reason: v => !!v,
@@ -877,7 +904,7 @@ function renderReview(){
       row('الرقم الجامعي', `<span dir="ltr">${esc(d.university_id)}</span>`) +
       (CONFIG.EMAIL_ENABLED ? row('البريد الجامعي', `<span dir="ltr">${esc(d.university_id)}@${CONFIG.EMAIL_DOMAIN}</span>`) : '') +
       row('الجوال', `<span dir="ltr">${esc(d.mobile)}</span>`) +
-      row('المرحلة والقسم', `${LABELS.gender[d.gender]} · ${LABELS.level[d.level]} · قسم ${esc(d.department)}`)) +
+      row('المرحلة والقسم', `${LABELS.gender[d.gender]} · ${LABELS.level[d.level]} · ${d.department==='other' ? `قسم ${esc(d.dept_other)} — ${esc(d.college)}` : `قسم ${esc(d.department)}`}`)) +
     sec('طلبك', 1,
       row('نوع الطلب', LABELS.category[d.category]) +
       row('المطلوب', esc(d.summary)) +
@@ -905,7 +932,9 @@ async function submit(){
     const d = S.data;
     const payload = {
       student_name:d.student_name.trim(), university_id:d.university_id, mobile:d.mobile,
-      gender:d.gender, level:d.level, department:d.department,
+      gender:d.gender, level:d.level,
+      department: d.department==='other' ? d.dept_other.trim() : d.department,
+      college: d.department==='other' ? d.college.trim() : null,
       category:d.category, summary:d.summary.trim(), bypass_reason:d.bypass_reason,
       bypass_other:d.bypass_reason==='other' ? d.bypass_other.trim() : null,
       justification:d.justification.trim(), files:uploaded,
@@ -939,7 +968,7 @@ $('#newReq').addEventListener('click', () => {
   $$('#wizard input:not([type=checkbox]):not([type=file]), #wizard textarea, #wizard select').forEach(x => x.value='');
   $('#agree').checked = false;
   $$('.on[data-v]').forEach(b => b.classList.remove('on'));
-  $('#bypassOtherWrap').hidden = true; renderFiles(); updateMail();
+  $('#bypassOtherWrap').hidden = true; toggleOther(); renderFiles(); updateMail();
   ['summary','justification'].forEach(id => $('#c-'+id).textContent = `0 / ${$('#'+id).maxLength}`);
   $('#openReq').hidden = true;
   $('#success').hidden = true; $('#wizard').hidden = false; go(0);

@@ -341,3 +341,5 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 --   دوال الطالب: student_complete (رد + مرفقات استكمال) · student_withdraw (فقط قبل استلام المكتب للطلب)
 --   جدول settings: لقب العميد واسمه ومسماه للنموذج المطبوع
 --   انظر migrations: p2_* و p3_* في Supabase → Database → Migrations
+
+-- تحديث: عمود college للمتقدمين من خارج كلية الشريعة (null = كلية الشريعة) — migration p5_college_for_outside_applicants

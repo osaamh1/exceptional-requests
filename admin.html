@@ -452,13 +452,14 @@ async function boot(){
 async function load(silent){
   if (!silent) $('#list').innerHTML = '<div class="empty"><div class="spin"></div>جاري التحميل…</div>';
   const { data, error } = await sb.from('requests')
-    .select('id,ref_no,student_name,university_id,student_email,gender,level,department,mobile,category,summary,bypass_reason,bypass_other,justification,status,office_note,dean_decision,dean_note,referred_to,student_message,enjaz_no,assigned_to,forwarded_at,decided_at,decided_by,decided_on_behalf,closed_at,student_replied_at,created_at,updated_at')
+    .select('id,ref_no,student_name,university_id,student_email,gender,level,department,college,mobile,category,summary,bypass_reason,bypass_other,justification,status,office_note,dean_decision,dean_note,referred_to,student_message,enjaz_no,assigned_to,forwarded_at,decided_at,decided_by,decided_on_behalf,closed_at,student_replied_at,created_at,updated_at')
     .order('created_at', { ascending:false }).limit(1000);
   if (error) { $('#list').innerHTML = `<div class="empty">${esc(errText(error))}</div>`; return; }
   S.rows = data || [];
   renderKpis(); renderTabs(); renderList();
   if (S.sel) { const r = S.rows.find(x => x.id === S.sel); if (r) renderDetail(r, silent); }
 }
+const deptText = r => r.college ? `${r.department} — ${r.college}` : r.department;
 const isLate = r => OPEN.includes(r.status) && r.status !== 'referred' && (Date.now() - new Date(r.updated_at)) > CONFIG.LATE_DAYS*864e5;
 const replied = r => r.status==='in_review' && r.student_replied_at && (!r.forwarded_at || new Date(r.student_replied_at) > new Date(r.forwarded_at));
 const decidedNotClosed = r => ['approved','rejected','reserved','referred'].includes(r.status);
@@ -506,7 +507,7 @@ function filtered(){
   else rows = rows.filter(TABS.find(t=>t.id===S.tab).f);
   if (S.q) {
     const q = S.q.replace(/[٠-٩]/g, d => d.charCodeAt(0)-1632).toLowerCase();
-    rows = rows.filter(r => [r.student_name, r.university_id, r.ref_no, r.mobile, r.summary, r.enjaz_no].some(v => String(v||'').toLowerCase().includes(q)));
+    rows = rows.filter(r => [r.student_name, r.university_id, r.ref_no, r.mobile, r.summary, r.enjaz_no, r.college, r.department].some(v => String(v||'').toLowerCase().includes(q)));
   }
   return rows;
 }
@@ -518,7 +519,7 @@ function renderList(){
       <div class="nm">${esc(r.student_name)}</div>
       <div><span class="pill t-${r.status}">${statusLabel(r)}</span></div>
       <div class="sm">${esc(r.summary)}</div>
-      <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>·${replied(r) ? '<span class="tag rep">↩ استكمل الطالب</span>' : ''}<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
+      <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>${r.college ? `<span class="tag" style="background:var(--warn-soft);color:var(--warn)">${esc(r.college)}</span>` : ''}·${replied(r) ? '<span class="tag rep">↩ استكمل الطالب</span>' : ''}<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
     </div>`).join('');
 }
 function statusLabel(r){
@@ -616,7 +617,7 @@ async function renderDetail(r, keepScroll){
         <div><small>الجوال</small><b class="ltr"><a href="tel:${esc(r.mobile)}" style="color:inherit">${esc(r.mobile)}</a></b></div>
         <div><small>البريد الجامعي</small><b class="ltr" style="font-size:13px">${esc(r.student_email)}</b></div>
         <div><small>المرحلة</small><b>${GENDER[r.gender]} · ${LEVEL[r.level]}</b></div>
-        <div><small>القسم</small><b>${esc(r.department)}</b></div>
+        <div><small>القسم</small><b>${esc(r.department)}</b></div>${r.college ? `<div><small>الكلية</small><b style="color:var(--warn)">${esc(r.college)}</b></div>` : ''}
       </div></div>
       <div class="sec"><h3>📝 الطلب — ${CATEGORY[r.category]||''}</h3>
         <div class="txt"><b>المطلوب:</b> ${esc(r.summary)}</div>
@@ -810,7 +811,7 @@ function printForm(r){
     <div class="sec-t">بيانات الطالب</div>
     <table>
       <tr><th>الاسم</th><td>${esc(r.student_name)}</td><th>الرقم الجامعي</th><td class="ltr" style="text-align:right">${esc(r.university_id)}</td></tr>
-      <tr><th>القسم</th><td>${esc(r.department)}</td><th>المرحلة</th><td>${LEVEL[r.level]} (${GENDER[r.gender]})</td></tr>
+      <tr><th>القسم</th><td>${esc(deptText(r))}</td><th>المرحلة</th><td>${LEVEL[r.level]} (${GENDER[r.gender]})</td></tr>
       <tr><th>الجوال</th><td class="ltr" style="text-align:right">${esc(r.mobile)}</td><th>البريد الجامعي</th><td class="ltr" style="text-align:right">${esc(r.student_email||'')}</td></tr>
     </table>
     ${(S.cache[r.id]?.events || []).filter(e => e.action==='completed' && e.note).map(e => `<div class="blk"><h4>استكمال الطالب (${hijri(e.created_at)})</h4><div>${esc(e.note)}</div></div>`).join('')}

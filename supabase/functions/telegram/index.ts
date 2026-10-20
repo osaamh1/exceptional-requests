@@ -49,7 +49,7 @@ function card(r: Record<string, any>) {
   return [
     `رقم الطلب: <b>${esc(r.ref_no)}</b>`,
     `مقدّم الطلب: ${esc(r.student_name)} (${GENDER[r.gender] ?? ""} · ${LEVEL[r.level] ?? ""})`,
-    `القسم: ${esc(r.department)}`,
+    `القسم: ${esc(r.department)}${r.college ? ` — ${esc(r.college)}` : ""}`,
     `النوع: ${CATEGORY[r.category] ?? ""}`,
     `المطلوب: ${esc(r.summary)}`,
   ].join("\n");
