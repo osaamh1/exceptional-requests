@@ -115,7 +115,8 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .item.on{border-color:var(--navy)}
 .item .nm{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item .rf{font-size:12.5px;color:var(--muted);font-weight:600}
-.item .sm{grid-column:1/-1;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .lb{color:var(--muted);font-weight:500;font-size:12.5px}
+.item .sm{grid-column:1/-1;color:var(--ink);font-size:13.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item .mt{grid-column:1/-1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:12px;color:var(--muted)}
 .late{color:var(--bad);font-weight:700}
 .empty{text-align:center;color:var(--muted);padding:40px 16px;background:#fff;border-radius:var(--r);box-shadow:var(--shadow)}
@@ -743,9 +744,9 @@ function renderList(){
   if (!rows.length) { $('#list').innerHTML = '<div class="empty">لا توجد طلبات هنا 🌿</div>'; return; }
   $('#list').innerHTML = rows.map(r => `
     <div class="item ${S.sel===r.id?'on':''}" data-id="${r.id}">
-      <div class="nm">${esc(r.student_name)}</div>
+      <div class="nm"><span class="lb">الاسم:</span> ${esc(r.student_name)}</div>
       <div><span class="pill ${pillClass(r)}">${statusLabel(r)}</span>${unreadFor(r.id).length ? ` <span class="tag nnote">📝 ملاحظة جديدة</span>` : ''}</div>
-      <div class="sm">${esc(r.summary)}</div>
+      <div class="sm"><span class="lb">الطلب:</span> ${esc(r.summary)}</div>
       <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>${r.college ? `<span class="tag" style="background:var(--warn-soft);color:var(--warn)">${esc(r.college)}</span>` : ''}·${replied(r) ? '<span class="tag rep">↩ استكمل الطالب</span>' : ''}<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
       ${r.dean_decision ? `<div class="dsum ds-${r.dean_decision}">
         <div class="dl"><b>التوجيه:</b> ${DECISION[r.dean_decision]}${r.referred_to ? ` · يُحال إلى ${esc(r.referred_to)}` : ''}</div>
