@@ -1109,7 +1109,8 @@ async function doTrack(){
     }).join('');
     const EV = { submitted:'تم تقديم الطلب', completed:'أرسلتَ الاستكمال', withdrawn:'سحبتَ الطلب', info_request:'طُلب منك استكمال الطلب' };
     const ev = (r.events||[]).slice().reverse().map(e => {
-      const t = EV[e.action] || (STATUS[e.to_status]?.label || 'تحديث');
+      const CL = { approved:'صدر التوجيه بالموافقة وأُقفل الطلب', rejected:'صدر التوجيه بعدم الموافقة وأُقفل الطلب' };
+      const t = e.action==='close' ? (CL[r.decision] || 'صدر التوجيه وأُقفل الطلب') : (EV[e.action] || (STATUS[e.to_status]?.label || 'تحديث'));
       return `<li><b>${t}</b><small>${fmtDate(e.created_at)}</small></li>`;
     }).join('');
     out.innerHTML = `
