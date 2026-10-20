@@ -134,6 +134,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .take-card svg{width:14px;height:14px}
 .take-card:hover{background:#1f9d63;border-color:#1f9d63;color:#fff;box-shadow:0 2px 8px rgba(31,157,99,.25)}
 .take-card:disabled{opacity:.6;cursor:wait}
+.atdean{background:var(--violet-soft);color:#4a3d99;border-radius:12px;padding:10px 14px;margin-top:14px;font-size:13.5px}
 .recv{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#e9f7ef;border:1px solid #bfe5cf;border-radius:12px;padding:12px 14px;margin-top:14px}
 .recv div{flex:1;min-width:200px}
 .recv b{display:block;color:#17663f}
@@ -633,7 +634,7 @@ async function renderDetail(r, keepScroll){
 
   const acts = [];
   // الاستلام أولاً: لا رفع للعميد ولا طلب استكمال قبل أن يستلم الموظف الطلب
-  if (office && ['in_review','at_dean'].includes(r.status)) acts.push(`<button class="btn warn" data-a="info">طلب استكمال من الطالب</button>`);
+  if (office && r.status==='in_review') acts.push(`<button class="btn warn" data-a="info">طلب استكمال من الطالب</button>`);
   if (office && ['in_review','needs_info'].includes(r.status)) acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
   if (office && decidedNotClosed(r)) acts.push(`<button class="btn teal" data-a="close">إقفال الطلب</button>`);
   if (office && r.status==='closed') acts.push(`<button class="btn line" data-a="info2">تعديل رقم إنجاز / رسالة الطالب</button>`);
@@ -647,6 +648,7 @@ async function renderDetail(r, keepScroll){
       <span class="sp"></span><small style="color:var(--muted)">قُدّم ${hijri(r.created_at)}</small>
     </div>
     <div class="d-body">
+      ${office && r.status==='at_dean' ? `<div class="atdean">الطلب لدى ${H()} العميد للتوجيه، ولا يمكن تعديله من المكتب. إن احتاج استكمالاً فسيعيده ${H()} العميد إلى المكتب.</div>` : ''}
       ${office && r.status==='new' ? `<div class="recv"><div><b>لم يُستلم هذا الطلب بعد</b><span>استلمه أولاً لتتمكن من مراجعته ورفعه لـ${H()} العميد.</span></div><button class="btn take" data-a="take" type="button">${TAKE_ICON}استلام الطلب</button></div>` : ''}
       <div class="sec"><h3>👤 مقدّم الطلب</h3><div class="kv">
         <div><small>الاسم</small><b>${esc(r.student_name)}</b></div>
