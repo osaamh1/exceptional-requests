@@ -1103,7 +1103,9 @@ async function doTrack(){
   out.innerHTML = '<div class="empty"><div class="spin"></div>جاري الاستعلام…</div>';
   try {
     const r = await api.track(ref, l4);
-    if (!r) { out.innerHTML = '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقمك الجامعي وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</div>'; return; }
+    if (!r) { out.innerHTML = ref.includes('/')
+      ? `<div class="empty">لم نجد طلباً برقم <b dir="ltr">${esc(ref)}</b>. رقم الطلب هو الرقم الذي ظهر لك بعد الإرسال (مثل <span dir="ltr">1448/0012</span>) وليس مأخوذاً من رقمك الجامعي.<br>الأسهل: اكتب <b>رقمك الجامعي كاملاً (9 أرقام)</b> مع آخر 4 أرقام من جوالك.</div>`
+      : '<div class="empty">لم نجد طلباً بهذه البيانات. تأكد من رقمك الجامعي (9 أرقام) وآخر 4 أرقام من الجوال الذي كتبته في الطلب.</div>'; return; }
     const s = studentStatus(r);
     const prog = STAGES.map((n,i) => {
       const cls = i < s.stage || (i===s.stage && s.stage===3) ? 'done' : (i===s.stage ? 'on' : '');
