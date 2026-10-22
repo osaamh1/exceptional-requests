@@ -232,6 +232,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .result .rd{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
 .r-ok{background:var(--ok-soft);border-color:#bfe0cf}.r-ok .ri{background:var(--ok)}.r-ok h3{color:var(--ok)}
 .r-bad{background:var(--bad-soft);border-color:#f0c9c0}.r-bad .ri{background:var(--bad)}.r-bad h3{color:var(--bad)}
+.r-info{background:var(--green-soft);border-color:#c9d6ee}.r-info .ri{background:var(--green-2)}.r-info h3{color:var(--green)}
 .r-warn{background:#fbf1df;border-color:#efd6a6}.r-warn .ri{background:#a86a12}.r-warn h3{color:#8a560c}
 .msg{white-space:pre-wrap;border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px;border-inline-start:4px solid var(--gold);background:var(--gold-soft)}
 .msg b{display:block;margin-bottom:2px;color:#0c6a69}
@@ -1075,8 +1076,9 @@ function resultBox(r){
     approved: { t:'تمت الموافقة على طلبك', c:'ok', i:'✓' },
     rejected: { t:'لم تتم الموافقة على طلبك', c:'bad', i:'✕' },
     reserved: { t:'صدر توجيه بشأن طلبك', c:'warn', i:'!' },
-  }[r.decision];
-  const next = r.decision === 'reserved' ? 'يُرجى مراجعة مكتب الكلية للاطلاع على تفاصيل التوجيه.'
+    directed: { t:'صدر توجيه بشأن طلبك', c:'info', i:'✓' },
+  }[r.decision] || { t:'صدر توجيه بشأن طلبك', c:'info', i:'✓' };
+  const next = r.decision === 'reserved' || (r.decision === 'directed' && !r.referred_to) ? 'يُرجى مراجعة مكتب الكلية للاطلاع على تفاصيل التوجيه.'
     : r.referred_to ? `أُحيل طلبك إلى <b>${esc(r.referred_to)}</b> لاستكمال الإجراء${r.decision==='approved' ? '، وسيتم التواصل معك عند الحاجة' : ''}.`
     : r.decision === 'approved' ? 'سيتولى مكتب الكلية استكمال الإجراء اللازم.' : '';
   return `<div class="result r-${D.c}"><div class="ri">${D.i}</div><div>

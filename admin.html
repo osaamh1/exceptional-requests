@@ -159,10 +159,12 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .t-referred,.t-approved{background:var(--ok-soft);color:var(--ok)}
 .t-rejected{background:var(--bad-soft);color:var(--bad)}
 .t-reserved{background:var(--warn-soft);color:var(--warn)}
+.t-directed{background:var(--navy-soft);color:var(--navy-2)}
 /* حالات التوجيه: ممتلئة بلون القرار مع رمز، لتتميّز عن زر «استلام الطلب» */
 .pill.dec{color:#fff;border-radius:7px;padding:2px 9px;display:inline-flex;align-items:center;gap:4px}
 .pill.dec::before{font-weight:900}
 .pill.dec-approved{background:#1f8a57}.pill.dec-approved::before{content:"✓"}
+.pill.dec-directed{background:var(--navy-2)}.pill.dec-directed::before{content:"✎"}
 .pill.dec-rejected{background:#b8432f}.pill.dec-rejected::before{content:"✕"}
 .pill.dec-reserved{background:#c07a12}.pill.dec-reserved::before{content:"!"}
 .t-closed,.t-withdrawn{background:#eceff3;color:var(--muted)}
@@ -189,6 +191,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .dsum .dm{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11.5px;margin-top:2px}
 .dsum .dm .wait{color:var(--teal);font-weight:700}
 .ds-approved{border-color:#1f8a57;background:#f0f8f3}
+.ds-directed{border-color:var(--navy-2);background:#f2f5fb}
 .ds-rejected{border-color:#b8432f;background:#fcf2f0}
 .ds-reserved{border-color:#c07a12;background:#fdf6ea}
 .ds-withdrawn{border-color:#9aa3b2}
@@ -237,6 +240,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .dec button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 6px;font-weight:700;cursor:pointer;font-size:15px}
 .dec button[data-v=approved].on{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
 .dec button[data-v=rejected].on{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.dec-hint{font-size:12.5px;color:var(--muted);margin:-4px 0 8px}
 .dec button[data-v=reserved].on{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
 .direct .row2{display:grid;grid-template-columns:1fr;gap:10px}
 
@@ -306,7 +310,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .rtbl th{background:#f3f6fb;color:var(--navy);font-weight:700;text-align:right;padding:8px 10px;white-space:nowrap}
 .rtbl td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
 .rtbl tbody tr[data-open]{cursor:pointer}.rtbl tbody tr[data-open]:hover{background:#f8fafd}
-.dtx{font-weight:700}.dtx.approved{color:var(--ok)}.dtx.rejected{color:var(--bad)}.dtx.reserved{color:#a86a12}
+.dtx{font-weight:700}.dtx.approved{color:var(--ok)}.dtx.rejected{color:var(--bad)}.dtx.reserved{color:#a86a12}.dtx.directed{color:var(--navy-2)}
 @media (max-width:1100px){.rtiles{grid-template-columns:repeat(3,1fr)}.rgrid{grid-template-columns:1fr 1fr}}
 @media (max-width:720px){.rtiles{grid-template-columns:1fr 1fr}.rgrid{grid-template-columns:1fr}.ract{margin-inline-start:0}.rhead h2{font-size:19px}}
 /* نسخة الطباعة */
@@ -401,7 +405,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .pf .dir .hd{color:var(--navy);font-size:12pt;font-weight:700;margin-bottom:4px}
 .pf .dir .dc{font-size:13pt;font-weight:800;margin:2px 0}
 .pf .dir .note{font-size:11.5pt;font-weight:800;margin:4px 0;white-space:pre-wrap}
-.pf .dir .approved{color:#13693f}.pf .dir .rejected{color:#a2311f}.pf .dir .reserved{color:#8a560c}
+.pf .dir .approved{color:#13693f}.pf .dir .rejected{color:#a2311f}.pf .dir .reserved{color:#8a560c}.pf .dir .directed{color:var(--navy)}
 .pf .dir .refl{font-size:11pt;font-weight:500}
 .pf .dir .refl b{font-weight:700}
 .pf .dir .sign{display:flex;justify-content:flex-end;margin-top:6px}
@@ -514,9 +518,11 @@ const CONFIG = {
 const ROLES = { admin:'مدير النظام', office:'مكتب الكلية', dean:'عميد الكلية', referral:'جهة إحالة' };
 const STATUS = {
   new:{l:'جديد'}, in_review:{l:'قيد المراجعة'}, needs_info:{l:'بانتظار استكمال'}, at_dean:{l:'لدى العميد'},
-  referred:{l:'محال'}, approved:{l:'موافق'}, rejected:{l:'غير موافق'}, reserved:{l:'متحفظ'}, closed:{l:'مغلق'}, withdrawn:{l:'مسحوب'},
+  referred:{l:'محال'}, approved:{l:'موافق'}, rejected:{l:'غير موافق'}, reserved:{l:'متحفظ'}, directed:{l:'صدر التوجيه'}, closed:{l:'مغلق'}, withdrawn:{l:'مسحوب'},
 };
-const DECISION = { approved:'موافق', rejected:'غير موافق', reserved:'متحفظ' };
+const DECISION = { approved:'موافق', rejected:'غير موافق', reserved:'متحفظ', directed:'صدر التوجيه' };
+// كلمة القرار الظاهرة (فارغة عند التوجيه دون قرار)
+const decWord = d => d && d !== 'directed' ? DECISION[d] : '';
 const CATEGORY = { registration:'تسجيل المقررات', exams:'الاختبارات', postpone:'اعتذار وتأجيل', plan:'الخطة والمعادلة', other:'أخرى' };
 const BYPASS = { deadline:'انتهاء المدة المحددة', unavailable:'الطلب غير متاح في النظام', technical:'تعذّر تقني', other:'سبب آخر' };
 const LEVEL = { bachelor:'بكالوريوس', master:'ماجستير', phd:'دكتوراه' };
@@ -527,6 +533,7 @@ const REFERRALS = [
 ];
 const STUDENT_TRACK_URL = 'https://osaamh1.github.io/exceptional-requests/#track';
 const PHRASES = {
+  general:  ['وفق المفاهمة','للإطلاع وإبداء الرأي','لإكمال اللازم'],
   approved: ['لا مانع وفق الأنظمة واللوائح','لا مانع، مع استكمال الإجراءات النظامية','لا مانع استثناءً، ولمرة واحدة','للتنفيذ وفق الأنظمة'],
   rejected: ['يُعتذر لعدم استيفاء الشروط النظامية','يُعتذر لانتهاء المدة النظامية','لا يُوافق لعدم كفاية المبررات'],
   reserved: ['للدراسة والإفادة بالمرئيات','يُعرض على مجلس القسم','يُستكمل ما يثبت العذر','للاطلاع والإفادة'],
@@ -535,10 +542,11 @@ const PHRASES = {
   info:     ['يرجى إرفاق ما يثبت العذر','يرجى توضيح المقرر المطلوب ورمزه والشعبة','يرجى مراجعة مكتب الكلية لاستكمال الطلب'],
   close:    { approved:'تمت الموافقة على طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.',
               rejected:'نعتذر، لم تتم الموافقة على طلبك.',
-              reserved:'صدر توجيه بشأن طلبك، يرجى الاستعلام عن الطلب في المنصة: ' + STUDENT_TRACK_URL },
+              reserved:'صدر توجيه بشأن طلبك، يرجى الاستعلام عن الطلب في المنصة: ' + STUDENT_TRACK_URL,
+              directed:'صدر توجيه بشأن طلبك، ويمكنك مراجعة مكتب الكلية للاستفسار.' },
 };
 const DOT = { new:'var(--info)', submitted:'var(--info)', in_review:'var(--navy-2)', needs_info:'var(--warn)', at_dean:'var(--violet)',
-  approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', referred:'var(--teal)', closed:'var(--teal)', withdrawn:'#9aa5b8', note:'#9aa5b8' };
+  approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', directed:'var(--navy-2)', referred:'var(--teal)', closed:'var(--teal)', withdrawn:'#9aa5b8', note:'#9aa5b8' };
 const EVENT = {
   submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب', info_cancel:'أُلغي طلب الاستكمال وعاد للمراجعة',
   forward:'رُفع إلى العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
@@ -766,7 +774,7 @@ const TAKE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const deptText = r => r.college ? `${r.department} — ${r.college}` : r.department;
 const isLate = r => OPEN.includes(r.status) && r.status !== 'referred' && (Date.now() - new Date(r.updated_at)) > CONFIG.LATE_DAYS*864e5;
 const replied = r => r.status==='in_review' && r.student_replied_at && (!r.forwarded_at || new Date(r.student_replied_at) > new Date(r.forwarded_at));
-const decidedNotClosed = r => ['approved','rejected','reserved','referred'].includes(r.status);
+const decidedNotClosed = r => ['approved','rejected','reserved','directed','referred'].includes(r.status);
 
 /* ================= KPIs / TABS ================= */
 const KPIS = [
@@ -832,7 +840,7 @@ function renderList(){
       <div class="sm"><span class="lb">الطلب:</span> ${esc(r.summary)}</div>
       <div class="mt"><span class="rf ltr">${esc(r.ref_no)}</span>·<span class="tag">${CATEGORY[r.category]||''}</span><span class="tag">${GENDER[r.gender]||''} · ${esc(r.department)}</span>${r.college ? `<span class="tag" style="background:var(--warn-soft);color:var(--warn)">${esc(r.college)}</span>` : ''}·${replied(r) ? '<span class="tag rep">↩ استكمل الطالب</span>' : ''}<span class="${isLate(r)?'late':''}">${isLate(r)?'⚠ متأخر · ':''}${ago(r.updated_at)}</span></div>
       ${r.dean_decision ? `<div class="dsum ds-${r.dean_decision}">
-        <div class="dl"><b>التوجيه:</b> ${DECISION[r.dean_decision]}${r.referred_to ? ` · يُحال إلى ${esc(r.referred_to)}` : ''}</div>
+        <div class="dl"><b>التوجيه:</b> ${[decWord(r.dean_decision), r.referred_to ? `يُحال إلى ${esc(r.referred_to)}` : ''].filter(Boolean).join(' · ') || 'صدر التوجيه'}</div>
         ${r.dean_note ? `<div class="dn">«${esc(r.dean_note.replace(/\s+/g,' '))}»</div>` : ''}
         <div class="dm">${r.decided_at ? `<span>🗓 ${hijri(r.decided_at)}</span>` : ''}${r.enjaz_no ? `<span>إنجاز: <b class="ltr">${esc(r.enjaz_no)}</b></span>` : (r.status==='closed' ? '' : '<span class="wait">بانتظار الإقفال</span>')}</div>
       </div>` : ''}
@@ -840,9 +848,9 @@ function renderList(){
       ${canTake(r) ? `<div class="take-row"><button class="take-card" data-take="${r.id}" type="button">${TAKE_ICON}استلام الطلب</button></div>` : ''}
     </div>`).join('');
 }
-const pillClass = r => ['approved','rejected','reserved','referred','closed'].includes(r.status) && r.dean_decision ? `dec dec-${r.dean_decision}` : `t-${r.status}`;
+const pillClass = r => ['approved','rejected','reserved','directed','referred','closed'].includes(r.status) && r.dean_decision ? `dec dec-${r.dean_decision}` : `t-${r.status}`;
 function statusLabel(r){
-  if (r.status==='referred') return 'محال · ' + (DECISION[r.dean_decision]||'');
+  if (r.status==='referred') return decWord(r.dean_decision) ? 'محال · ' + decWord(r.dean_decision) : 'محال';
   if (r.status==='closed' && r.dean_decision) return 'مغلق · ' + DECISION[r.dean_decision];
   return STATUS[r.status]?.l || r.status;
 }
@@ -908,7 +916,7 @@ async function renderDetail(r, keepScroll){
       ${e.note ? `<q>${esc(e.note)}</q>` : ''}</li>`;
   }).join('');
 
-  const deanBox = r.dean_decision ? `<div class="box dean"><div class="dc">${DECISION[r.dean_decision]}</div>
+  const deanBox = r.dean_decision ? `<div class="box dean">${decWord(r.dean_decision) ? `<div class="dc">${DECISION[r.dean_decision]}</div>` : ''}
       ${r.referred_to ? `<div>ويُحال إلى: <b>${esc(r.referred_to)}</b></div>` : ''}
       ${r.dean_note ? `<div style="margin-top:4px;white-space:pre-wrap">${esc(r.dean_note)}</div>` : ''}
       <small>${hijri(r.decided_at)} ${time(r.decided_at)}${r.decided_on_behalf ? ' · سجّله بالتفويض: ' + esc(who(r.decided_by)) : ''}</small></div>` : '';
@@ -917,6 +925,7 @@ async function renderDetail(r, keepScroll){
   const composer = canDecideNow ? `
     <div class="sec"><div class="direct" id="composer">
       <h3>✍️ توجيه ${H()} العميد</h3>
+      <div class="dec-hint">القرار اختياري: يمكن الاكتفاء بنص التوجيه أو العبارات الجاهزة أو الإحالة. اضغط القرار مرة ثانية لإلغاء اختياره.</div>
       <div class="dec" id="decBtns"><button data-v="approved">موافق</button><button data-v="rejected">غير موافق</button><button data-v="reserved">متحفظ</button></div>
       <div class="row2">
         <div><label class="l" for="decRef">يُحال إلى (اختياري)</label>
@@ -995,20 +1004,20 @@ function wireComposer(r){
   let decision = null;
   const chips = $('#decChips'), note = $('#decNote');
   const paint = () => {
-    const list = decision ? PHRASES[decision] : [...PHRASES.approved.slice(0,2), ...PHRASES.reserved.slice(0,2)];
+    const list = [...PHRASES.general, ...(decision ? PHRASES[decision] : [...PHRASES.approved.slice(0,1), ...PHRASES.reserved.slice(0,1)])];
     chips.innerHTML = list.map(p => `<button type="button" class="chip">${p}</button>`).join('');
   };
   paint();
-  $('#decBtns').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; decision = b.dataset.v; $$('#decBtns button').forEach(x => x.classList.toggle('on', x===b)); paint(); };
+  $('#decBtns').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; decision = decision === b.dataset.v ? null : b.dataset.v; $$('#decBtns button').forEach(x => x.classList.toggle('on', x.dataset.v===decision)); paint(); };
   chips.onclick = e => { const c = e.target.closest('.chip'); if (!c) return; note.value = note.value.trim() ? note.value.trim() + '، ' + c.textContent : c.textContent; note.focus(); };
   $('#decSave').onclick = async () => {
-    if (!decision) { toast('اختر: موافق أو غير موافق أو متحفظ', 'error'); return; }
     const ref = $('#decRef').value;
+    if (!decision && !ref && !note.value.trim()) { toast('اكتب نص التوجيه، أو اختر عبارة جاهزة أو إحالة أو قراراً', 'error'); note.focus(); return; }
     const ok = await confirmBox('اعتماد التوجيه',
       `<div style="font-size:15px">سيُعتمد التوجيه التالي على الطلب <b class="ltr">${esc(r.ref_no)}</b>:</div>
-       <div class="box dean"><div class="dc">${DECISION[decision]}</div>${ref ? `<div>ويُحال إلى: <b>${esc(ref)}</b></div>` : ''}${note.value.trim() ? `<div style="white-space:pre-wrap">${esc(note.value.trim())}</div>` : ''}</div>`, 'اعتماد');
+       <div class="box dean">${decision ? `<div class="dc">${DECISION[decision]}</div>` : ''}${ref ? `<div>ويُحال إلى: <b>${esc(ref)}</b></div>` : ''}${note.value.trim() ? `<div style="white-space:pre-wrap">${esc(note.value.trim())}</div>` : ''}</div>`, 'اعتماد');
     if (!ok) return;
-    await run(() => sb.rpc('req_decide', { p_id:r.id, p_decision:decision, p_referred_to:ref || null, p_note:note.value.trim() || null }), 'اعتُمد التوجيه ✓');
+    await run(() => sb.rpc('req_decide', { p_id:r.id, p_decision:decision || null, p_referred_to:ref || null, p_note:note.value.trim() || null }), 'اعتُمد التوجيه ✓');
   };
   const ret = $('#decReturn');
   if (ret) ret.onclick = () => formBox('إعادة الطلب إلى المكتب', [{ id:'n', label:'سبب الإعادة / المطلوب من المكتب', area:true, required:true, chips:['يُستكمل ما يثبت العذر','يُرفق رأي القسم','يُتحقق من السجل الأكاديمي'] }], 'إعادة',
@@ -1172,7 +1181,7 @@ function formHTML(r, files, events){
   const pick = id => { const p = S.people[id]; return p && p.role !== 'admin' ? p.full_name : ''; };
   const staffName = (fwd && pick(fwd.actor)) || pick(r.assigned_to);
   const dir = r.dean_decision ? `
-      <div class="dc ${r.dean_decision}">${DECISION[r.dean_decision]}</div>
+      ${decWord(r.dean_decision) ? `<div class="dc ${r.dean_decision}">${DECISION[r.dean_decision]}</div>` : ''}
       ${r.referred_to ? `<div class="refl">ويُحال إلى: <b>${esc(r.referred_to)}</b></div>` : ''}
       ${r.dean_note ? `<div class="note ${r.dean_decision}">${esc(r.dean_note)}</div>` : ''}
       <div class="sign"><div><div class="ti">${esc(st.dean_title || 'عميد كلية الشريعة')}</div><div class="nm">${esc(deanName())}</div></div></div>`
@@ -1265,7 +1274,7 @@ function rptData(){
       { l:'متوسط المدة حتى التوجيه', v: fmtDays(avgDays(rows,'created_at','decided_at')), small:true },
       { l:'متوسط المدة حتى الإقفال', v: fmtDays(avgDays(rows,'created_at','closed_at')), small:true },
     ],
-    decisions: ['approved','rejected','reserved'].map(k => [k, dec.filter(r => r.dean_decision===k).length]),
+    decisions: ['approved','rejected','reserved','directed'].map(k => [k, dec.filter(r => r.dean_decision===k).length]),
     byCat: count(rows, r => r.category, CATEGORY),
     byDept: count(rows, r => r.college ? 'من خارج الكلية' : r.department),
     byRef: count(dec, r => r.referred_to),
@@ -1279,13 +1288,13 @@ const bars = (title, list, total) => `<div class="rcard"><h4>${title}</h4>${list
 
 function rptBody(d, forPrint){
   const decTotal = d.dec.length;
-  const DC = { approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12' };
+  const DC = { approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', directed:'var(--navy-2)' };
   return `
     <div class="rtiles">${d.tiles.map(t => `<div class="rtile"><b class="${t.small?'sm':''}">${t.v}</b><span>${t.l}</span>${t.s ? `<em>${t.s}</em>` : ''}</div>`).join('')}</div>
     <div class="rgrid">
       <div class="rcard wide"><h4>توجيهات ${H()} العميد <small>(${decTotal})</small></h4>
-        ${decTotal ? `<div class="stack">${d.decisions.filter(x=>x[1]).map(([k,v]) => `<i style="flex:${v};background:${DC[k]}" title="${DECISION[k]}: ${v}"></i>`).join('')}</div>
-        <div class="lg">${d.decisions.map(([k,v]) => `<span><i style="background:${DC[k]}"></i>${DECISION[k]} <b>${v}</b> <small>(${pct(v,decTotal)})</small></span>`).join('')}</div>` : '<div class="rempty">لم يصدر توجيه في هذه الفترة</div>'}
+        ${decTotal ? `<div class="stack">${d.decisions.filter(x=>x[1]).map(([k,v]) => `<i style="flex:${v};background:${DC[k]}" title="${k==='directed' ? 'توجيه دون قرار' : DECISION[k]}: ${v}"></i>`).join('')}</div>
+        <div class="lg">${d.decisions.map(([k,v]) => `<span><i style="background:${DC[k]}"></i>${k==='directed' ? 'توجيه دون قرار' : DECISION[k]} <b>${v}</b> <small>(${pct(v,decTotal)})</small></span>`).join('')}</div>` : '<div class="rempty">لم يصدر توجيه في هذه الفترة</div>'}
       </div>
       ${bars('حسب نوع الطلب', d.byCat, d.rows.length)}
       ${bars('حسب القسم', d.byDept, d.rows.length)}
