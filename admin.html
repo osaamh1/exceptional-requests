@@ -543,7 +543,7 @@ const PHRASES = {
   close:    { approved:'تمت الموافقة على طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.',
               rejected:'نعتذر، لم تتم الموافقة على طلبك.',
               reserved:'صدر توجيه بشأن طلبك، يرجى الاستعلام عن الطلب في المنصة: ' + STUDENT_TRACK_URL,
-              directed:'صدر توجيه بشأن طلبك، ويمكنك مراجعة مكتب الكلية للاستفسار.' },
+              directed:'صدر توجيه بشأن طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.' },
 };
 const DOT = { new:'var(--info)', submitted:'var(--info)', in_review:'var(--navy-2)', needs_info:'var(--warn)', at_dean:'var(--violet)',
   approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', directed:'var(--navy-2)', referred:'var(--teal)', closed:'var(--teal)', withdrawn:'#9aa5b8', note:'#9aa5b8' };
@@ -1293,8 +1293,8 @@ function rptBody(d, forPrint){
     <div class="rtiles">${d.tiles.map(t => `<div class="rtile"><b class="${t.small?'sm':''}">${t.v}</b><span>${t.l}</span>${t.s ? `<em>${t.s}</em>` : ''}</div>`).join('')}</div>
     <div class="rgrid">
       <div class="rcard wide"><h4>توجيهات ${H()} العميد <small>(${decTotal})</small></h4>
-        ${decTotal ? `<div class="stack">${d.decisions.filter(x=>x[1]).map(([k,v]) => `<i style="flex:${v};background:${DC[k]}" title="${k==='directed' ? 'توجيه دون قرار' : DECISION[k]}: ${v}"></i>`).join('')}</div>
-        <div class="lg">${d.decisions.map(([k,v]) => `<span><i style="background:${DC[k]}"></i>${k==='directed' ? 'توجيه دون قرار' : DECISION[k]} <b>${v}</b> <small>(${pct(v,decTotal)})</small></span>`).join('')}</div>` : '<div class="rempty">لم يصدر توجيه في هذه الفترة</div>'}
+        ${decTotal ? `<div class="stack">${d.decisions.filter(x=>x[1]).map(([k,v]) => `<i style="flex:${v};background:${DC[k]}" title="${k==='directed' ? 'توجيه' : DECISION[k]}: ${v}"></i>`).join('')}</div>
+        <div class="lg">${d.decisions.map(([k,v]) => `<span><i style="background:${DC[k]}"></i>${k==='directed' ? 'توجيه' : DECISION[k]} <b>${v}</b> <small>(${pct(v,decTotal)})</small></span>`).join('')}</div>` : '<div class="rempty">لم يصدر توجيه في هذه الفترة</div>'}
       </div>
       ${bars('حسب نوع الطلب', d.byCat, d.rows.length)}
       ${bars('حسب القسم', d.byDept, d.rows.length)}
