@@ -247,6 +247,8 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .wa-to{display:flex;align-items:center;gap:10px;background:#e6f6ec;border-radius:10px;padding:9px 12px;font-size:14px;margin-bottom:10px}
 .wa-to svg{width:22px;height:22px;color:#1fa855;flex:none}
 .wa-to b{direction:ltr;unicode-bidi:isolate}
+.wa-how{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:10px;font-size:13.5px}
+.wa-how span{color:var(--muted)}.wa-how label{display:flex;align-items:center;gap:6px;cursor:pointer}.wa-how small{color:var(--muted)}
 .wa-note{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7}
 .dec-hint{font-size:12.5px;color:var(--muted);margin:-4px 0 8px}
 .dec button[data-v=reserved].on{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
@@ -1047,6 +1049,8 @@ function waTemplates(r){
   list.push({ k:'رسالة عامة', t:`${head}\n` });
   return list.map(x => ({ ...x, t: x.t + `\n\n${sign}` }));
 }
+// الافتراضي: واتساب ويب على الكمبيوتر، والتطبيق على الجوال
+const waMode = () => { try { const v = localStorage.getItem('waMode'); if (v) return v; } catch {} return matchMedia('(pointer:coarse)').matches ? 'app' : 'web'; };
 function whatsappBox(r){
   const tpl = waTemplates(r), num = waNumber(r.mobile);
   modal('مراسلة الطالب عبر واتساب', `
@@ -1054,7 +1058,10 @@ function whatsappBox(r){
     <label class="l">الرسالة</label>
     <div class="chips" id="waTpl">${tpl.map((x,i)=>`<button type="button" class="chip ${i?'':'on'}" data-i="${i}">${esc(x.k)}</button>`).join('')}</div>
     <textarea class="textarea" id="waMsg" style="min-height:190px;margin-top:8px">${esc(tpl[0].t)}</textarea>
-    <div class="wa-note">يفتح واتساب برقم المكتب الرسمي والرسالة جاهزة، وتراجعها وترسلها بنفسك. تُسجَّل المراسلة في سجل الطلب (داخلية).</div>`,
+    <div class="wa-how"><span>الفتح عبر:</span>
+      <label><input type="radio" name="waMode" value="web" ${waMode()==='web'?'checked':''}> واتساب ويب في المتصفح <small>(الأنسب للكمبيوتر)</small></label>
+      <label><input type="radio" name="waMode" value="app" ${waMode()==='app'?'checked':''}> تطبيق واتساب</label></div>
+    <div class="wa-note">يُحفظ اختيارك على هذا الجهاز. واتساب ويب يفتح الحساب المسجَّل في هذا المتصفح، فسجّل فيه دخول واتساب المكتب مرة واحدة ويبقى ثابتاً. تُسجَّل المراسلة في سجل الطلب (داخلية).</div>`,
     `<button class="btn wa" id="mOk">${'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>'}فتح واتساب</button><button class="btn ghost" id="mNo">إلغاء</button>`);
   $('#waTpl').onclick = e => { const b = e.target.closest('[data-i]'); if (!b) return; $$('#waTpl .chip').forEach(x => x.classList.toggle('on', x===b)); $('#waMsg').value = tpl[+b.dataset.i].t; $('#waMsg').focus(); };
   $('#mNo').onclick = closeModal;
@@ -1062,7 +1069,11 @@ function whatsappBox(r){
     const msg = $('#waMsg').value.trim();
     if (!msg) { toast('اكتب نص الرسالة', 'error'); return; }
     // يُفتح واتساب داخل حدث الضغط مباشرة حتى لا يحجبه المتصفح
-    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    const mode = document.querySelector('input[name=waMode]:checked')?.value || waMode();
+    try { localStorage.setItem('waMode', mode); } catch {}
+    const url = mode === 'web' ? `https://web.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(msg)}` : `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+    // نافذة واحدة باسم ثابت لواتساب ويب حتى لا تتكرر التبويبات
+    window.open(url, mode === 'web' ? 'office_whatsapp' : '_blank');
     closeModal();
     run(() => sb.rpc('req_log_contact', { p_id:r.id, p_note:msg }), 'فُتح واتساب ✓');
   };
