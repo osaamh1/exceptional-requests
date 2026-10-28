@@ -358,3 +358,5 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 -- p13: قرار العميد اختياري — dean_decision/status 'directed' (توجيه دون قرار، يلزم نص أو إحالة)؛ req_close/req_update_info/track_request تقبلها
 
 -- p14: track_request يعيد enjaz_no بعد الإقفال (يظهر للطالب مع الجهة المحال إليها)
+
+-- p15: req_log_contact(p_id, p_note) — يسجّل مراسلة واتساب في سجل الطلب (داخلية)

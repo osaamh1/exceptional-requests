@@ -240,6 +240,14 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .dec button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 6px;font-weight:700;cursor:pointer;font-size:15px}
 .dec button[data-v=approved].on{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
 .dec button[data-v=rejected].on{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.chips .chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.wa{background:#1fa855;color:#fff}.btn.wa:hover{background:#178f47}
+.btn.wa svg,.wa-mini svg{width:18px;height:18px}
+.wa-mini{border:0;background:#e6f6ec;color:#1fa855;width:28px;height:28px;border-radius:8px;display:inline-grid;place-items:center;cursor:pointer;vertical-align:middle;margin-inline-start:6px}
+.wa-to{display:flex;align-items:center;gap:10px;background:#e6f6ec;border-radius:10px;padding:9px 12px;font-size:14px;margin-bottom:10px}
+.wa-to svg{width:22px;height:22px;color:#1fa855;flex:none}
+.wa-to b{direction:ltr;unicode-bidi:isolate}
+.wa-note{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7}
 .dec-hint{font-size:12.5px;color:var(--muted);margin:-4px 0 8px}
 .dec button[data-v=reserved].on{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
 .direct .row2{display:grid;grid-template-columns:1fr;gap:10px}
@@ -546,9 +554,9 @@ const PHRASES = {
               directed:'صدر توجيه بشأن طلبك، وأُحيل إلى الجهة المختصة لاستكمال الإجراء.' },
 };
 const DOT = { new:'var(--info)', submitted:'var(--info)', in_review:'var(--navy-2)', needs_info:'var(--warn)', at_dean:'var(--violet)',
-  approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', directed:'var(--navy-2)', referred:'var(--teal)', closed:'var(--teal)', withdrawn:'#9aa5b8', note:'#9aa5b8' };
+  approved:'var(--ok)', rejected:'var(--bad)', reserved:'#c07a12', directed:'var(--navy-2)', referred:'var(--teal)', closed:'var(--teal)', withdrawn:'#9aa5b8', note:'#9aa5b8', whatsapp:'#1fa855' };
 const EVENT = {
-  submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب', info_cancel:'أُلغي طلب الاستكمال وعاد للمراجعة',
+  submitted:'قدّم الطالب الطلب', take:'استلمه المكتب للمراجعة', info_request:'طُلب من الطالب استكمال الطلب', info_cancel:'أُلغي طلب الاستكمال وعاد للمراجعة', whatsapp:'تواصل مع الطالب عبر واتساب',
   forward:'رُفع إلى العميد', decision:'صدر توجيه العميد', return:'أعاده العميد إلى المكتب',
   close:'أُقفل الطلب', enjaz:'سُجّل رقم معاملة إنجاز', student_message:'حُدّثت الرسالة الظاهرة للطالب',
   note:'ملاحظة داخلية', reopen:'أُعيد فتح الطلب', status:'تغيّرت الحالة',
@@ -947,6 +955,7 @@ async function renderDetail(r, keepScroll){
   if (office && r.status==='in_review') acts.push(`<button class="btn pri" data-a="forward">رفع لـ${H()} العميد</button>`);
   if (office && decidedNotClosed(r)) acts.push(`<button class="btn teal" data-a="close">إقفال الطلب</button>`);
   if (office && r.status==='closed') acts.push(`<button class="btn line" data-a="info2">تعديل رقم إنجاز / رسالة الطالب</button>`);
+  if (office) acts.push(`<button class="btn wa" data-a="whatsapp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>مراسلة الطالب عبر واتساب</button>`);
   acts.push(`<button class="btn line" data-a="print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة النموذج</button>`);
   if (role==='admin' && (decidedNotClosed(r) || r.status==='closed')) acts.push(`<button class="btn danger" data-a="reopen">إعادة فتح</button>`);
 
@@ -965,7 +974,7 @@ async function renderDetail(r, keepScroll){
       <div class="sec"><h3>👤 مقدّم الطلب</h3><div class="kv">
         <div><small>الاسم</small><b>${esc(r.student_name)}</b></div>
         <div><small>الرقم الجامعي</small><b class="ltr">${esc(r.university_id)}</b></div>
-        <div><small>الجوال</small><b class="ltr"><a href="tel:${esc(r.mobile)}" style="color:inherit">${esc(r.mobile)}</a></b></div>
+        <div><small>الجوال</small><b class="ltr"><a href="tel:${esc(r.mobile)}" style="color:inherit">${esc(r.mobile)}</a>${office ? ` <button class="wa-mini" type="button" data-a="whatsapp" title="مراسلة عبر واتساب"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg></button>` : ''}</b></div>
         <div><small>البريد الجامعي</small><b class="ltr" style="font-size:13px">${esc(r.student_email)}</b></div>
         <div><small>المرحلة</small><b>${GENDER[r.gender]} · ${LEVEL[r.level]}</b></div>
         <div><small>القسم</small><b>${esc(r.department)}</b></div>${r.college ? `<div><small>الكلية</small><b style="color:var(--warn)">${esc(r.college)}</b></div>` : ''}
@@ -1024,6 +1033,41 @@ function wireComposer(r){
     v => sb.rpc('req_return', { p_id:r.id, p_note:v.n }), 'أُعيد إلى المكتب');
 }
 
+/* ---------------- WhatsApp (رقم المكتب الرسمي) ---------------- */
+const waNumber = m => { const d = String(m||'').replace(/\D/g,''); return d.startsWith('05') ? '966' + d.slice(1) : d.startsWith('5') && d.length === 9 ? '966' + d : d; };
+function waTemplates(r){
+  const T = STUDENT_TRACK_URL, sign = 'مكتب عميد كلية الشريعة – جامعة القصيم';
+  const head = `السلام عليكم ورحمة الله وبركاته،\nبخصوص طلبك رقم ${r.ref_no} المقدَّم لكلية الشريعة:`;
+  const list = [];
+  if (['new','in_review'].includes(r.status)) list.push({ k:'استلام الطلب', t:`${head}\nتم استلام طلبك وهو الآن قيد المراجعة، وسنوافيك بالمستجدات.\nيمكنك متابعة حالته من: ${T}` });
+  if (r.status === 'needs_info') list.push({ k:'طلب استكمال', t:`${head}\n${r.student_message || 'نأمل استكمال طلبك.'}\nيمكنك الاستكمال وإرفاق المطلوب من صفحة المتابعة: ${T}` });
+  if (['in_review','new'].includes(r.status)) list.push({ k:'طلب استكمال', t:`${head}\nنأمل إرفاق ما يثبت العذر لاستكمال دراسة طلبك.\nيمكنك الاستكمال من صفحة المتابعة: ${T}` });
+  if (['at_dean','approved','rejected','reserved','directed','referred'].includes(r.status)) list.push({ k:'حالة الطلب', t:`${head}\nطلبك مرفوع إلى سعادة عميد الكلية للتوجيه، وسنوافيك فور صدوره.\nيمكنك متابعة حالته من: ${T}` });
+  if (r.status === 'closed') list.push({ k:'إقفال الطلب', t:`${head}\nصدر التوجيه في طلبك وأُقفل.${r.referred_to ? `\nالجهة المحال إليها: ${r.referred_to}` : ''}${r.enjaz_no ? `\nرقم معاملة إنجاز: ${r.enjaz_no}` : ''}\nللاطلاع على نتيجة طلبك: ${T}` });
+  list.push({ k:'رسالة عامة', t:`${head}\n` });
+  return list.map(x => ({ ...x, t: x.t + `\n\n${sign}` }));
+}
+function whatsappBox(r){
+  const tpl = waTemplates(r), num = waNumber(r.mobile);
+  modal('مراسلة الطالب عبر واتساب', `
+    <div class="wa-to">${'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>'}<span>إلى: ${esc(r.student_name)}</span><b>+${esc(num)}</b></div>
+    <label class="l">الرسالة</label>
+    <div class="chips" id="waTpl">${tpl.map((x,i)=>`<button type="button" class="chip ${i?'':'on'}" data-i="${i}">${esc(x.k)}</button>`).join('')}</div>
+    <textarea class="textarea" id="waMsg" style="min-height:190px;margin-top:8px">${esc(tpl[0].t)}</textarea>
+    <div class="wa-note">يفتح واتساب برقم المكتب الرسمي والرسالة جاهزة، وتراجعها وترسلها بنفسك. تُسجَّل المراسلة في سجل الطلب (داخلية).</div>`,
+    `<button class="btn wa" id="mOk">${'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>'}فتح واتساب</button><button class="btn ghost" id="mNo">إلغاء</button>`);
+  $('#waTpl').onclick = e => { const b = e.target.closest('[data-i]'); if (!b) return; $$('#waTpl .chip').forEach(x => x.classList.toggle('on', x===b)); $('#waMsg').value = tpl[+b.dataset.i].t; $('#waMsg').focus(); };
+  $('#mNo').onclick = closeModal;
+  $('#mOk').onclick = () => {
+    const msg = $('#waMsg').value.trim();
+    if (!msg) { toast('اكتب نص الرسالة', 'error'); return; }
+    // يُفتح واتساب داخل حدث الضغط مباشرة حتى لا يحجبه المتصفح
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    closeModal();
+    run(() => sb.rpc('req_log_contact', { p_id:r.id, p_note:msg }), 'فُتح واتساب ✓');
+  };
+}
+
 /* ---------------- actions ---------------- */
 async function run(fn, okMsg){
   try { const { error } = await fn(); if (error) throw error; toast(okMsg, 'ok'); delete S.cache[S.sel]; await load(true); return true; }
@@ -1049,6 +1093,7 @@ function act(a, r){
     v => sb.rpc('req_reopen', { p_id:r.id, p_note:v.n }), 'أُعيد فتح الطلب');
   if (a==='cancelinfo') return confirmBox('إلغاء طلب الاستكمال', 'سيعود الطلب إلى «قيد المراجعة» وتُحذف رسالة الاستكمال من صفحة الطالب. يُستخدم هذا إذا لم يعد الاستكمال لازماً أو تأخر الطالب في الرد.', 'إلغاء الاستكمال')
     .then(ok => ok && run(() => sb.rpc('req_cancel_info', { p_id:r.id }), 'عاد الطلب للمراجعة'));
+  if (a==='whatsapp') return whatsappBox(r);
   if (a==='print') return printForm(r);
 }
 
