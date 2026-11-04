@@ -201,7 +201,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .tag{background:#f0f2f6;border-radius:6px;padding:1px 7px}
 
 /* detail */
-.detail{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);position:sticky;top:78px;max-height:calc(100vh - 96px);display:flex;flex-direction:column;overflow:hidden}
+.detail{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);position:sticky;top:136px;max-height:calc(100vh - 152px);display:flex;flex-direction:column;overflow:hidden}
 .d-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .d-head .rf{font-size:20px;font-weight:700;color:var(--navy)}
 .d-head .sp{flex:1}
@@ -457,7 +457,21 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ej-hist{margin-top:22px}
 .ej-hist h3{font-size:14px;color:var(--muted);margin-bottom:8px}
 @media (min-width:1001px){.kpis.ej5{grid-template-columns:repeat(5,1fr)}}
-@media (max-width:720px){.top .in{gap:6px}.top .who{display:none}#btnEnjaz{padding:0 8px;gap:5px}}
+@media (max-width:720px){.top .in{gap:6px}.top .who{display:none}}
+/* شريط الأقسام: الطلبات الاستثنائية · معاملات إنجاز · التقارير */
+.secnav{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(18,48,107,.06)}
+.secnav .in{max-width:1320px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;overflow-x:auto}
+.nv{display:inline-flex;align-items:center;gap:8px;border:1.5px solid #d3dbe8;background:#fff;color:var(--navy);border-radius:12px;padding:9px 18px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;white-space:nowrap;transition:.15s}
+.nv svg{width:19px;height:19px;flex:none}
+.nv:hover{border-color:var(--navy-2);background:var(--navy-soft)}
+.nv:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.nv.on{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 4px 12px rgba(18,48,107,.25)}
+.nv.enj{color:#0b6e6d;border-color:#9fd3d2}
+.nv.enj:hover{background:var(--teal-soft)}
+.nv.enj.on{background:var(--teal);border-color:var(--teal);color:#fff;box-shadow:0 4px 12px rgba(17,144,143,.3)}
+.nv .bd{background:var(--bad);color:#fff;border-radius:999px;min-width:22px;height:22px;padding:0 7px;font-size:12.5px;display:inline-grid;place-items:center;font-weight:800}
+.secnav.dean #btnEnjaz{order:-1}
+@media (max-width:560px){.secnav .in{padding:7px 8px;gap:5px}.nv{flex:1 1 auto;justify-content:center;padding:8px 7px;font-size:13px;gap:5px;border-radius:10px}.nv svg{display:none}.nv .bd{min-width:19px;height:19px;padding:0 5px;font-size:11.5px}}
 #print{display:none}
 @media print{
   /* margin:0 removes the browser's own header/footer (date, page title, address, page number) */
@@ -549,14 +563,18 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
     <img src="assets/logo-white.png" alt="جامعة القصيم — كلية الشريعة">
     <div class="ttl">مكتب العميد الرقمي</div>
     <div class="sp"></div>
-    <button class="rbtn" id="btnReport" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></svg><span>التقارير</span></button>
-    <button class="rbtn" id="btnEnjaz" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M4 13h4l2 3h4l2-3h4"/></svg><span>معاملات إنجاز</span><b class="ej-badge" id="ejBadge" hidden></b></button>
     <div class="who"><span class="nm" id="meName"></span><span class="role" id="meRole"></span><span class="deleg" id="meDeleg" hidden>مفوَّض بالتوجيه</span></div>
     <button class="ibtn" id="btnRefresh" title="تحديث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
     <button class="ibtn" id="btnSettings" title="الإعدادات" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <button class="ibtn" id="btnPass" title="تغيير كلمة المرور"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
     <button class="ibtn" id="btnLogout" title="تسجيل الخروج"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
-  </div></header>
+  </div>
+  <nav class="secnav" id="secnav" hidden><div class="in">
+    <button class="nv" id="navReq" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg><span>الطلبات الاستثنائية</span><b class="bd" id="reqBadge" hidden></b></button>
+    <button class="nv enj" id="btnEnjaz" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>معاملات إنجاز</span><b class="bd" id="ejBadge" hidden></b></button>
+    <button class="nv rpt" id="btnReport" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></svg><span>التقارير</span></button>
+  </div></nav>
+</header>
 
   <main class="app" id="vMain">
     <div class="kpis" id="kpis"></div>
@@ -743,6 +761,7 @@ async function boot(){
   $('#meDeleg').hidden = !(S.canDirect && me.role !== 'dean');
   $('#btnSettings').hidden = !['admin','dean'].includes(me.role);
   $('#btnReport').hidden = me.role === 'referral';
+  $('#secnav').classList.toggle('dean', me.role === 'dean');
   show('vApp'); bumpIdle();
   buildTabs();
   initEnjaz();
@@ -759,7 +778,7 @@ async function load(silent){
   if (error) { $('#list').innerHTML = `<div class="empty">${esc(errText(error))}</div>`; return; }
   S.rows = data || [];
   await loadNotes();
-  renderKpis(); renderTabs(); renderList(); renderHome();
+  renderKpis(); renderTabs(); renderList(); renderHome(); navBadges();
   if (S.sel) { const r = S.rows.find(x => x.id === S.sel); if (r) renderDetail(r, silent); }
 }
 /* ================= NOTES NOTIFICATIONS ================= */
@@ -792,6 +811,7 @@ $('#notifs').addEventListener('click', e => {
   if (x) { e.stopPropagation(); S.dismissed.add(+x.dataset.ndis); renderNotifs(); return; }
   const c = e.target.closest('[data-nreq]'); if (!c) return;
   const id = c.dataset.nreq;
+  if ($('#vMain').hidden) $('#navReq').click();
   if (!filtered().some(r => r.id === id)) { S.tab = 'all'; S.kpi = null; S.q = ''; $('#q').value = ''; renderKpis(); renderTabs(); }
   openReq(id);
 });
@@ -1467,8 +1487,22 @@ function openReport(){
   if (!R.from) setPreset('month');
   $('#vMain').hidden = true; $('#vEnjaz').hidden = true; $('#vReport').hidden = false; window.scrollTo(0,0); renderReport();
 }
-function closeReport(){ $('#vReport').hidden = true; $('#vMain').hidden = false; }
-$('#btnReport').onclick = () => $('#vReport').hidden ? openReport() : closeReport();
+function closeReport(){ $('#vReport').hidden = true; $('#vMain').hidden = false; setNav(); }
+$('#btnReport').onclick = () => { if (!$('#vEnjaz').hidden) closeEnjaz(); openReport(); setNav(); };
+/* شريط الأقسام */
+function setNav(){
+  const v = !$('#vEnjaz').hidden ? 'enj' : !$('#vReport').hidden ? 'rpt' : 'req';
+  $('#navReq').classList.toggle('on', v === 'req'); $('#btnEnjaz').classList.toggle('on', v === 'enj'); $('#btnReport').classList.toggle('on', v === 'rpt');
+  $('#secnav').hidden = $('#btnEnjaz').hidden && $('#btnReport').hidden;
+}
+function navBadges(){
+  if (!S.me) return;
+  const n = S.me.role === 'dean' ? S.rows.filter(r => r.status === 'at_dean').length
+          : ['admin','office'].includes(S.me.role) ? S.rows.filter(r => r.status === 'new').length : 0;
+  $('#reqBadge').hidden = !n; $('#reqBadge').textContent = n;
+  setNav();
+}
+$('#navReq').onclick = () => { if (!$('#vEnjaz').hidden) closeEnjaz(); if (!$('#vReport').hidden) closeReport(); setNav(); window.scrollTo(0, 0); };
 $('#rBack').onclick = closeReport;
 $('#rPresets').onclick = e => { const b = e.target.closest('[data-p]'); if (!b) return; setPreset(b.dataset.p); renderReport(); };
 ['rFrom','rTo'].forEach(id => $('#'+id).onchange = () => {
@@ -1549,7 +1583,8 @@ function initEnjaz(){
   if (!ejOn()) return;
   $('#btnEnjaz').hidden = false;
   loadEJ(true);
-  if (location.hash === '#enjaz') openEnjaz();
+  // سعادة العميد يدخل مباشرة على معاملات إنجاز، وينتقل للطلبات من شريط الأقسام
+  if (location.hash === '#enjaz' || ejDean()) openEnjaz(); else setNav();
   addEventListener('hashchange', () => { if (location.hash === '#enjaz' && $('#vEnjaz').hidden) openEnjaz(); });
   setInterval(() => {
     if (document.hidden || $('#mod').classList.contains('on') || E.rec || E.busy) return;
@@ -1560,14 +1595,14 @@ function initEnjaz(){
 function openEnjaz(){
   $('#vMain').hidden = true; $('#vReport').hidden = true; $('#vEnjaz').hidden = false;
   if (location.hash !== '#enjaz') history.replaceState(null, '', location.pathname + '#enjaz');
-  window.scrollTo(0, 0); renderEJ(); loadEJ(true);
+  window.scrollTo(0, 0); renderEJ(); loadEJ(true); setNav();
 }
 function closeEnjaz(){
   ejStopRec(true); E.open = null; E.shell = null;
   $('#vEnjaz').hidden = true; $('#vMain').hidden = false;
-  history.replaceState(null, '', location.pathname);
+  history.replaceState(null, '', location.pathname); setNav();
 }
-$('#btnEnjaz').onclick = () => $('#vEnjaz').hidden ? openEnjaz() : closeEnjaz();
+$('#btnEnjaz').onclick = () => openEnjaz();
 
 async function loadEJ(silent){
   const { data: items, error } = await sb.from('enjaz_items').select('*').order('created_at', { ascending:true }).limit(500);
@@ -1647,7 +1682,6 @@ function ejRenderOffice(){
       <div class="ej-head">
         <div><h2>معاملات إنجاز لدى العميد</h2><div class="sub">🔒 لا يطّلع عليها إلا أنت وسعادة العميد</div></div>
         <div class="sp"></div>
-        <button class="btn line" id="ejBack" type="button">الطلبات الاستثنائية</button>
         <button class="btn wa" id="ejWa" type="button">${ICON_WA}تذكير سعادة العميد</button>
         <button class="btn pri" id="ejNew" type="button">＋ معاملة جديدة</button>
       </div>
@@ -1913,7 +1947,6 @@ function ejRenderDean(){
   const hist = E.items.filter(i => i.status !== 'at_dean' && i.directed_at).sort((a,b) => new Date(b.directed_at) - new Date(a.directed_at)).slice(0, 8);
   const h = new Date().getHours();
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
-    <button class="ej-back" id="ejBackD" type="button">→ الطلبات الاستثنائية</button>
     <div class="ej-hello"><div class="hi">${h < 12 ? 'صباح الخير' : 'مساء الخير'}</div><h2>سعادة العميد</h2>
       <div class="cnt"><span><b>${w.length}</b>بانتظار توجيهكم</span>${w.filter(i => ejDays(i.created_at) > 3).length ? `<span><b>${w.filter(i => ejDays(i.created_at) > 3).length}</b>أقدم من ٣ أيام</span>` : ''}</div></div>
     <div class="ej-list">${w.length ? w.map(i => `
