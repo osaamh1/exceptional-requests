@@ -1914,6 +1914,42 @@ function ejDeanClick(b){
 }
 $('#vEnjaz').addEventListener('input', e => { if (e.target.id === 'ejOwn') { E.own = e.target.value; ejSync(); } });
 
+/* تحويل التسجيل إلى MP3 أحادي القناة (64kbps) داخل الجهاز */
+let ejLamePromise = null;
+function ejLoadLame(){
+  if (window.lamejs) return Promise.resolve();
+  return ejLamePromise ||= new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
+    sc.onload = () => window.lamejs ? res() : rej(new Error('lamejs'));
+    sc.onerror = () => { ejLamePromise = null; rej(new Error('lamejs load')); };
+    document.head.appendChild(sc);
+  });
+}
+async function ejToMp3(blob){
+  await ejLoadLame();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC();
+  let buf;
+  try {
+    const ab = await blob.arrayBuffer();
+    buf = await new Promise((res, rej) => { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); });
+  } finally { try { ctx.close(); } catch {} }
+  const rate = buf.sampleRate, n = buf.length, ch = buf.numberOfChannels;
+  const mono = new Int16Array(n);
+  const chans = Array.from({ length: ch }, (_, k) => buf.getChannelData(k));
+  for (let j = 0; j < n; j++) {
+    let v = 0; for (let k = 0; k < ch; k++) v += chans[k][j];
+    v = Math.max(-1, Math.min(1, v / ch));
+    mono[j] = v < 0 ? v * 0x8000 : v * 0x7fff;
+  }
+  const enc = new lamejs.Mp3Encoder(1, rate, 64), out = [];
+  for (let j = 0; j < n; j += 1152) { const d = enc.encodeBuffer(mono.subarray(j, j + 1152)); if (d.length) out.push(new Int8Array(d)); }
+  const end = enc.flush(); if (end.length) out.push(new Int8Array(end));
+  const mp3 = new Blob(out, { type: 'audio/mpeg' });
+  if (mp3.size < 500) throw new Error('empty mp3');
+  return mp3;
+}
 async function ejSend(btn){
   const i = E.items.find(x => x.id === E.open); if (!i || !ejCanSend()) return;
   const discuss = E.pick === 'talk';
@@ -1921,11 +1957,16 @@ async function ejSend(btn){
   btn.disabled = true; btn.textContent = 'جاري الاعتماد…'; E.busy = true;
   try {
     if (E.voice) {
-      const ext = E.voice.type.includes('mp4') || E.voice.type.includes('aac') ? 'm4a' : E.voice.type.includes('ogg') ? 'ogg' : 'webm';
+      // نحوّل التسجيل إلى MP3 ليُسمع في تلقرام وفي الآيفون والأندرويد؛ وإن تعذّر يُرفع كما هو
+      let blob = E.voice.blob, type = E.voice.type;
+      try { btn.textContent = 'جاري تجهيز التسجيل…'; blob = await ejToMp3(E.voice.blob); type = 'audio/mpeg'; }
+      catch (ce) { console.warn('mp3 conversion failed', ce); }
+      btn.textContent = 'جاري الاعتماد…';
+      const ext = type === 'audio/mpeg' ? 'mp3' : type.includes('mp4') || type.includes('aac') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm';
       const path = `voice/${i.id}/${ejUuid()}.${ext}`;
-      const { error: ue } = await sb.storage.from(EJ_BUCKET).upload(path, E.voice.blob, { contentType: E.voice.type });
+      const { error: ue } = await sb.storage.from(EJ_BUCKET).upload(path, blob, { contentType: type });
       if (ue) throw new Error('تعذّر رفع التسجيل: ' + ue.message);
-      const { error: fe } = await sb.from('enjaz_files').insert({ item_id:i.id, kind:'voice', path, name:'توجيه صوتي', mime:E.voice.type, size:E.voice.blob.size, duration_s:E.voice.sec });
+      const { error: fe } = await sb.from('enjaz_files').insert({ item_id:i.id, kind:'voice', path, name:'توجيه صوتي', mime:type, size:blob.size, duration_s:E.voice.sec });
       if (fe) throw fe;
     }
     const { error } = await sb.rpc('enjaz_direct', { p_id:i.id, p_text:text || null, p_discuss:discuss });

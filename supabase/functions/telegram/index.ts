@@ -118,8 +118,12 @@ async function onEnjaz(id: string) {
         const fd = new FormData();
         fd.append("chat_id", String(chat_id));
         fd.append("caption", `توجيه صوتي — ${t.title}`.slice(0, 1000));
-        fd.append("document", new File([blob], `توجيه-العميد.${ext}`, { type: voice!.mime || "audio/webm" }));
-        await fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`, { method: "POST", body: fd });
+        // MP3 يُرسل كمقطع صوتي يُشغَّل داخل تلقرام مباشرة؛ غيره يُرسل كملف
+        const isMp3 = (voice!.mime || "").includes("mpeg") || ext === "mp3";
+        const field = isMp3 ? "audio" : "document";
+        fd.append(field, new File([blob], `توجيه-العميد.${ext}`, { type: voice!.mime || "audio/webm" }));
+        if (isMp3) { fd.append("title", "توجيه سعادة العميد"); fd.append("performer", "عميد كلية الشريعة"); if (voice!.duration_s) fd.append("duration", String(voice!.duration_s)); }
+        await fetch(`https://api.telegram.org/bot${TOKEN}/${isMp3 ? "sendAudio" : "sendDocument"}`, { method: "POST", body: fd });
       } catch (e) { console.error(e); }
     }
   }
