@@ -456,6 +456,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ej-send .btn{width:100%;padding:13px;font-size:16px}
 .ej-hist{margin-top:22px}
 .ej-hist h3{font-size:14px;color:var(--muted);margin-bottom:8px}
+@media (min-width:1001px){.kpis.ej5{grid-template-columns:repeat(5,1fr)}}
 @media (max-width:720px){.top .in{gap:6px}.top .who{display:none}#btnEnjaz{padding:0 8px;gap:5px}}
 #print{display:none}
 @media print{
@@ -1562,7 +1563,7 @@ function openEnjaz(){
   window.scrollTo(0, 0); renderEJ(); loadEJ(true);
 }
 function closeEnjaz(){
-  ejStopRec(true); E.open = null;
+  ejStopRec(true); E.open = null; E.shell = null;
   $('#vEnjaz').hidden = true; $('#vMain').hidden = false;
   history.replaceState(null, '', location.pathname);
 }
@@ -1588,7 +1589,7 @@ function ejBadge(){
                      : E.items.filter(i => i.status === 'directed' || i.status === 'discuss').length;
   const b = $('#ejBadge'); b.hidden = !n; b.textContent = n;
 }
-function renderEJ(){ ejDean() ? ejRenderDean() : ejRenderOffice(); }
+function renderEJ(){ if (ejDean()) { E.shell = 'dean'; return ejRenderDean(); } ejRenderOffice(); }
 
 /* ---------------- مكونات مشتركة ---------------- */
 function ejPills(i){
@@ -1610,45 +1611,143 @@ function ejDirection(i){
     ${v ? `<audio class="ej-audio" controls preload="none" src="${esc(E.urls[v.path] || '')}"></audio>` : ''}</div>`;
 }
 
-/* ================= شاشة المكتب ================= */
-function ejRenderOffice(){
-  const count = id => E.items.filter(i => i.status === id).length;
-  let list = E.items.filter(i => i.status === E.tab);
-  list = E.tab === 'done' ? list.sort((a,b) => new Date(b.done_at||b.updated_at) - new Date(a.done_at||a.updated_at)).slice(0, 60)
-       : E.tab === 'at_dean' ? list.sort((a,b) => (b.urgent - a.urgent) || (new Date(a.created_at) - new Date(b.created_at)))
-       : list.sort((a,b) => new Date(a.directed_at) - new Date(b.directed_at));
-  $('#vEnjaz').innerHTML = `
-    <div class="ej-head">
-      <div><h2>معاملات إنجاز لدى العميد</h2><div class="sub">لا يطّلع عليها إلا أنت وسعادة العميد</div></div>
-      <div class="sp"></div>
-      <button class="btn line" id="ejBack" type="button">رجوع للطلبات</button>
-      <button class="btn wa" id="ejWa" type="button" ${count('at_dean') ? '' : 'disabled'}>${ICON_WA}تذكير سعادة العميد</button>
-      <button class="btn pri" id="ejNew" type="button">＋ معاملة جديدة</button>
-    </div>
-    <div class="ej-tabs">${EJ_TABS.map(t => `<button class="ej-tab ${E.tab === t.id ? 'on' : ''}" data-ejtab="${t.id}" type="button">${t.l}<b>${count(t.id)}</b></button>`).join('')}</div>
-    <div class="ej-list">${list.length ? list.map(ejOfficeCard).join('') : `<div class="ej-empty">${E.tab === 'at_dean' ? 'لا توجد معاملات بانتظار العميد. أضف معاملة من «معاملة جديدة».' : 'لا توجد معاملات هنا.'}</div>`}</div>`;
+/* ================= شاشة المكتب (بنفس شكل لوحة الطلبات) ================= */
+const EJ_KPIS = [
+  { id:'at',    l:'لدى العميد',          c:'var(--violet)', f:i => i.status === 'at_dean' },
+  { id:'late',  l:'متأخرة لدى العميد',   c:'var(--bad)',    f:i => i.status === 'at_dean' && ejDays(i.created_at) > 3 },
+  { id:'todo',  l:'للنقل إلى إنجاز',     c:'var(--teal)',   f:i => i.status === 'directed' },
+  { id:'talk',  l:'للمناقشة مع العميد',  c:'var(--navy-2)', f:i => i.status === 'discuss' },
+  { id:'month', l:'أُقفلت هذا الشهر',     c:'var(--ok)',     f:i => i.status === 'done' && i.done_at && hijri(i.done_at,{month:'numeric',year:'numeric'}) === hijri(new Date(),{month:'numeric',year:'numeric'}) },
+];
+const EJ_OTABS = [
+  { id:'at_dean',  l:'لدى العميد',          f:i => i.status === 'at_dean' },
+  { id:'directed', l:'للنقل إلى إنجاز',     f:i => i.status === 'directed' },
+  { id:'discuss',  l:'للمناقشة',            f:i => i.status === 'discuss' },
+  { id:'done',     l:'المنتهية',            f:i => i.status === 'done' },
+  { id:'all',      l:'الكل',                f:() => true },
+];
+const EJ_ST = { at_dean:['لدى العميد','t-at_dean'], directed:['صدر التوجيه','dec dec-directed'], discuss:['للمناقشة','t-needs_info'], done:['نُقلت إلى إنجاز','t-closed'] };
+const ejStatus = i => `<span class="pill ${EJ_ST[i.status][1]}">${EJ_ST[i.status][0]}</span>`;
+E.sel = null; E.q = ''; E.kpi = null; E.shell = null;
+
+function ejFiltered(){
+  let rows = E.items.filter(E.kpi ? EJ_KPIS.find(k => k.id === E.kpi).f : EJ_OTABS.find(t => t.id === E.tab).f);
+  if (E.q) {
+    const q = E.q.replace(/[٠-٩]/g, d => d.charCodeAt(0) - 1632).toLowerCase();
+    rows = rows.filter(i => [i.title, i.enjaz_no, i.source, i.summary, i.dean_text].some(v => String(v || '').toLowerCase().includes(q)));
+  }
+  const t = i => new Date(i.status === 'done' ? (i.done_at || i.updated_at) : i.status === 'at_dean' ? i.created_at : (i.directed_at || i.updated_at));
+  return rows.sort((a, b) => a.status === 'at_dean' && b.status === 'at_dean' ? (b.urgent - a.urgent) || (t(a) - t(b))
+    : a.status === 'done' || b.status === 'done' ? t(b) - t(a) : t(a) - t(b));
 }
-function ejOfficeCard(i){
+function ejRenderOffice(){
+  if (E.shell !== 'office' || !$('#ejList')) {
+    if (!EJ_OTABS.some(t => t.id === E.tab)) E.tab = 'at_dean';
+    $('#vEnjaz').innerHTML = `
+      <div class="ej-head">
+        <div><h2>معاملات إنجاز لدى العميد</h2><div class="sub">🔒 لا يطّلع عليها إلا أنت وسعادة العميد</div></div>
+        <div class="sp"></div>
+        <button class="btn line" id="ejBack" type="button">رجوع للطلبات</button>
+        <button class="btn wa" id="ejWa" type="button">${ICON_WA}تذكير سعادة العميد</button>
+        <button class="btn pri" id="ejNew" type="button">＋ معاملة جديدة</button>
+      </div>
+      <div class="kpis ej5" id="ejKpis"></div>
+      <div class="bar">
+        <div class="tabs" id="ejTabs"></div>
+        <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input class="input" id="ejQ" placeholder="بحث بعنوان المعاملة أو رقمها في إنجاز أو الجهة"></div>
+      </div>
+      <div class="layout">
+        <div class="list" id="ejList"></div>
+        <section class="detail" id="ejDetail" hidden></section>
+        <section class="home"><div class="empty2"><div class="ei" style="background:var(--navy-soft);color:var(--navy-2)">📂</div><b>اختر معاملة لعرض تفاصيلها</b><p>أو أضف معاملة جديدة لتُعرض على سعادة العميد.</p></div></section>
+      </div>`;
+    E.shell = 'office';
+    $('#ejQ').value = E.q;
+  }
+  ejPaintTop(); ejPaintList(); ejPaintDetail();
+}
+function ejPaintTop(){
+  $('#ejKpis').innerHTML = EJ_KPIS.map(k => `<button class="kpi ${E.kpi === k.id ? 'on' : ''}" style="--c:${k.c}" data-ejk="${k.id}" type="button"><b>${E.items.filter(k.f).length}</b><span>${k.l}</span></button>`).join('');
+  $('#ejTabs').innerHTML = EJ_OTABS.map(t => `<button class="tab ${!E.kpi && E.tab === t.id ? 'on' : ''}" data-ejtab="${t.id}" type="button">${t.l}<span class="n">${E.items.filter(t.f).length}</span></button>`).join('');
+  $('#ejWa').disabled = !E.items.some(i => i.status === 'at_dean');
+}
+function ejPaintList(){
+  const rows = ejFiltered();
+  if (E.sel && !rows.some(i => i.id === E.sel)) E.sel = null;
+  $('#ejList').innerHTML = rows.length ? rows.map(i => {
+    const late = i.status === 'at_dean' && ejDays(i.created_at) > 3;
+    const voice = ejFilesOf(i.id, 'voice').length, att = ejFilesOf(i.id, 'attachment').length;
+    const when = i.status === 'at_dean' ? i.created_at : i.status === 'done' ? (i.done_at || i.updated_at) : (i.directed_at || i.updated_at);
+    return `<div class="item ${E.sel === i.id ? 'on' : ''}" data-ejsel="${i.id}">
+      <div class="nm"><span class="lb">المعاملة:</span> ${esc(i.title)}</div>
+      <div>${ejStatus(i)}</div>
+      ${i.summary ? `<div class="sm"><span class="lb">الملخص:</span> ${esc(i.summary)}</div>` : ''}
+      <div class="mt"><span class="rf ltr">${esc(i.enjaz_no)}</span>·${i.source ? `<span class="tag">${esc(i.source)}</span>` : ''}${i.urgent ? '<span class="tag" style="background:var(--bad);color:#fff;font-weight:700">عاجلة</span>' : ''}${i.secret ? '<span class="tag" style="background:var(--bad-soft);color:var(--bad);font-weight:700">🔒 سرّية</span>' : att ? `<span class="tag">📎 ${att}</span>` : ''}·<span class="${late ? 'late' : ''}">${late ? '⚠ متأخرة · ' : ''}${ago(when)}</span></div>
+      ${(i.dean_text || voice) && i.status !== 'at_dean' ? `<div class="dsum ${i.status === 'discuss' ? 'ds-reserved' : 'ds-directed'}">
+        <div class="dl"><b>${i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'التوجيه:'}</b> ${i.dean_text ? esc(i.dean_text.replace(/\s+/g, ' ')) : ''}</div>
+        <div class="dm">${i.directed_at ? `<span>🗓 ${hijri(i.directed_at)}</span>` : ''}${voice ? '<span>🎙 تسجيل صوتي</span>' : ''}${i.status === 'directed' ? '<span class="wait">بانتظار النقل إلى إنجاز</span>' : ''}</div>
+      </div>` : ''}
+    </div>`;
+  }).join('') : `<div class="empty">${E.q ? `لا توجد نتائج لـ«${esc(E.q)}»` : E.tab === 'at_dean' && !E.kpi ? 'لا توجد معاملات لدى سعادة العميد.' : 'لا توجد معاملات هنا.'}</div>`;
+}
+function ejPaintDetail(){
+  const D = $('#ejDetail'), i = E.items.find(x => x.id === E.sel);
+  if (!i) { D.hidden = true; D.innerHTML = ''; return; }
+  D.hidden = false;
+  const sc = D.querySelector('.d-body')?.scrollTop || 0, same = D.dataset.id === i.id;
+  const atts = ejFilesOf(i.id, 'attachment'), voice = ejFilesOf(i.id, 'voice').pop();
+  const files = i.secret ? `<div class="ej-secret">🔒 معاملة سرّية — المرفق محفوظ في إنجاز برقم <span class="ltr">${esc(i.enjaz_no)}</span></div>`
+    : atts.length ? `<div class="files">${atts.map(f => { const img = /^image\//.test(f.mime || '') && E.urls[f.path];
+        return `<a class="file" href="${esc(E.urls[f.path] || '#')}" target="_blank" rel="noopener"><div class="th">${img ? `<img src="${esc(E.urls[f.path])}" alt="">` : esc(ejExt(f.name).toUpperCase())}</div><div class="fn">${esc(f.name || 'مرفق')}</div></a>`; }).join('')}</div>`
+    : '<div class="txt" style="color:var(--muted)">لا توجد مرفقات</div>';
+  const ev = [{ t:i.created_at, b:'أُضيفت المعاملة وعُرضت على سعادة العميد', by:i.created_by, dot:'var(--info)' }];
+  if (i.directed_at) ev.push({ t:i.directed_at, b:i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'صدر توجيه سعادة العميد', by:i.directed_by, dot:i.status === 'discuss' ? '#c07a12' : 'var(--violet)' });
+  if (i.done_at) ev.push({ t:i.done_at, b:'نُقل التوجيه إلى إنجاز وأُقفلت', by:i.done_by, dot:'var(--teal)' });
   const acts = i.status === 'at_dean' ? `<button class="btn line" data-ej="edit" data-id="${i.id}">تعديل</button><button class="btn danger" data-ej="del" data-id="${i.id}">حذف</button>`
     : i.status === 'directed' ? `${i.dean_text ? `<button class="btn line" data-ej="copy" data-id="${i.id}">نسخ التوجيه</button>` : ''}<button class="btn teal" data-ej="done" data-id="${i.id}">تم النقل إلى إنجاز</button>`
-    : i.status === 'discuss' ? `<button class="btn teal" data-ej="result" data-id="${i.id}">تسجيل نتيجة المناقشة</button><button class="btn line" data-ej="back" data-id="${i.id}">إعادتها للعميد</button>`
+    : i.status === 'discuss' ? `<button class="btn teal" data-ej="result" data-id="${i.id}">تسجيل نتيجة المناقشة</button><button class="btn line" data-ej="back" data-id="${i.id}">إعادتها لسعادة العميد</button>`
     : `<button class="btn ghost" data-ej="reopen" data-id="${i.id}">إعادة فتح</button>`;
-  return `<div class="ej-card">
-    <div class="h"><h3>${esc(i.title)}</h3>${ejPills(i)}</div>
-    <div class="ej-meta"><span>إنجاز: <span class="ltr">${esc(i.enjaz_no)}</span></span>${i.source ? `<span>${esc(i.source)}</span>` : ''}<span>أُضيفت ${hijri(i.created_at)}</span>${i.done_at ? `<span>نُقلت ${hijri(i.done_at)}</span>` : ''}</div>
-    ${i.summary ? `<div class="ej-sum">${esc(i.summary)}</div>` : ''}
-    ${ejAttach(i)}
-    ${i.status === 'at_dean' && i.suggestions?.length ? `<div class="ej-meta"><span>المقترحات: ${i.suggestions.map(esc).join(' · ')}</span></div>` : ''}
-    ${ejDirection(i)}
-    <div class="ej-acts">${acts}</div></div>`;
+  D.dataset.id = i.id;
+  D.innerHTML = `
+    <div class="d-head">
+      <button class="ibtn d-close" style="background:#eef1f6;color:var(--ink)" id="ejDClose" type="button" aria-label="رجوع"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>
+      <span class="rf ltr">${esc(i.enjaz_no)}</span>${ejStatus(i)}
+      <span class="sp"></span><small style="color:var(--muted)">أُضيفت ${hijri(i.created_at)}</small>
+    </div>
+    <div class="d-body">
+      ${i.status === 'at_dean' ? `<div class="atdean">المعاملة لدى سعادة العميد للتوجيه${ejDays(i.created_at) > 3 ? ` منذ ${ejDays(i.created_at)} أيام — يمكنك تذكيره عبر واتساب` : ''}.</div>` : ''}
+      <div class="sec"><h3>📄 المعاملة</h3>
+        <div class="txt" style="font-weight:700;font-size:15.5px">${esc(i.title)}</div>
+        <div class="kv" style="margin-top:10px">
+          <div><small>رقم المعاملة في إنجاز</small><b class="ltr">${esc(i.enjaz_no)}</b></div>
+          <div><small>الجهة الواردة</small><b>${esc(i.source || '—')}</b></div>
+          <div><small>الأولوية</small><b style="${i.urgent ? 'color:var(--bad)' : ''}">${i.urgent ? 'عاجلة' : 'عادية'}</b></div>
+          <div><small>المرفق</small><b>${i.secret ? '🔒 سرّي — الملخص فقط' : 'مرفوع في المنصة'}</b></div>
+        </div></div>
+      ${i.summary ? `<div class="sec"><h3>📝 ملخص المكتب</h3><div class="txt">${esc(i.summary)}</div></div>` : ''}
+      <div class="sec"><h3>📎 المرفقات${i.secret ? '' : ` (${atts.length})`}</h3>${files}</div>
+      ${i.suggestions?.length ? `<div class="sec"><h3>💡 التوجيهات المقترحة</h3><div class="box office">${i.suggestions.map(s => '• ' + esc(s)).join('\n')}</div></div>` : ''}
+      ${(i.dean_text || voice) ? `<div class="sec"><h3>🖋️ ${i.status === 'discuss' ? 'طلب سعادة العميد' : 'توجيه سعادة العميد'}</h3><div class="box dean">
+        ${i.status === 'discuss' ? '<div class="dc">تُناقش معي</div>' : ''}
+        ${i.dean_text ? `<div style="white-space:pre-wrap">${esc(i.dean_text)}</div>` : ''}
+        ${voice ? `<audio class="ej-audio" controls preload="none" src="${esc(E.urls[voice.path] || '')}" style="margin-top:8px"></audio>` : ''}
+        ${i.directed_at ? `<small>${hijri(i.directed_at)} ${time(i.directed_at)}</small>` : ''}</div></div>` : ''}
+      <div class="sec"><h3>🕓 السجل</h3><ul class="tl">${ev.map(e => `<li style="--dot:${e.dot}"><div class="tl-h"><b>${e.b}</b></div><div class="tl-m">${e.by && who(e.by) ? esc(who(e.by)) + ' · ' : ''}${hijri(e.t)} · ${time(e.t)}</div></li>`).join('')}</ul></div>
+    </div>
+    <div class="d-actions">${acts}</div>`;
+  if (same && sc) D.querySelector('.d-body').scrollTop = sc;
 }
 
 $('#vEnjaz').addEventListener('click', async e => {
+  const card = e.target.closest('[data-ejsel]');
+  if (card && !e.target.closest('a,button')) { E.sel = card.dataset.ejsel; ejPaintList(); return ejPaintDetail(); }
   const b = e.target.closest('button'); if (!b) return;
   if (b.id === 'ejBack' || b.id === 'ejBackD') return closeEnjaz();
   if (b.id === 'ejNew') return ejForm(null);
   if (b.id === 'ejWa') return ejWhatsapp();
-  if (b.dataset.ejtab) { E.tab = b.dataset.ejtab; return renderEJ(); }
+  if (b.dataset.ejtab) { E.tab = b.dataset.ejtab; E.kpi = null; return renderEJ(); }
+  if (b.dataset.ejk) { E.kpi = E.kpi === b.dataset.ejk ? null : b.dataset.ejk; return renderEJ(); }
+  if (b.id === 'ejDClose') { E.sel = null; return renderEJ(); }
   const i = E.items.find(x => x.id === b.dataset.id);
   const a = b.dataset.ej;
   if (a && i) return ejAct(a, i, b);
@@ -1696,7 +1795,7 @@ async function ejAct(a, i, b){
     const { error } = await sb.from('enjaz_items').delete().eq('id', i.id);
     E.busy = false;
     if (error) return toast(errText(error), 'error');
-    toast('حُذفت', 'ok'); loadEJ(true);
+    toast('حُذفت', 'ok'); if (E.sel === i.id) E.sel = null; loadEJ(true);
   }
 }
 
@@ -1776,7 +1875,7 @@ function ejForm(i){
         if (fe) throw fe;
       }
       closeModal(); toast(i ? 'حُفظ التعديل ✓' : 'حُفظت وعُرضت على سعادة العميد ✓', 'ok');
-      E.tab = 'at_dean'; await loadEJ(true);
+      E.tab = 'at_dean'; E.kpi = null; E.sel = id; await loadEJ(true);
     } catch (err) {
       console.error(err); toast(errText(err), 'error'); btn.disabled = false; btn.textContent = 'حاول مرة أخرى';
     } finally { E.busy = false; }
@@ -1912,7 +2011,10 @@ function ejDeanClick(b){
   if (b.id === 'ejRedo') { if (E.voice) URL.revokeObjectURL(E.voice.url); E.voice = null; return ejPaintMic(); }
   if (b.id === 'ejSend') return ejSend(b);
 }
-$('#vEnjaz').addEventListener('input', e => { if (e.target.id === 'ejOwn') { E.own = e.target.value; ejSync(); } });
+$('#vEnjaz').addEventListener('input', e => {
+  if (e.target.id === 'ejOwn') { E.own = e.target.value; ejSync(); }
+  if (e.target.id === 'ejQ') { E.q = e.target.value.trim(); ejPaintList(); ejPaintDetail(); }
+});
 
 /* تحويل التسجيل إلى MP3 أحادي القناة (64kbps) داخل الجهاز */
 let ejLamePromise = null;
