@@ -482,6 +482,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 @media (prefers-reduced-motion:reduce){#ejDirBlk.pulse{animation:none}}
 #ejVoiceBlk{border-color:#c9d6ef;background:#f6f9fe}
 #ejRefBlk{border-color:#d9d2f4;background:#faf9ff}
+#ejRefOther{border-color:var(--violet);margin-top:2px}
 .ej-step{display:flex;gap:10px;align-items:center;margin-bottom:4px}
 .ej-step .no{width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;flex:none;font-size:15px}
 #ejVoiceBlk .ej-step .no{background:var(--navy)}
@@ -1991,7 +1992,7 @@ function ejRenderDean(){
   </div>`;
 }
 function ejDeanDetail(i){
-  E.pick = null; E.own = ''; E.voice = null; E.ref = null;
+  E.pick = null; E.own = ''; E.voice = null; E.ref = null; E.refOther = '';
   const sug = (i.suggestions || []).filter(x => !EJ_PHRASES.includes(x));
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
     <button class="ej-back" id="ejClose" type="button">→ رجوع للقائمة</button>
@@ -2022,8 +2023,10 @@ function ejDeanDetail(i){
         <div class="ej-step"><span class="no">٢</span><div><b>الإدارة المحال إليها</b><small>اختياري — اضغط مرة ثانية لإلغاء الاختيار</small></div></div>
         <div class="ej-picks ej-refs" id="ejRefs">
           ${EJ_REFS.map(x => `<button type="button" class="ej-pick ref" data-r="${esc(x)}">${esc(x)}</button>`).join('')}
+          <button type="button" class="ej-pick ref voice" data-r="other">✍️ جهة أخرى أكتبها</button>
           <button type="button" class="ej-pick ref voice" data-r="voice">🎙 أشرح بالصوت أين تُحال</button>
         </div>
+        <input class="input" id="ejRefOther" placeholder="اكتب الجهة المحال إليها، مثال: وكالة الجامعة للشؤون التعليمية" maxlength="200" hidden>
         <div class="ej-note" id="ejRefNote" hidden>اذكر في التسجيل الصوتي أعلاه الجهة المحال إليها.</div>
       </div>
     </div>
@@ -2031,6 +2034,7 @@ function ejDeanDetail(i){
   </div>`;
   ejPaintMic(); window.scrollTo(0, 0);
 }
+function ejRefValue(){ return E.ref === 'other' ? (E.refOther || '').trim() : E.ref; }
 function ejPhrase(i){
   const p = E.pick; if (p === null || p === 'talk') return '';
   if (p === 'own') return E.own.trim();
@@ -2039,6 +2043,7 @@ function ejPhrase(i){
 }
 function ejCanSend(){
   const base = (E.pick !== null && (E.pick !== 'own' || E.own.trim())) || !!E.voice;
+  if (E.pick !== 'talk' && E.ref === 'other' && !(E.refOther || '').trim()) return false;
   return base && !(E.ref === 'voice' && !E.voice && E.pick !== 'talk');
 }
 function ejSync(){
@@ -2048,7 +2053,9 @@ function ejSync(){
   $('#ejRefBlk').hidden = talk;
   $('#ejDirBlk').classList.toggle('pulse', E.pick === null && !E.voice);
   $('#ejRefNote').hidden = !(E.ref === 'voice' && !E.voice);
-  const parts = talk ? ['تُناقش معي'] : [E.ref ? 'يُحال إلى ' + ejRefLabel(E.ref) : '', ejPhrase(i), E.voice ? '🎙 مع تسجيل صوتي' : ''].filter(Boolean);
+  const other = $('#ejRefOther'); if (other) other.hidden = talk || E.ref !== 'other';
+  const rv = ejRefValue();
+  const parts = talk ? ['تُناقش معي'] : [rv ? 'يُحال إلى ' + ejRefLabel(rv) : '', ejPhrase(i), E.voice ? '🎙 مع تسجيل صوتي' : ''].filter(Boolean);
   line.innerHTML = parts.length ? `<b>التوجيه:</b> ${parts.map(esc).join(' · ')}` : '';
   line.hidden = !parts.length;
 }
@@ -2104,7 +2111,9 @@ function ejDeanClick(b){
   if (b.dataset.r !== undefined) {
     E.ref = E.ref === b.dataset.r ? null : b.dataset.r;
     $$('#ejRefs .ej-pick').forEach(x => x.classList.toggle('on', x.dataset.r === E.ref));
-    return ejSync();
+    ejSync();
+    if (E.ref === 'other') $('#ejRefOther').focus();
+    return;
   }
   if (b.dataset.p !== undefined) {
     $$('#ejPicks .ej-pick').forEach(x => x.classList.toggle('on', x === b));
@@ -2120,6 +2129,7 @@ function ejDeanClick(b){
 }
 $('#vEnjaz').addEventListener('input', e => {
   if (e.target.id === 'ejOwn') { E.own = e.target.value; ejSync(); }
+  if (e.target.id === 'ejRefOther') { E.refOther = e.target.value; ejSync(); }
   if (e.target.id === 'ejQ') { E.q = e.target.value.trim(); ejPaintList(); ejPaintDetail(); }
 });
 
@@ -2178,10 +2188,10 @@ async function ejSend(btn){
       const { error: fe } = await sb.from('enjaz_files').insert({ item_id:i.id, kind:'voice', path, name:'توجيه صوتي', mime:type, size:blob.size, duration_s:E.voice.sec });
       if (fe) throw fe;
     }
-    const { error } = await sb.rpc('enjaz_direct', { p_id:i.id, p_text:text || null, p_discuss:discuss, p_referred_to:discuss ? null : E.ref });
+    const { error } = await sb.rpc('enjaz_direct', { p_id:i.id, p_text:text || null, p_discuss:discuss, p_referred_to:discuss ? null : (ejRefValue() || null) });
     if (error) throw error;
     if (E.voice) URL.revokeObjectURL(E.voice.url);
-    E.open = null; E.voice = null; E.pick = null; E.own = ''; E.ref = null;
+    E.open = null; E.voice = null; E.pick = null; E.own = ''; E.ref = null; E.refOther = '';
     toast(discuss ? 'وصل لمكتبكم أنكم ترغبون مناقشتها ✓' : 'اعتُمد التوجيه، ووصل لمكتبكم ✓', 'ok');
     await loadEJ(true); renderEJ(); window.scrollTo(0, 0);
   } catch (err) {
