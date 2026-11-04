@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12306b">
 <meta name="robots" content="noindex,nofollow">
-<title>لوحة الطلبات الاستثنائية | كلية الشريعة</title>
+<title>مكتب العميد الرقمي | كلية الشريعة</title>
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -519,8 +519,8 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 <section class="login" id="vLogin" hidden>
   <div class="box">
     <img src="assets/logo.png" alt="جامعة القصيم — كلية الشريعة">
-    <h1>لوحة الطلبات الاستثنائية</h1>
-    <p class="sub">دخول منسوبي مكتب الكلية</p>
+    <h1>مكتب العميد الرقمي</h1>
+    <p class="sub">كلية الشريعة · دخول منسوبي مكتب العميد</p>
     <div class="msg" id="lMsg" hidden></div>
     <form id="lForm" novalidate>
       <div class="f"><label class="l" for="lEmail">البريد الإلكتروني</label><input class="input ltr" id="lEmail" type="email" autocomplete="username" required></div>
@@ -547,7 +547,7 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 <div id="vApp" hidden>
   <header class="top"><div class="in">
     <img src="assets/logo-white.png" alt="جامعة القصيم — كلية الشريعة">
-    <div class="ttl">لوحة الطلبات الاستثنائية</div>
+    <div class="ttl">مكتب العميد الرقمي</div>
     <div class="sp"></div>
     <button class="rbtn" id="btnReport" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></svg><span>التقارير</span></button>
     <button class="rbtn" id="btnEnjaz" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M4 13h4l2 3h4l2-3h4"/></svg><span>معاملات إنجاز</span><b class="ej-badge" id="ejBadge" hidden></b></button>
@@ -778,14 +778,14 @@ function renderNotifs(){
   const shown = list.slice(0, 3);
   $('#notifs').innerHTML = shown.map(n => `
     <div class="ntf" data-nreq="${n.request_id}" data-nid="${n.event_id}" ${S.popped.has(n.event_id) ? 'style="animation:none"' : ''}>
-      <div class="nh"><span class="ic"><img src="assets/logo-white.png" alt=""></span><span class="ap">بوابة الطلبات</span><span>· ${ago(n.created_at)}</span><button class="x" data-ndis="${n.event_id}" aria-label="إخفاء">×</button></div>
+      <div class="nh"><span class="ic"><img src="assets/logo-white.png" alt=""></span><span class="ap">مكتب العميد الرقمي</span><span>· ${ago(n.created_at)}</span><button class="x" data-ndis="${n.event_id}" aria-label="إخفاء">×</button></div>
       <div class="nt">📝 ${noteFrom(n)}</div>
       <div class="ns">${esc(n.actor_name || '')} · طلب <span class="ltr">${esc(n.ref_no)}</span> — ${esc(n.student_name)}</div>
       <div class="nb">${esc(n.note)}</div>
       <div class="no">اضغط لفتح الطلب ←</div>
     </div>`).join('') + (list.length > 3 ? `<div class="ntf more">و ${list.length - 3} ملاحظات أخرى — تجدها موسومة في القائمة</div>` : '');
   shown.forEach(n => S.popped.add(n.event_id));
-  const c = S.unread.length; document.title = (c ? `(${c}) ` : '') + 'لوحة الطلبات الاستثنائية | كلية الشريعة';
+  const c = S.unread.length; document.title = (c ? `(${c}) ` : '') + 'مكتب العميد الرقمي | كلية الشريعة';
 }
 $('#notifs').addEventListener('click', e => {
   const x = e.target.closest('[data-ndis]');
@@ -1361,7 +1361,7 @@ function formHTML(r, files, events){
     ${events.filter(e => e.action==='completed' && e.note).map(e => `<div class="blk"><h4>استكمال الطالب (${hijri(e.created_at)})</h4><div>${esc(e.note)}</div></div>`).join('')}
     ${r.office_note ? `<div class="blk"><h4>مرئيات الموظف${staffName ? `: <span class="stf">${esc(staffName)}</span>` : ''}</h4><div>${esc(r.office_note)}</div></div>` : ''}
     <div class="dir"><div class="hd">توجيه ${hon} عميد الكلية</div>${dir}</div>
-    <div class="stamp"><span>${r.decided_at ? `اعتُمد التوجيه إلكترونياً عبر بوابة الطلبات الاستثنائية بتاريخ ${hijri(r.decided_at)} الساعة ${time(r.decided_at)}` : 'بوابة الطلبات الاستثنائية — كلية الشريعة'}</span><span class="ltr">${esc(r.ref_no)}</span></div>
+    <div class="stamp"><span>${r.decided_at ? `اعتُمد التوجيه إلكترونياً عبر مكتب العميد الرقمي بتاريخ ${hijri(r.decided_at)} الساعة ${time(r.decided_at)}` : 'بوابة الطلبات الاستثنائية — كلية الشريعة'}</span><span class="ltr">${esc(r.ref_no)}</span></div>
   </div>`;
 }
 async function signFiles(files){
@@ -1647,7 +1647,7 @@ function ejRenderOffice(){
       <div class="ej-head">
         <div><h2>معاملات إنجاز لدى العميد</h2><div class="sub">🔒 لا يطّلع عليها إلا أنت وسعادة العميد</div></div>
         <div class="sp"></div>
-        <button class="btn line" id="ejBack" type="button">رجوع للطلبات</button>
+        <button class="btn line" id="ejBack" type="button">الطلبات الاستثنائية</button>
         <button class="btn wa" id="ejWa" type="button">${ICON_WA}تذكير سعادة العميد</button>
         <button class="btn pri" id="ejNew" type="button">＋ معاملة جديدة</button>
       </div>
@@ -1913,7 +1913,7 @@ function ejRenderDean(){
   const hist = E.items.filter(i => i.status !== 'at_dean' && i.directed_at).sort((a,b) => new Date(b.directed_at) - new Date(a.directed_at)).slice(0, 8);
   const h = new Date().getHours();
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
-    <button class="ej-back" id="ejBackD" type="button">→ لوحة الطلبات الاستثنائية</button>
+    <button class="ej-back" id="ejBackD" type="button">→ الطلبات الاستثنائية</button>
     <div class="ej-hello"><div class="hi">${h < 12 ? 'صباح الخير' : 'مساء الخير'}</div><h2>سعادة العميد</h2>
       <div class="cnt"><span><b>${w.length}</b>بانتظار توجيهكم</span>${w.filter(i => ejDays(i.created_at) > 3).length ? `<span><b>${w.filter(i => ejDays(i.created_at) > 3).length}</b>أقدم من ٣ أيام</span>` : ''}</div></div>
     <div class="ej-list">${w.length ? w.map(i => `
