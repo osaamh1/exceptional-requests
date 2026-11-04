@@ -92,6 +92,40 @@ async function onDigest() {
   return { late: late.length, sent };
 }
 
+// ---------- معاملات إنجاز: لأصحاب صلاحية المعاملات فقط (notify_recipients.enjaz) ----------
+async function onEnjaz(id: string) {
+  const { data: t } = await sb.from("enjaz_items").select("*").eq("id", id).maybeSingle();
+  if (!t || t.notified_at || !fresh(t.directed_at)) return { skipped: true };
+  await sb.from("enjaz_items").update({ notified_at: new Date().toISOString() }).eq("id", id);
+  const { data: rs } = await sb.from("notify_recipients").select("chat_id").eq("active", true).eq("enjaz", true);
+  const ids = (rs ?? []).map((r) => r.chat_id);
+  const { data: voice } = await sb.from("enjaz_files").select("path,mime,duration_s").eq("item_id", id).eq("kind", "voice")
+    .order("created_at", { ascending: false }).limit(1).maybeSingle();
+  const head = t.status === "discuss" ? "💬 <b>معاملة يرغب سعادة العميد مناقشتها</b>" : "✅ <b>وجّه سعادة العميد على معاملة</b>";
+  const text = [head, "", `<b>${esc(t.title)}</b>`, `رقم إنجاز: ${esc(t.enjaz_no)}${t.source ? ` · ${esc(t.source)}` : ""}`,
+    t.dean_text ? `\nالتوجيه: ${esc(t.dean_text)}` : "", voice ? "\n🎙 مع تسجيل صوتي (مرفق أدناه)" : ""].filter((x) => x !== "").join("\n");
+  const markup = { inline_keyboard: [[{ text: "فتح معاملات إنجاز", url: ADMIN_URL + "#enjaz" }]] };
+  let blob: Blob | null = null;
+  if (voice) {
+    const { data } = await sb.storage.from("enjaz-files").download(voice.path);
+    blob = data ?? null;
+  }
+  for (const chat_id of ids) {
+    await tg("sendMessage", { chat_id, text, parse_mode: "HTML", disable_web_page_preview: true, reply_markup: markup });
+    if (blob) {
+      try {
+        const ext = (voice!.path.split(".").pop() || "webm").toLowerCase();
+        const fd = new FormData();
+        fd.append("chat_id", String(chat_id));
+        fd.append("caption", `توجيه صوتي — ${t.title}`.slice(0, 1000));
+        fd.append("document", new File([blob], `توجيه-العميد.${ext}`, { type: voice!.mime || "audio/webm" }));
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendDocument`, { method: "POST", body: fd });
+      } catch (e) { console.error(e); }
+    }
+  }
+  return { sent: ids.length };
+}
+
 async function onSetup() {
   const secret = await webhookSecret();
   const me = await tg("getMe", {});
@@ -147,6 +181,7 @@ Deno.serve(async (req) => {
       case "new": return json(await onNew(body.id));
       case "completed": return json(await onCompleted(body.id));
       case "digest": return json(await onDigest());
+      case "enjaz": return json(await onEnjaz(body.id));
       case "setup": return json(await onSetup());
       default: return json({ error: "unknown type" }, 400);
     }

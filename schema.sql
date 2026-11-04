@@ -360,3 +360,9 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 -- p14: track_request يعيد enjaz_no بعد الإقفال (يظهر للطالب مع الجهة المحال إليها)
 
 -- p15: req_log_contact(p_id, p_note) — يسجّل مراسلة واتساب في سجل الطلب (داخلية)
+
+-- e1_enjaz_transactions: معاملات إنجاز لدى العميد (إضافة فقط، لا تمس جداول الطلبات)
+--   profiles.enjaz_access: الصلاحية بالاسم (أسامة بحسابيه + العميد) — خالد وفيصل لا يرون شيئاً
+--   enjaz_items / enjaz_files + حاوية خاصة enjaz-files، كلها محمية بـ has_enjaz()
+--   enjaz_direct(p_id, p_text, p_discuss): التوجيه من حساب العميد فقط (لا يمتد له التفويض)
+--   notify_recipients.enjaz: تنبيه تلقرام بالتوجيه (والتسجيل الصوتي) لأسامة فقط
