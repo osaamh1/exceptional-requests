@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a1c40">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>رحلة المعاملة إلى سعادة العميد</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: one slide at a time on a navy stage; each step pairs a short explanation with a live mock of the real screen.
+   Single deliberate look (the platform's own navy/teal identity), so colors are set explicitly for both host themes. */
+:root{
+  --navy:#12306b; --navy-2:#1d4690; --navy-deep:#0a1c40; --navy-soft:#e7edf8;
+  --teal:#11908f; --teal-2:#2bb3b1; --teal-soft:#e2f3f2;
+  --ink:#1c2431; --muted:#66707e; --line:#e1e6ee; --paper:#f4f6fa; --card:#fff;
+  --ok:#1f7a55; --ok-soft:#e5f3ec; --warn:#a86a12; --warn-soft:#fbf1df; --bad:#b0412e; --bad-soft:#fbe9e5;
+  --violet:#5b4bb5; --violet-soft:#eeebfb; --wa:#1fa855; --tg:#2aa3df;
+  --on-dark:#eef3fb; --on-dark-2:#a9b8d6;
+  --f-head:"Noto Kufi Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+html{direction:rtl}
+body{margin:0;background:var(--navy-deep);color:var(--on-dark);font-family:var(--f-body);-webkit-font-smoothing:antialiased;overflow:hidden}
+h1,h2,h3{font-family:var(--f-head);margin:0;line-height:1.45;text-wrap:balance}
+button{font:inherit;color:inherit}
+.ltr{direction:ltr;unicode-bidi:isolate}
+
+.stage{position:relative;height:100%;display:flex;flex-direction:column;
+  background:radial-gradient(1200px 600px at 85% -10%,rgba(43,179,177,.18),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(29,70,144,.55),transparent 60%),var(--navy-deep)}
+.topbar{display:flex;align-items:center;gap:12px;padding-block:14px 0;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-head);font-weight:700;font-size:14px}
+.brand .mk{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--navy-2));display:grid;place-items:center}
+.brand .mk svg{width:17px;height:17px}
+.brand small{display:block;font-family:var(--f-body);font-weight:500;font-size:11.5px;color:var(--on-dark-2)}
+.topbar .sp{flex:1}
+.count{font-size:13px;color:var(--on-dark-2);font-variant-numeric:tabular-nums}
+.progress{height:3px;margin:12px max(18px,env(safe-area-inset-right,0px)) 0 max(18px,env(safe-area-inset-left,0px));background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal-2),var(--teal));transition:width .5s ease;margin-inline-start:auto}
+
+.slides{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;display:grid;place-items:center;padding-block:18px 8px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));opacity:0;visibility:hidden;transition:opacity .45s ease,visibility .45s;overflow-y:auto}
+.slide.on{opacity:1;visibility:visible}
+.wrap{width:100%;max-width:1120px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:44px;align-items:center}
+.wrap.solo{grid-template-columns:1fr;max-width:920px;text-align:center;gap:0}
+@media (max-width:860px){.wrap{grid-template-columns:1fr;gap:22px}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.slide.on .rv{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv,.slide{transition:none}}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--teal-2);letter-spacing:.2px}
+.eyebrow .who{background:rgba(43,179,177,.14);border:1px solid rgba(43,179,177,.35);border-radius:999px;padding:3px 11px}
+.eyebrow .who.dean{background:rgba(169,156,240,.16);border-color:rgba(169,156,240,.4);color:#c9c0ff}
+h2.t{font-size:clamp(24px,3.4vw,36px);margin:10px 0 12px;color:#fff}
+p.lead{font-size:clamp(15px,1.6vw,17.5px);line-height:2;color:var(--on-dark-2);margin:0 0 18px;max-width:52ch}
+.pts{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pts li{display:flex;gap:11px;align-items:flex-start;font-size:15px;line-height:1.85;color:var(--on-dark)}
+.pts li b{color:#fff}
+.pts .dot{width:24px;height:24px;border-radius:8px;background:rgba(43,179,177,.16);color:var(--teal-2);display:grid;place-items:center;flex:none;margin-top:3px;font-size:13px;font-weight:800}
+
+/* ---------- cover ---------- */
+.cover h1{font-size:clamp(34px,6vw,64px);color:#fff;letter-spacing:-.3px}
+.cover h1 span{background:linear-gradient(90deg,var(--teal-2),#8fd9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{font-size:clamp(16px,2vw,20px);color:var(--on-dark-2);margin:14px auto 30px;max-width:40ch;line-height:1.9}
+.route{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.node{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 14px;font-weight:700;font-size:14.5px}
+.node .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px}
+.node.o .ic{background:rgba(43,179,177,.2)} .node.d .ic{background:rgba(169,156,240,.22)} .node.e .ic{background:rgba(255,255,255,.12)}
+.arrow{color:var(--teal-2);font-size:20px}
+.start{justify-self:center;margin-top:34px;display:inline-flex;align-items:center;gap:10px;background:var(--teal);color:#fff;border:0;border-radius:14px;padding:13px 26px;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 10px 30px rgba(17,144,143,.35)}
+.start:hover{filter:brightness(1.08)}
+
+/* ---------- journey map ---------- */
+.journey{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:26px;position:relative}
+@media (max-width:860px){.journey{grid-template-columns:repeat(2,1fr)}}
+.jstep{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 12px;text-align:center;cursor:pointer;transition:.2s;position:relative}
+.jstep:hover{background:rgba(255,255,255,.1);transform:translateY(-3px)}
+.jstep .n{width:34px;height:34px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-weight:800;font-family:var(--f-head)}
+.jstep.o .n{background:var(--teal);color:#fff} .jstep.d .n{background:var(--violet);color:#fff}
+.jstep b{display:block;font-size:14px;color:#fff;margin-bottom:4px}
+.jstep small{display:block;font-size:12px;color:var(--on-dark-2);line-height:1.7}
+.jstep .lane{position:absolute;top:8px;inset-inline-start:8px;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px}
+.jstep.o .lane{background:rgba(43,179,177,.2);color:var(--teal-2)} .jstep.d .lane{background:rgba(169,156,240,.2);color:#c9c0ff}
+.legend{display:flex;gap:16px;justify-content:center;margin-top:16px;font-size:13px;color:var(--on-dark-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%}
+
+/* ---------- device mocks ---------- */
+.device{background:var(--paper);color:var(--ink);border-radius:18px;box-shadow:0 30px 70px rgba(0,0,0,.45);overflow:hidden;width:100%;max-width:560px;margin-inline:auto}
+.device .bar{background:var(--navy);color:#fff;display:flex;align-items:center;gap:8px;padding:9px 14px;font-family:var(--f-head);font-weight:700;font-size:12.5px}
+.device .bar .dots{display:flex;gap:5px;margin-inline-end:6px}
+.device .bar .dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.3)}
+.device .nav{background:#fff;border-bottom:1px solid var(--line);display:flex;gap:6px;padding:7px 10px}
+.device .nav span{border:1.5px solid #d3dbe8;border-radius:9px;padding:4px 10px;font-size:11.5px;font-weight:700;color:var(--navy)}
+.device .nav span.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.device .body{padding:14px;display:grid;gap:10px}
+.phone{background:#0b1222;border-radius:40px;padding:11px;box-shadow:0 30px 70px rgba(0,0,0,.5);width:100%;max-width:330px;margin-inline:auto}
+.phone .scr{background:var(--paper);color:var(--ink);border-radius:30px;overflow:hidden;height:600px;display:flex;flex-direction:column;position:relative}
+@media (max-height:760px){.phone .scr{height:520px}}
+.phone .notch{height:22px;display:flex;justify-content:center;align-items:center;background:var(--navy)}
+.phone .notch i{width:80px;height:6px;border-radius:6px;background:rgba(255,255,255,.25)}
+.phone .ph{background:var(--navy);color:#fff;padding:6px 14px 12px;font-family:var(--f-head);font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.phone .pb{padding:12px;display:grid;gap:9px;align-content:start;overflow:hidden;flex:1}
+
+/* form mock */
+.fl{font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.fi{border:1.5px solid var(--line);background:#fafbfd;border-radius:9px;padding:7px 10px;font-size:13px;min-height:34px;transition:border-color .2s,box-shadow .2s}
+.fi.act{border-color:var(--navy-2);box-shadow:0 0 0 3px var(--navy-soft)}
+.fi .car{display:inline-block;width:1.5px;height:14px;background:var(--navy-2);vertical-align:middle;margin-inline-start:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+.seg span{flex:1;text-align:center;padding:6px 4px;font-size:11.5px;font-weight:700;color:var(--muted);background:#fafbfd;transition:.25s}
+.seg span.on{background:var(--navy);color:#fff}
+.seg span.on.red{background:var(--bad)}
+.chip-s{display:flex;gap:6px;flex-wrap:wrap}
+.chip-s span{background:var(--navy-soft);border-radius:8px;padding:4px 9px;font-size:11.5px;opacity:0;transform:scale(.8);transition:.3s}
+.chip-s span.on{opacity:1;transform:none}
+.mbtn{background:var(--navy);color:#fff;border-radius:10px;padding:9px;text-align:center;font-weight:700;font-size:13px;transition:.3s}
+.mbtn.go{background:var(--ok);transform:scale(.98)}
+.mbtn.teal{background:var(--teal)}
+.filebox{display:flex;align-items:center;gap:8px;border:1.5px dashed #c7d0de;border-radius:9px;padding:7px 10px;font-size:12px;opacity:.35;transition:.4s}
+.filebox.on{opacity:1;border-style:solid;border-color:var(--navy-2)}
+.filebox .pdf{width:26px;height:32px;border-radius:4px;background:var(--bad-soft);color:var(--bad);font-size:9px;font-weight:800;display:grid;place-items:center}
+
+/* whatsapp mock */
+.wa-head{background:#075e54;color:#fff;padding:8px 12px;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700}
+.wa-head .av{width:30px;height:30px;border-radius:50%;background:#cfe9e5;color:#075e54;display:grid;place-items:center;font-weight:800}
+.wa-body{flex:1;background:#ece5dd;padding:12px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end}
+.bub{background:#dcf8c6;border-radius:12px 12px 4px 12px;padding:9px 11px;font-size:12px;line-height:1.85;max-width:92%;align-self:flex-start;box-shadow:0 1px 1px rgba(0,0,0,.08);opacity:0;transform:translateY(10px);transition:.45s;white-space:pre-line}
+.bub.on{opacity:1;transform:none}
+.bub .lnk{color:#0a66c2;text-decoration:underline;direction:ltr;unicode-bidi:isolate}
+.bub .tm{display:block;text-align:left;font-size:10px;color:#6b7a6f;margin-top:2px}
+.typing{align-self:flex-start;background:#fff;border-radius:12px;padding:8px 12px;display:none;gap:4px}
+.typing.on{display:flex}
+.typing i{width:6px;height:6px;border-radius:50%;background:#9aa;animation:tp 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes tp{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* dean list mock */
+.hello{background:var(--navy);color:#fff;border-radius:13px;padding:11px 12px}
+.hello small{opacity:.75;font-size:11px}
+.hello b{display:block;font-family:var(--f-head);font-size:15px}
+.hello .c{display:flex;gap:6px;margin-top:7px}
+.hello .c span{background:rgba(255,255,255,.14);border-radius:8px;padding:4px 8px;font-size:10.5px}
+.hello .c b{font-size:14px;display:inline;margin-inline-end:3px}
+.dc{background:#fff;border:1px solid var(--line);border-inline-start:4px solid var(--navy);border-radius:12px;padding:9px 11px;display:grid;gap:4px;opacity:0;transform:translateX(-14px);transition:.45s;cursor:pointer}
+.dc.alt{background:#eef6f6;border-inline-start-color:var(--teal)}
+.dc.on{opacity:1;transform:none}
+.dc.tap{box-shadow:0 0 0 3px rgba(17,144,143,.45)}
+.dc b{font-size:12.5px}
+.dc small{font-size:10.5px;color:var(--muted)}
+.pl{display:flex;gap:4px}
+.pl span{font-size:9.5px;font-weight:800;border-radius:999px;padding:1px 7px}
+.p-urg{background:var(--bad);color:#fff}.p-age{background:var(--warn-soft);color:var(--warn)}.p-old{background:var(--bad-soft);color:var(--bad)}.p-sec{background:var(--bad-soft);color:var(--bad)}
+
+/* direction mock */
+.blk{background:#fff;border:2px solid var(--line);border-radius:12px;padding:9px 10px;display:grid;gap:6px}
+.blk.dir{border-color:var(--teal)}
+.blk.dir.pulse{animation:glow 1.6s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(17,144,143,0)}50%{box-shadow:0 0 0 5px rgba(17,144,143,.25)}}
+.blk h4{margin:0;font-family:var(--f-head);font-size:12px;display:flex;align-items:center;gap:6px}
+.blk h4 .no{width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:11px}
+.blk.ref h4 .no{background:var(--violet)} .blk.voice h4 .no{background:var(--navy)}
+.opt{border:1.5px solid var(--line);border-radius:9px;padding:6px 9px;font-size:11.5px;display:flex;gap:7px;align-items:center;cursor:pointer;transition:.2s;background:#fff}
+.opt::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid #c7d0de;flex:none}
+.opt.on{border-color:var(--teal);background:var(--teal-soft)}
+.opt.on::before{border-color:var(--teal);background:radial-gradient(var(--teal) 45%,transparent 50%)}
+.opt.r.on{border-color:var(--violet);background:var(--violet-soft)}
+.opt.r.on::before{border-color:var(--violet);background:radial-gradient(var(--violet) 45%,transparent 50%)}
+.refs{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mic{display:flex;align-items:center;gap:10px}
+.micb{width:40px;height:40px;border-radius:50%;background:var(--navy);display:grid;place-items:center;color:#fff;flex:none;cursor:pointer;border:0;transition:.2s}
+.micb.rec{background:var(--bad);animation:ring 1.1s infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(176,65,46,.5)}100%{box-shadow:0 0 0 12px rgba(176,65,46,0)}}
+.micb svg{width:18px;height:18px}
+.wave{flex:1;display:flex;gap:2px;align-items:center;height:26px;direction:ltr}
+.wave i{flex:1;background:#c8d3e6;border-radius:2px;height:20%;transition:height .15s}
+.wave.live i{background:var(--bad)}
+.wave.done i{background:var(--teal)}
+.mic small{font-size:10.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sumline{background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 9px;font-size:11px;opacity:0;transition:.3s}
+.sumline.on{opacity:1}
+.toast{position:absolute;left:12px;right:12px;bottom:14px;background:var(--ok);color:#fff;border-radius:11px;padding:9px 12px;font-size:12px;font-weight:700;text-align:center;opacity:0;transform:translateY(10px);transition:.35s}
+.toast.on{opacity:1;transform:none}
+
+/* telegram mock */
+.tg-head{background:#517da2;color:#fff;padding:8px 12px;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700}
+.tg-head .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--navy-2));display:grid;place-items:center;font-size:14px}
+.tg-head small{display:block;font-weight:500;font-size:10.5px;opacity:.85}
+.tg-body{flex:1;background:#d6e4ee;padding:12px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end}
+.tmsg{background:#fff;border-radius:12px 12px 12px 4px;padding:9px 11px;font-size:12px;line-height:1.85;align-self:flex-end;max-width:94%;box-shadow:0 1px 1px rgba(0,0,0,.08);opacity:0;transform:translateY(10px) scale(.98);transition:.45s}
+.tmsg.on{opacity:1;transform:none}
+.tmsg .kb{margin-top:7px;background:rgba(81,125,162,.12);color:#2b5f8a;border-radius:8px;text-align:center;padding:6px;font-weight:700;font-size:11.5px}
+.taud{display:flex;align-items:center;gap:9px}
+.taud .pb2{width:34px;height:34px;border-radius:50%;background:#4f9ad8;color:#fff;display:grid;place-items:center;flex:none}
+.taud .pb2 svg{width:13px;height:13px}
+.taud .meta b{display:block;font-size:12px}
+.taud .meta small{font-size:10.5px;color:var(--muted)}
+
+/* office close mock */
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.kp div{background:#fff;border-radius:10px;padding:7px 9px;border-inline-start:3px solid var(--c);box-shadow:0 1px 3px rgba(18,48,107,.06)}
+.kp b{display:block;font-size:18px;color:var(--c);font-variant-numeric:tabular-nums;transition:transform .3s}
+.kp b.bump{transform:scale(1.35)}
+.kp small{font-size:10px;color:var(--muted);font-weight:700}
+.oc{background:#fff;border-radius:11px;padding:10px 11px;border:1.5px solid var(--navy);display:grid;gap:5px;transition:.5s}
+.oc.gone{opacity:.45;transform:scale(.97);filter:grayscale(1)}
+.oc .h{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.oc b{font-size:12.5px}
+.oc .st{font-size:9.5px;font-weight:800;color:#fff;background:var(--navy-2);border-radius:6px;padding:1px 7px;transition:.3s}
+.oc .st.done{background:#eceff3;color:var(--muted)}
+.oc .ds{background:#f2f5fb;border-inline-start:3px solid var(--navy-2);border-radius:7px;padding:5px 8px;font-size:11px}
+.oc .acts{display:flex;gap:6px}
+.oc .acts span{border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;transition:.25s}
+.oc .acts .cp{border:1px solid var(--line)}
+.oc .acts .cp.on{background:var(--ok-soft);color:var(--ok);border-color:var(--ok-soft)}
+.oc .acts .dn{background:var(--teal);color:#fff}
+.oc .acts .dn.on{background:var(--ok)}
+.enjaz{background:#fff;border:1.5px dashed #c7d0de;border-radius:11px;padding:9px 11px;font-size:11.5px;transition:.4s}
+.enjaz.on{border-style:solid;border-color:var(--teal);background:var(--teal-soft)}
+.enjaz b{font-family:var(--f-head);font-size:11.5px;color:var(--navy)}
+.enjaz .pt{margin-top:4px;white-space:pre-line;color:var(--ink);min-height:36px}
+
+/* privacy */
+.shield{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px;text-align:right}
+@media (max-width:760px){.shield{grid-template-columns:1fr}}
+.sh{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px}
+.sh .ic{font-size:24px}
+.sh b{display:block;font-family:var(--f-head);font-size:15px;color:#fff;margin:6px 0 4px}
+.sh p{margin:0;color:var(--on-dark-2);font-size:13.5px;line-height:1.85}
+.who-sees{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.who-sees span{border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700}
+.who-sees .y{background:rgba(31,122,85,.22);color:#9fe3c2;border:1px solid rgba(159,227,194,.35)}
+.who-sees .n{background:rgba(176,65,46,.18);color:#f2b2a5;border:1px solid rgba(242,178,165,.3);text-decoration:line-through;text-decoration-thickness:1.5px}
+
+/* finale */
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
+@media (max-width:760px){.big{grid-template-columns:1fr}}
+.big div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 16px}
+.big b{display:block;font-family:var(--f-head);font-size:34px;color:var(--teal-2);line-height:1.3}
+.big span{font-size:14px;color:var(--on-dark-2)}
+
+/* controls */
+.controls{display:flex;align-items:center;justify-content:center;gap:12px;padding-block:10px calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.cbtn{width:44px;height:44px;border-radius:13px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);display:grid;place-items:center;cursor:pointer;color:#fff;transition:.15s}
+.cbtn:hover{background:rgba(255,255,255,.14)}
+.cbtn:disabled{opacity:.3;cursor:default}
+.cbtn svg{width:20px;height:20px}
+.cbtn:focus-visible,.jstep:focus-visible,.start:focus-visible,.dots button:focus-visible{outline:3px solid var(--teal-2);outline-offset:2px}
+.dots{display:flex;gap:6px;align-items:center}
+.dots button{width:8px;height:8px;border-radius:50%;border:0;background:rgba(255,255,255,.25);padding:0;cursor:pointer;transition:.25s}
+.dots button.on{width:24px;border-radius:5px;background:var(--teal-2)}
+.replay{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--on-dark);border-radius:11px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;gap:6px;align-items:center;margin-top:16px}
+.replay:hover{background:rgba(255,255,255,.14)}
+.hint{font-size:12px;color:var(--on-dark-2);margin-top:10px}
+@media (max-width:860px){.hide-sm{display:none}}
+</style>
+
+</head>
+<body>
+<div class="stage">
+  <div class="topbar">
+    <div class="brand"><span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span><div>مكتب العميد الرقمي<small>كلية الشريعة · معاملات إنجاز</small></div></div>
+    <div class="sp"></div>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="progress"><i id="prog"></i></div>
+
+  <div class="slides" id="slides">
+
+    <!-- 1 cover -->
+    <section class="slide cover" data-title="البداية">
+      <div class="wrap solo">
+        <div class="rv eyebrow" style="justify-content:center"><span class="who">عرض تعريفي</span></div>
+        <h1 class="rv" style="--d:.1s;margin-top:14px">رحلة المعاملة إلى<br><span>سعادة العميد</span></h1>
+        <p class="rv sub" style="--d:.2s">من لحظة وصولها إلى إنجاز، حتى يُكتب توجيهها وتُقفل، في خطوات قليلة ومن الجوال.</p>
+        <div class="rv route" style="--d:.35s">
+          <span class="node o"><span class="ic">🗂️</span>مدير المكتب</span><span class="arrow">←</span>
+          <span class="node d"><span class="ic">🖋️</span>سعادة العميد</span><span class="arrow">←</span>
+          <span class="node o"><span class="ic">✅</span>إنجاز</span>
+        </div>
+        <button class="rv start" style="--d:.5s" data-go="1" type="button">ابدأ الجولة <span aria-hidden="true">←</span></button>
+        <div class="rv hint" style="--d:.6s">تنقّل بالأسهم أو بالسحب على الجوال</div>
+      </div>
+    </section>
+
+    <!-- 2 journey -->
+    <section class="slide" data-title="الرحلة كاملة">
+      <div class="wrap solo">
+        <div class="rv eyebrow" style="justify-content:center"><span class="who">الصورة الكاملة</span></div>
+        <h2 class="rv t" style="--d:.1s">ست خطوات بين مكتبين</h2>
+        <p class="rv lead" style="--d:.15s;margin-inline:auto">كل خطوة ملوّنة بصاحبها. اضغط أي خطوة للانتقال إليها مباشرة.</p>
+        <div class="journey">
+          <button class="rv jstep o" style="--d:.2s" data-go="2" type="button"><span class="lane">المكتب</span><span class="n">١</span><b>إدخال المعاملة</b><small>العنوان والملخص والمرفق والمقترحات</small></button>
+          <button class="rv jstep o" style="--d:.28s" data-go="3" type="button"><span class="lane">المكتب</span><span class="n">٢</span><b>تذكير بواتساب</b><small>رسالة واحدة منظمة برابط مباشر</small></button>
+          <button class="rv jstep d" style="--d:.36s" data-go="4" type="button"><span class="lane">العميد</span><span class="n">٣</span><b>قائمة سعادته</b><small>العاجل أولاً، وأيام الانتظار ظاهرة</small></button>
+          <button class="rv jstep d" style="--d:.44s" data-go="5" type="button"><span class="lane">العميد</span><span class="n">٤</span><b>التوجيه بلمسة</b><small>عبارة، أو صوت، وجهة الإحالة</small></button>
+          <button class="rv jstep o" style="--d:.52s" data-go="6" type="button"><span class="lane">المكتب</span><span class="n">٥</span><b>تنبيه فوري</b><small>النص والتسجيل في تلقرام</small></button>
+          <button class="rv jstep o" style="--d:.6s" data-go="7" type="button"><span class="lane">المكتب</span><span class="n">٦</span><b>النقل والإقفال</b><small>نسخ التوجيه إلى إنجاز، ثم إقفالها</small></button>
+        </div>
+        <div class="rv legend" style="--d:.7s"><span><i style="background:var(--teal)"></i>حساب مدير المكتب</span><span><i style="background:var(--violet)"></i>حساب سعادة العميد</span></div>
+      </div>
+    </section>
+
+    <!-- 3 entry -->
+    <section class="slide" data-title="إدخال المعاملة" data-scene="entry">
+      <div class="wrap">
+        <div>
+          <div class="rv eyebrow"><span class="who">الخطوة ١ · حساب مدير المكتب</span></div>
+          <h2 class="rv t" style="--d:.08s">تُدخل المعاملة مرة واحدة، مختصرة وجاهزة</h2>
+          <p class="rv lead" style="--d:.14s">من زر «معاملة جديدة» في قسم معاملات إنجاز. الملخص هو قلب الفكرة: سطران يغنيان سعادته عن قراءة الخطاب.</p>
+          <ul class="pts">
+            <li class="rv" style="--d:.2s"><span class="dot">١</span><span><b>رقمها في إنجاز وعنوانها والجهة الواردة</b>، وتحديد العاجل منها.</span></li>
+            <li class="rv" style="--d:.26s"><span class="dot">٢</span><span><b>المرفق يُرفع أو يبقى سرّياً</b>: الوثيقة الحساسة لا تُرفع، ويُكتفى بملخصها.</span></li>
+            <li class="rv" style="--d:.32s"><span class="dot">٣</span><span><b>توجيهات مقترحة</b> لهذه المعاملة، يختار منها سعادته بلمسة.</span></li>
+          </ul>
+          <button class="rv replay" style="--d:.4s" data-replay type="button">↻ إعادة العرض</button>
+        </div>
+        <div class="rv" style="--d:.15s">
+          <div class="device">
+            <div class="bar"><span class="dots"><i></i><i></i><i></i></span>مكتب العميد الرقمي — معاملة جديدة لسعادة العميد</div>
+            <div class="nav"><span>الطلبات الاستثنائية</span><span class="on">معاملات إنجاز</span><span>التقارير</span></div>
+            <div class="body">
+              <div class="row2">
+                <div><div class="fl">رقم المعاملة في إنجاز</div><div class="fi ltr" id="fNo" style="text-align:right"></div></div>
+                <div><div class="fl">الأولوية</div><div class="seg"><span class="on" id="pN">عادية</span><span id="pU">عاجلة</span></div></div>
+              </div>
+              <div><div class="fl">عنوان المعاملة</div><div class="fi" id="fTitle"></div></div>
+              <div><div class="fl">ملخص لسعادة العميد</div><div class="fi" id="fSum" style="min-height:52px;line-height:1.8"></div></div>
+              <div class="row2">
+                <div><div class="fl">المرفق</div><div class="seg"><span class="on" id="sUp">يُرفع</span><span id="sSec">سرّي</span></div></div>
+                <div><div class="fl">&nbsp;</div><div class="filebox" id="fFile"><span class="pdf">PDF</span>خطاب العمادة.pdf</div></div>
+              </div>
+              <div><div class="fl">التوجيهات المقترحة</div><div class="chip-s" id="fSug"><span>يُحال إلى وكيل الكلية للدراسات العليا للترشيح</span><span>للإفادة بما لديكم ورأيكم</span></div></div>
+              <div class="mbtn" id="fSave">حفظ وعرضها على سعادة العميد</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 whatsapp -->
+    <section class="slide" data-title="تذكير بواتساب" data-scene="wa">
+      <div class="wrap">
+        <div>
+          <div class="rv eyebrow"><span class="who">الخطوة ٢ · حساب مدير المكتب</span></div>
+          <h2 class="rv t" style="--d:.08s">رسالة واحدة بدل السؤال المتكرر</h2>
+          <p class="rv lead" style="--d:.14s">زر «تذكير سعادة العميد» يجمع كل ما ينتظره في رسالة منظمة، ويفتح محادثته في واتساب جاهزة للإرسال من رقم مدير المكتب.</p>
+          <ul class="pts">
+            <li class="rv" style="--d:.2s"><span class="dot">✓</span><span><b>العاجل يُذكر أولاً</b> وبجانبه كلمة «عاجلة».</span></li>
+            <li class="rv" style="--d:.26s"><span class="dot">✓</span><span><b>الرابط يفتح القائمة مباشرة</b>، والدخول محفوظ في جواله.</span></li>
+            <li class="rv" style="--d:.32s"><span class="dot">✓</span><span><b>تُرسل متى ناسب</b>: مرة في اليوم تكفي.</span></li>
+          </ul>
+          <button class="rv replay" style="--d:.4s" data-replay type="button">↻ إعادة العرض</button>
+        </div>
+        <div class="rv" style="--d:.15s">
+          <div class="phone"><div class="scr">
+            <div class="wa-head"><span class="av">ع</span><div>سعادة العميد<div style="font-weight:500;font-size:10.5px;opacity:.8">متصل الآن</div></div></div>
+            <div class="wa-body">
+              <div class="bub" id="wa1">السلام عليكم ورحمة الله وبركاته
+سعادة العميد، حفظكم الله
+
+لديكم ٣ معاملات بانتظار توجيهكم، منها ما هو عاجل:
+• (عاجلة) ترشيح أعضاء لتحكيم بحوث مجلة العلوم الشرعية
+• طلب إجازة استثنائية لعضو هيئة تدريس
+• تعميم بشأن مواعيد رصد الدرجات
+
+للاطلاع والتوجيه:
+<span class="lnk">osaamh1.github.io/…/admin.html#enjaz</span>
+
+مكتبكم<span class="tm">٨:١٥ ص ✓✓</span></div>
+              <div class="typing" id="waT"><i></i><i></i><i></i></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 dean list -->
+    <section class="slide" data-title="قائمة سعادة العميد" data-scene="list">
+      <div class="wrap">
+        <div>
+          <div class="rv eyebrow"><span class="who dean">الخطوة ٣ · حساب سعادة العميد</span></div>
+          <h2 class="rv t" style="--d:.08s">يدخل فيجد ما ينتظره فقط</h2>
+          <p class="rv lead" style="--d:.14s">بمجرد دخول سعادته تفتح له معاملات إنجاز مباشرة. البطاقات بلونين متناوبين ليسهل التمييز بينها.</p>
+          <ul class="pts">
+            <li class="rv" style="--d:.2s"><span class="dot">١</span><span><b>العاجل في الأعلى</b> ثم الأقدم فالأحدث.</span></li>
+            <li class="rv" style="--d:.26s"><span class="dot">٢</span><span><b>عدد أيام الانتظار</b> على كل بطاقة، ويحمرّ بعد ثلاثة أيام.</span></li>
+            <li class="rv" style="--d:.32s"><span class="dot">٣</span><span><b>طلبات الطلاب</b> لها عداد مستقل في شريط الأقسام، فلا يفوته شيء.</span></li>
+          </ul>
+          <button class="rv replay" style="--d:.4s" data-replay type="button">↻ إعادة العرض</button>
+        </div>
+        <div class="rv" style="--d:.15s">
+          <div class="phone"><div class="scr">
+            <div class="notch"><i></i></div>
+            <div class="ph"><span>مكتب العميد الرقمي</span><span style="background:var(--teal);border-radius:7px;padding:2px 8px;font-size:10.5px">معاملات إنجاز ٣</span></div>
+            <div class="pb">
+              <div class="hello"><small>صباح الخير</small><b>سعادة العميد</b><div class="c"><span><b>٣</b>بانتظار توجيهكم</span><span><b>١</b>أقدم من ٣ أيام</span></div></div>
+              <div class="dc" id="c1"><div class="pl"><span class="p-urg">عاجلة</span><span class="p-age">منذ يومين</span></div><b>ترشيح أعضاء لتحكيم بحوث مجلة العلوم الشرعية</b><small>عمادة البحث العلمي</small></div>
+              <div class="dc alt" id="c2"><div class="pl"><span class="p-sec">سرّي</span><span class="p-old">منذ ٥ أيام</span></div><b>طلب إجازة استثنائية لعضو هيئة تدريس</b><small>قسم الفقه</small></div>
+              <div class="dc" id="c3"><div class="pl"><span class="p-age">اليوم</span></div><b>تعميم بشأن مواعيد رصد الدرجات</b><small>عمادة القبول والتسجيل</small></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 direct -->
+    <section class="slide" data-title="التوجيه بلمسة" data-scene="direct">
+      <div class="wrap">
+        <div>
+          <div class="rv eyebrow"><span class="who dean">الخطوة ٤ · حساب سعادة العميد</span></div>
+          <h2 class="rv t" style="--d:.08s">التوجيه في ثوانٍ، بلمسة أو بصوته</h2>
+          <p class="rv lead" style="--d:.14s">خانة التوجيه تنبض حتى يختار سعادته، ثم يعتمد. جرّب أنت: اضغط على الخيارات في الجوال.</p>
+          <ul class="pts">
+            <li class="rv" style="--d:.2s"><span class="dot">١</span><span><b>عبارات جاهزة</b>: لإكمال اللازم وفق ما ينظمه، للإفادة بما لديكم ورأيكم، للمفاهمة، وفق الشرح، للعرض.</span></li>
+            <li class="rv" style="--d:.26s"><span class="dot">🎙</span><span><b>أو يشرح بصوته</b>: يضغط المايك ويتكلم، ويسمعه قبل الاعتماد.</span></li>
+            <li class="rv" style="--d:.32s"><span class="dot">٢</span><span><b>الإدارة المحال إليها</b>: الوكالتان والأقسام الستة، أو يذكرها في التسجيل.</span></li>
+            <li class="rv" style="--d:.38s"><span class="dot">💬</span><span><b>«تُناقش معي»</b> لما يفضّل الحديث فيه شفهياً.</span></li>
+          </ul>
+          <button class="rv replay" style="--d:.44s" data-replay type="button">↻ إعادة العرض</button>
+        </div>
+        <div class="rv" style="--d:.15s">
+          <div class="phone"><div class="scr">
+            <div class="notch"><i></i></div>
+            <div class="ph"><span>→ رجوع للقائمة</span><span style="font-size:10.5px;opacity:.8">إنجاز 1448-0219105</span></div>
+            <div class="pb" style="gap:7px">
+              <div class="blk dir pulse" id="dDir">
+                <h4><span class="no">١</span>توجيه سعادتكم</h4>
+                <div class="opt" data-ph="لإكمال اللازم وفق ما ينظمه">لإكمال اللازم وفق ما ينظمه</div>
+                <div class="opt" data-ph="للإفادة بما لديكم ورأيكم">للإفادة بما لديكم ورأيكم</div>
+                <div class="opt" data-ph="للمفاهمة">للمفاهمة</div>
+                <div class="opt" data-ph="للعرض">للعرض</div>
+                <div class="opt" data-ph="تُناقش معي">💬 تُناقش معي</div>
+              </div>
+              <div class="blk voice">
+                <h4><span class="no">🎙</span>اشرح توجيهك بصوتك</h4>
+                <div class="mic"><button class="micb" id="dMic" type="button" aria-label="تسجيل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><div class="wave" id="dWave"></div><small id="dT">٠:٠٠</small></div>
+              </div>
+              <div class="blk ref" id="dRefBlk">
+                <h4><span class="no">٢</span>الإدارة المحال إليها</h4>
+                <div class="refs">
+                  <div class="opt r" data-rf="وكالة الكلية للشؤون الطلابية">الشؤون الطلابية</div>
+                  <div class="opt r" data-rf="وكالة الكلية للشؤون التعليمية">الشؤون التعليمية</div>
+                  <div class="opt r" data-rf="قسم الفقه">قسم الفقه</div>
+                  <div class="opt r" data-rf="قسم العقيدة">قسم العقيدة</div>
+                </div>
+              </div>
+              <div class="sumline" id="dSum"></div>
+              <div class="mbtn" id="dSend" style="opacity:.5">اعتماد التوجيه</div>
+            </div>
+            <div class="toast" id="dToast">اعتُمد التوجيه، ووصل لمكتبكم ✓</div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 telegram -->
+    <section class="slide" data-title="تنبيه فوري" data-scene="tg">
+      <div class="wrap">
+        <div>
+          <div class="rv eyebrow"><span class="who">الخطوة ٥ · مدير المكتب</span></div>
+          <h2 class="rv t" style="--d:.08s">يصل التوجيه فوراً، ومعه صوت سعادته</h2>
+          <p class="rv lead" style="--d:.14s">لحظة اعتماد سعادة العميد يصل تنبيه على تلقرام لمدير المكتب وحده، فيه نص التوجيه والجهة المحال إليها، ثم التسجيل الصوتي يُشغَّل من داخل المحادثة.</p>
+          <ul class="pts">
+            <li class="rv" style="--d:.2s"><span class="dot">✓</span><span><b>لا انتظار ولا متابعة</b>: التوجيه يأتيك ولا تذهب إليه.</span></li>
+            <li class="rv" style="--d:.26s"><span class="dot">✓</span><span><b>الصوت يعمل على كل الأجهزة</b>: آيفون وأندرويد وكمبيوتر.</span></li>
+          </ul>
+          <button class="rv replay" style="--d:.34s" data-replay type="button">↻ إعادة العرض</button>
+        </div>
+        <div class="rv" style="--d:.15s">
+          <div class="phone"><div class="scr">
+            <div class="tg-head"><span class="av">🏛️</span><div>تنبيهات مكتب العميد<small>بوت</small></div></div>
+            <div class="tg-body">
+              <div class="tmsg" id="t1">✅ <b>وجّه سعادة العميد على معاملة</b><br><br><b>ترشيح أعضاء لتحكيم بحوث مجلة العلوم الشرعية</b><br>رقم إنجاز: 1448-0219105 · عمادة البحث العلمي<br><br>يُحال إلى: <b>وكالة الكلية للشؤون التعليمية</b><br>التوجيه: للإفادة بما لديكم ورأيكم<br><br>🎙 مع تسجيل صوتي (مرفق أدناه)<div class="kb">فتح معاملات إنجاز</div></div>
+              <div class="tmsg" id="t2"><div class="taud"><span class="pb2"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg></span><div class="meta"><b>توجيه سعادة العميد</b><small>عميد كلية الشريعة · ٠:١٢</small></div></div></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 close -->
+    <section class="slide" data-title="النقل والإقفال" data-scene="close">
+      <div class="wrap">
+        <div>
+          <div class="rv eyebrow"><span class="who">الخطوة ٦ · حساب مدير المكتب</span></div>
+          <h2 class="rv t" style="--d:.08s">ينقل التوجيه إلى إنجاز، وتُقفل المعاملة</h2>
+          <p class="rv lead" style="--d:.14s">تظهر المعاملة في «للنقل إلى إنجاز». زر واحد ينسخ الإحالة والعبارة معاً، فتُلصق في إنجاز كما هي، ثم «تم النقل إلى إنجاز».</p>
+          <ul class="pts">
+            <li class="rv" style="--d:.2s"><span class="dot">١</span><span><b>نسخ التوجيه</b> بنص جاهز للصق.</span></li>
+            <li class="rv" style="--d:.26s"><span class="dot">٢</span><span><b>تم النقل إلى إنجاز</b>: تنتقل إلى «المنتهية» ويُسجَّل وقت الإقفال.</span></li>
+            <li class="rv" style="--d:.32s"><span class="dot">٣</span><span><b>سجل كامل</b> لكل معاملة: متى أُضيفت، ومتى وُجّهت، ومتى أُقفلت.</span></li>
+          </ul>
+          <button class="rv replay" style="--d:.4s" data-replay type="button">↻ إعادة العرض</button>
+        </div>
+        <div class="rv" style="--d:.15s">
+          <div class="device">
+            <div class="bar"><span class="dots"><i></i><i></i><i></i></span>مكتب العميد الرقمي — معاملات إنجاز</div>
+            <div class="nav"><span>الطلبات الاستثنائية</span><span class="on">معاملات إنجاز</span><span>التقارير</span></div>
+            <div class="body">
+              <div class="kp"><div style="--c:var(--violet)"><b>٢</b><small>لدى العميد</small></div><div style="--c:var(--teal)"><b id="kTodo">١</b><small>للنقل إلى إنجاز</small></div><div style="--c:var(--ok)"><b id="kDone">٤</b><small>أُقفلت هذا الشهر</small></div></div>
+              <div class="oc" id="oCard">
+                <div class="h"><b>ترشيح أعضاء لتحكيم بحوث مجلة العلوم الشرعية</b><span class="st" id="oSt">✎ صدر التوجيه</span></div>
+                <div style="font-size:10.5px;color:var(--muted)">1448-0219105 · عمادة البحث العلمي · 🎙 تسجيل صوتي</div>
+                <div class="ds"><b>التوجيه:</b> يُحال إلى وكالة الكلية للشؤون التعليمية · للإفادة بما لديكم ورأيكم</div>
+                <div class="acts"><span class="cp" id="oCp">نسخ التوجيه</span><span class="dn" id="oDn">تم النقل إلى إنجاز</span></div>
+              </div>
+              <div class="enjaz" id="oEnj"><b>نظام إنجاز — خانة التوجيه</b><div class="pt" id="oTxt"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 privacy -->
+    <section class="slide" data-title="السرية">
+      <div class="wrap solo">
+        <div class="rv eyebrow" style="justify-content:center"><span class="who">السرية والأمان</span></div>
+        <h2 class="rv t" style="--d:.08s">بين سعادة العميد ومدير المكتب فقط</h2>
+        <div class="rv who-sees" style="--d:.16s"><span class="y">✓ سعادة العميد</span><span class="y">✓ مدير المكتب</span><span class="n">موظفو المكتب الآخرون</span><span class="n">الطلاب</span></div>
+        <div class="shield">
+          <div class="rv sh" style="--d:.24s"><div class="ic">🛡️</div><b>محمية من قاعدة البيانات</b><p>الصلاحية بالاسم، ولا تُعرض المعاملات لغير صاحبيها ولو عُرف الرابط.</p></div>
+          <div class="rv sh" style="--d:.32s"><div class="ic">🔒</div><b>الوثيقة السرية لا تُرفع</b><p>يحدد مدير المكتب سرية كل معاملة، فيُكتفى بملخصها ويبقى أصلها في إنجاز.</p></div>
+          <div class="rv sh" style="--d:.4s"><div class="ic">🖋️</div><b>التوجيه من حساب العميد وحده</b><p>لا يُعتمد توجيه على معاملة إلا من حساب سعادته، ولا يمتد له أي تفويض.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 finale -->
+    <section class="slide" data-title="الخلاصة">
+      <div class="wrap solo">
+        <div class="rv eyebrow" style="justify-content:center"><span class="who">الخلاصة</span></div>
+        <h2 class="rv t" style="--d:.08s;font-size:clamp(28px,4.4vw,46px)">مكان واحد لكل ما يُرفع لسعادة العميد</h2>
+        <p class="rv lead" style="--d:.14s;margin-inline:auto">طلبات الطلاب والطالبات، ومعاملات إنجاز، في «مكتب العميد الرقمي».</p>
+        <div class="big">
+          <div class="rv" style="--d:.22s"><b>لمسة</b><span>يكفي اختيار عبارة لاعتماد التوجيه</span></div>
+          <div class="rv" style="--d:.3s"><b>رسالة واحدة</b><span>بدل تكرار السؤال في اليوم</span></div>
+          <div class="rv" style="--d:.38s"><b>لحظياً</b><span>يصل التوجيه لمدير المكتب بالنص والصوت</span></div>
+        </div>
+        <button class="rv start" style="--d:.48s" data-go="1" type="button">↻ مشاهدة الرحلة من جديد</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="controls">
+    <button class="cbtn" id="next" type="button" aria-label="التالي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="dots" id="dots"></div>
+    <button class="cbtn" id="prev" type="button" aria-label="السابق"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const AR = s => String(s).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const slides = $$('.slide');
+let cur = 0, timers = [];
+const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+const clearAll = () => { timers.forEach(clearTimeout); timers = []; intervals.forEach(clearInterval); intervals = []; };
+let intervals = [];
+const every = (ms, fn) => { const id = setInterval(fn, ms); intervals.push(id); return id; };
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+$('#dots').innerHTML = slides.map((s, i) => `<button type="button" aria-label="${s.dataset.title}" title="${s.dataset.title}" data-i="${i}"></button>`).join('');
+
+function show(i){
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  clearAll();
+  slides.forEach((s, k) => s.classList.toggle('on', k === i));
+  cur = i;
+  $$('#dots button').forEach((b, k) => b.classList.toggle('on', k === i));
+  $('#count').textContent = AR(`${i + 1} / ${slides.length}`) + ' · ' + slides[i].dataset.title;
+  $('#prog').style.width = ((i) / (slides.length - 1) * 100) + '%';
+  $('#prev').disabled = i === 0; $('#next').disabled = i === slides.length - 1;
+  const sc = slides[i].dataset.scene; if (sc && SCENES[sc]) SCENES[sc]();
+  try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) {}
+}
+$('#next').onclick = () => show(cur + 1);
+$('#prev').onclick = () => show(cur - 1);
+$('#dots').onclick = e => { const b = e.target.closest('[data-i]'); if (b) show(+b.dataset.i); };
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g) return show(+g.dataset.go);
+  if (e.target.closest('[data-replay]')) { const sc = slides[cur].dataset.scene; clearAll(); if (sc) SCENES[sc](); }
+});
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(cur + 1); }
+  if (e.key === 'ArrowRight' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
+  if (e.key === 'Home') show(0); if (e.key === 'End') show(slides.length - 1);
+});
+let tx = null, ty = null;
+$('#slides').addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+$('#slides').addEventListener('touchend', e => {
+  if (tx === null) return; const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) show(cur + (dx > 0 ? 1 : -1)); tx = null;
+}, { passive: true });
+
+/* typing helper */
+function type(el, text, speed, done){
+  el.classList.add('act'); el.innerHTML = '<span class="car"></span>';
+  if (reduce) { el.innerHTML = text; el.classList.remove('act'); done && done(); return; }
+  let k = 0;
+  const id = every(speed, () => {
+    k++; el.innerHTML = text.slice(0, k) + '<span class="car"></span>';
+    if (k >= text.length) { clearInterval(id); el.innerHTML = text; el.classList.remove('act'); done && done(); }
+  });
+}
+const waveBars = n => Array.from({ length: n }, () => '<i></i>').join('');
+
+const SCENES = {
+  entry(){
+    ['fNo','fTitle','fSum'].forEach(id => { $('#'+id).textContent = ''; $('#'+id).classList.remove('act'); });
+    $('#pN').classList.add('on'); $('#pU').classList.remove('on'); $('#fFile').classList.remove('on');
+    $$('#fSug span').forEach(s => s.classList.remove('on')); $('#fSave').classList.remove('go'); $('#fSave').textContent = 'حفظ وعرضها على سعادة العميد';
+    later(500, () => type($('#fNo'), '1448-0219105', 55, () =>
+      later(200, () => { $('#pN').classList.remove('on'); $('#pU').classList.add('on'); $('#pU').classList.add('red');
+        later(350, () => type($('#fTitle'), 'ترشيح أعضاء لتحكيم بحوث مجلة العلوم الشرعية', 38, () =>
+          later(200, () => type($('#fSum'), 'تطلب العمادة ترشيح ثلاثة أعضاء من الكلية لتحكيم بحوث العدد القادم، وآخر موعد يوم الأحد.', 26, () =>
+            later(300, () => { $('#fFile').classList.add('on');
+              later(450, () => { $$('#fSug span')[0].classList.add('on');
+                later(350, () => { $$('#fSug span')[1].classList.add('on');
+                  later(600, () => { $('#fSave').classList.add('go'); $('#fSave').textContent = 'حُفظت وعُرضت على سعادة العميد ✓'; });
+                }); }); })))));
+      })));
+  },
+  wa(){
+    $('#wa1').classList.remove('on'); $('#waT').classList.add('on');
+    later(1300, () => { $('#waT').classList.remove('on'); $('#wa1').classList.add('on'); });
+  },
+  list(){
+    ['c1','c2','c3'].forEach(id => $('#'+id).classList.remove('on','tap'));
+    ['c1','c2','c3'].forEach((id, k) => later(350 + k * 260, () => $('#'+id).classList.add('on')));
+    later(1700, () => $('#c1').classList.add('tap'));
+  },
+  direct(){
+    D.reset();
+    if (reduce) return;
+    later(1200, () => D.pick($$('#dDir .opt')[1]));
+    later(2000, () => D.recStart());
+    later(4200, () => D.recStop());
+    later(5000, () => D.ref($$('#dRefBlk .opt')[1]));
+    later(6000, () => D.send());
+  },
+  tg(){
+    ['t1','t2'].forEach(id => $('#'+id).classList.remove('on'));
+    later(500, () => $('#t1').classList.add('on'));
+    later(1400, () => $('#t2').classList.add('on'));
+  },
+  close(){
+    $('#oCard').classList.remove('gone'); $('#oCp').classList.remove('on'); $('#oCp').textContent = 'نسخ التوجيه';
+    $('#oDn').classList.remove('on'); $('#oDn').textContent = 'تم النقل إلى إنجاز';
+    $('#oSt').classList.remove('done'); $('#oSt').textContent = '✎ صدر التوجيه';
+    $('#oEnj').classList.remove('on'); $('#oTxt').textContent = ''; $('#kTodo').textContent = '١'; $('#kDone').textContent = '٤';
+    later(900, () => { $('#oCp').classList.add('on'); $('#oCp').textContent = 'نُسخ ✓';
+      later(500, () => { $('#oEnj').classList.add('on');
+        type($('#oTxt'), 'يُحال إلى وكالة الكلية للشؤون التعليمية\nللإفادة بما لديكم ورأيكم', 30, () =>
+          later(600, () => { $('#oDn').classList.add('on'); $('#oDn').textContent = '✓ أُقفلت';
+            later(350, () => { $('#oSt').classList.add('done'); $('#oSt').textContent = 'نُقلت إلى إنجاز'; $('#oCard').classList.add('gone');
+              const t = $('#kTodo'), d = $('#kDone'); t.textContent = '٠'; d.textContent = '٥'; d.classList.add('bump'); t.classList.add('bump');
+              later(320, () => { d.classList.remove('bump'); t.classList.remove('bump'); });
+            }); }));
+      }); });
+  },
+};
+
+/* interactive direction mock (works by itself and when the visitor taps) */
+const D = {
+  phrase:null, refv:null, voiced:false, recId:null, sec:0,
+  reset(){
+    if (this.recId) { clearInterval(this.recId); this.recId = null; }
+    this.phrase = null; this.refv = null; this.voiced = false; this.sec = 0;
+    $$('#dDir .opt, #dRefBlk .opt').forEach(o => o.classList.remove('on'));
+    $('#dDir').classList.add('pulse'); $('#dRefBlk').style.opacity = 1;
+    $('#dMic').classList.remove('rec'); $('#dWave').className = 'wave'; $('#dWave').innerHTML = waveBars(22); $('#dT').textContent = '٠:٠٠';
+    $('#dSum').classList.remove('on'); $('#dSum').innerHTML = ''; $('#dSend').style.opacity = .5; $('#dSend').classList.remove('go');
+    $('#dToast').classList.remove('on');
+  },
+  pick(o){ $$('#dDir .opt').forEach(x => x.classList.toggle('on', x === o)); this.phrase = o.dataset.ph; $('#dDir').classList.remove('pulse');
+    $('#dRefBlk').style.opacity = this.phrase === 'تُناقش معي' ? .35 : 1; this.sync(); },
+  ref(o){ const v = o.dataset.rf; this.refv = this.refv === v ? null : v; $$('#dRefBlk .opt').forEach(x => x.classList.toggle('on', x.dataset.rf === this.refv)); this.sync(); },
+  recStart(){
+    if (this.recId) return; $('#dMic').classList.add('rec'); $('#dWave').className = 'wave live'; this.sec = 0;
+    const bars = $$('#dWave i');
+    this.recId = every(140, () => { bars.forEach(b => b.style.height = (18 + Math.random() * 80) + '%'); this.sec += .14; $('#dT').textContent = AR('0:' + String(Math.floor(this.sec)).padStart(2, '0')); });
+  },
+  recStop(){
+    if (!this.recId) return; clearInterval(this.recId); this.recId = null;
+    $('#dMic').classList.remove('rec'); $('#dWave').className = 'wave done';
+    $$('#dWave i').forEach((b, k) => b.style.height = (25 + 60 * Math.abs(Math.sin(k * 1.3))) + '%');
+    this.voiced = true; $('#dDir').classList.remove('pulse'); this.sync();
+  },
+  sync(){
+    const talk = this.phrase === 'تُناقش معي';
+    const parts = talk ? ['تُناقش معي'] : [this.refv ? 'يُحال إلى ' + this.refv : '', this.phrase || '', this.voiced ? '🎙 مع تسجيل صوتي' : ''].filter(Boolean);
+    $('#dSum').innerHTML = parts.length ? '<b>التوجيه:</b> ' + parts.join(' · ') : ''; $('#dSum').classList.toggle('on', !!parts.length);
+    $('#dSend').style.opacity = (this.phrase || this.voiced) ? 1 : .5;
+  },
+  send(){ if (!(this.phrase || this.voiced)) return; $('#dSend').classList.add('go'); $('#dSend').textContent = 'اعتُمد ✓'; $('#dToast').classList.add('on');
+    later(1800, () => { $('#dToast').classList.remove('on'); $('#dSend').textContent = 'اعتماد التوجيه'; $('#dSend').classList.remove('go'); }); },
+};
+$('#dDir').addEventListener('click', e => { const o = e.target.closest('.opt'); if (o) { clearAll(); D.pick(o); } });
+$('#dRefBlk').addEventListener('click', e => { const o = e.target.closest('.opt'); if (o) { clearAll(); D.ref(o); } });
+$('#dMic').addEventListener('click', () => { const keep = D.recId; timers.forEach(clearTimeout); timers = []; keep ? D.recStop() : D.recStart(); });
+$('#dSend').addEventListener('click', () => D.send());
+
+const start = (() => { const m = /^#s(\d+)$/.exec(location.hash); return m ? +m[1] - 1 : 0; })();
+$('#dWave').innerHTML = waveBars(22);
+show(start);
+</script>
+
+</body>
+</html>
