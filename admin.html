@@ -498,6 +498,62 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ej-note{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13px}
 .ej-sum-line{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;margin-bottom:8px;box-shadow:var(--shadow)}
 @media (max-width:380px){.ej-refs{grid-template-columns:1fr}}
+/* ===== معاملات إنجاز: ألوان وتنسيق (محصورة في هذا القسم) ===== */
+.ej-banner{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;border-radius:18px;padding:16px 18px;margin-bottom:16px;color:#fff;
+  background:radial-gradient(500px 160px at 15% 0%,rgba(255,255,255,.14),transparent 70%),linear-gradient(120deg,#12306b 0%,#1d4690 45%,#11908f 100%);box-shadow:0 10px 28px rgba(18,48,107,.22)}
+.ej-banner .bi{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+.ej-banner .bi svg{width:26px;height:26px}
+.ej-banner h2{font-size:19px;color:#fff}
+.ej-banner .sub{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12.5px;margin-top:3px;color:#dbe7ff}
+.ej-banner .lock{background:rgba(255,255,255,.16);border-radius:999px;padding:1px 10px}
+.ej-banner .sp{flex:1}
+.ej-banner .btn.wa{box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.btn.bnew{background:#fff;color:var(--navy);box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.btn.bnew:hover{background:#eef4ff}
+
+#vEnjaz .kpis.ej5 .kpi{position:relative;background:linear-gradient(140deg,color-mix(in srgb,var(--c) 13%,#fff) 0%,#fff 70%);border:1px solid color-mix(in srgb,var(--c) 22%,#fff);border-inline-start:5px solid var(--c);padding-inline-end:52px}
+#vEnjaz .kpi .ki{position:absolute;inset-inline-end:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-style:normal;font-size:18px;background:color-mix(in srgb,var(--c) 16%,#fff)}
+#vEnjaz .kpi span{color:color-mix(in srgb,var(--c) 70%,#333)}
+@media (max-width:520px){#vEnjaz .kpis.ej5 .kpi{padding-inline-end:9px}#vEnjaz .kpi .ki{display:none}}
+
+#vEnjaz .tabs .tab{display:inline-flex;align-items:center;gap:6px}
+#vEnjaz .tdot{width:8px;height:8px;border-radius:50%;background:var(--dc,#9aa5b8);font-style:normal}
+.tb-at_dean{--dc:var(--violet)} .tb-directed{--dc:var(--teal)} .tb-discuss{--dc:#c07a12} .tb-done{--dc:#9aa5b8} .tb-all{--dc:var(--navy-2)}
+#vEnjaz .tab.on .tdot{background:#fff}
+
+.item.ejc{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-inline-start:6px solid var(--sc,#9aa5b8);background:#fff;transition:.15s}
+.item.ejc.alt{background:#f6f8fd}
+.item.ejc:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(18,48,107,.12)}
+.item.ejc.on{border-color:var(--navy);border-inline-start-color:var(--sc);box-shadow:0 0 0 2px var(--navy) inset,0 6px 18px rgba(18,48,107,.12)}
+.ejc.st-at_dean{--sc:var(--violet)} .ejc.st-directed{--sc:var(--teal)} .ejc.st-discuss{--sc:#c07a12} .ejc.st-done{--sc:#9aa5b8}
+.ejc.urg{--sc:var(--bad);background:linear-gradient(90deg,#fff 60%,#fdf1ee)}
+.ejc.urg.alt{background:linear-gradient(90deg,#f6f8fd 60%,#fdf1ee)}
+.ej-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ej-no{font-size:12px;color:var(--muted);background:#eef1f6;border-radius:8px;padding:2px 9px}
+.ej-no b{color:var(--navy);font-size:13px;margin-inline-start:3px}
+.ej-ttl{font-weight:700;font-size:15px;line-height:1.65;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ej-src{font-size:12.5px;color:var(--navy-2);font-weight:600}
+.ej-sm{font-size:13px;color:var(--muted);line-height:1.75;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ej-ft{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:2px}
+.ej-ft .sp{flex:1}
+.ej-ft .c{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;background:#eef1f6;color:var(--muted)}
+.ej-ft .c.urg{background:var(--bad);color:#fff}
+.ej-ft .c.sec{background:var(--bad-soft);color:var(--bad)}
+.ej-ft .c.att{background:var(--info-soft);color:var(--info)}
+.ej-ft .c.voi{background:var(--teal-soft);color:#0b6e6d}
+.ej-ft .c.age{background:var(--warn-soft);color:var(--warn)}
+.ej-ft .c.age.late{background:var(--bad-soft);color:var(--bad)}
+
+.ej-home{background:linear-gradient(160deg,#fff 0%,#f3f7ff 60%,#eef8f7 100%);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:34px 20px;text-align:center}
+.ej-home .hi{width:64px;height:64px;border-radius:20px;margin:0 auto 12px;display:grid;place-items:center;font-size:30px;background:linear-gradient(135deg,#ffe9b3,#ffd27a);box-shadow:0 8px 20px rgba(192,122,18,.25)}
+.ej-home b{font-family:"Noto Kufi Arabic";font-size:16px;color:var(--navy)}
+.ej-home p{color:var(--muted);margin:6px 0 18px;font-size:13.5px}
+.ej-home .flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px}
+.ej-home .flow span{border-radius:10px;padding:6px 12px;font-size:12.5px;font-weight:700}
+.ej-home .flow .f1{background:var(--navy-soft);color:var(--navy-2)} .ej-home .flow .f2{background:var(--violet-soft);color:var(--violet)} .ej-home .flow .f3{background:var(--teal-soft);color:#0b6e6d}
+.ej-home .flow i{font-style:normal;color:var(--muted)}
+#ejDetail .d-head{background:linear-gradient(90deg,#f3f7ff,#fff)}
+@media (max-width:560px){.ej-banner .sp{display:none}.ej-banner .btn{flex:1 1 40%;padding:9px 8px;font-size:13.5px}}
 #print{display:none}
 @media print{
   /* margin:0 removes the browser's own header/footer (date, page title, address, page number) */
@@ -1711,11 +1767,12 @@ function ejRenderOffice(){
   if (E.shell !== 'office' || !$('#ejList')) {
     if (!EJ_OTABS.some(t => t.id === E.tab)) E.tab = 'at_dean';
     $('#vEnjaz').innerHTML = `
-      <div class="ej-head">
-        <div><h2>معاملات إنجاز لدى العميد</h2><div class="sub">🔒 لا يطّلع عليها إلا أنت وسعادة العميد</div></div>
+      <div class="ej-banner">
+        <div class="bi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+        <div class="bt"><h2>معاملات إنجاز لدى سعادة العميد</h2><div class="sub"><span class="lock">🔒 خاصة بك وبسعادة العميد</span><span id="ejBannerNote"></span></div></div>
         <div class="sp"></div>
         <button class="btn wa" id="ejWa" type="button">${ICON_WA}تذكير سعادة العميد</button>
-        <button class="btn pri" id="ejNew" type="button">＋ معاملة جديدة</button>
+        <button class="btn bnew" id="ejNew" type="button">＋ معاملة جديدة</button>
       </div>
       <div class="kpis ej5" id="ejKpis"></div>
       <div class="bar">
@@ -1725,7 +1782,10 @@ function ejRenderOffice(){
       <div class="layout">
         <div class="list" id="ejList"></div>
         <section class="detail" id="ejDetail" hidden></section>
-        <section class="home"><div class="empty2"><div class="ei" style="background:var(--navy-soft);color:var(--navy-2)">📂</div><b>اختر معاملة لعرض تفاصيلها</b><p>أو أضف معاملة جديدة لتُعرض على سعادة العميد.</p></div></section>
+        <section class="home"><div class="ej-home">
+          <div class="hi">📂</div><b>اختر معاملة لعرض تفاصيلها</b><p>أو أضف معاملة جديدة لتُعرض على سعادة العميد.</p>
+          <div class="flow"><span class="f1">١ أضف المعاملة</span><i>←</i><span class="f2">٢ يوجّه سعادته</span><i>←</i><span class="f3">٣ انقلها لإنجاز</span></div>
+        </div></section>
       </div>`;
     E.shell = 'office';
     $('#ejQ').value = E.q;
@@ -1733,22 +1793,26 @@ function ejRenderOffice(){
   ejPaintTop(); ejPaintList(); ejPaintDetail();
 }
 function ejPaintTop(){
-  $('#ejKpis').innerHTML = EJ_KPIS.map(k => `<button class="kpi ${E.kpi === k.id ? 'on' : ''}" style="--c:${k.c}" data-ejk="${k.id}" type="button"><b>${E.items.filter(k.f).length}</b><span>${k.l}</span></button>`).join('');
-  $('#ejTabs').innerHTML = EJ_OTABS.map(t => `<button class="tab ${!E.kpi && E.tab === t.id ? 'on' : ''}" data-ejtab="${t.id}" type="button">${t.l}<span class="n">${E.items.filter(t.f).length}</span></button>`).join('');
+  const KI = { at:'🖋️', late:'⏰', todo:'📤', talk:'💬', month:'✅' };
+  $('#ejKpis').innerHTML = EJ_KPIS.map(k => `<button class="kpi ${E.kpi === k.id ? 'on' : ''}" style="--c:${k.c}" data-ejk="${k.id}" type="button"><i class="ki">${KI[k.id]}</i><b>${E.items.filter(k.f).length}</b><span>${k.l}</span></button>`).join('');
+  const w = E.items.filter(i => i.status === 'at_dean').length, t = E.items.filter(i => i.status === 'directed').length;
+  $('#ejBannerNote').textContent = w || t ? [w ? `${w} لدى سعادته` : '', t ? `${t} بانتظار نقلها لإنجاز` : ''].filter(Boolean).join(' · ') : 'لا شيء معلّق ✓';
+  $('#ejTabs').innerHTML = EJ_OTABS.map(t => `<button class="tab tb-${t.id} ${!E.kpi && E.tab === t.id ? 'on' : ''}" data-ejtab="${t.id}" type="button"><i class="tdot"></i>${t.l}<span class="n">${E.items.filter(t.f).length}</span></button>`).join('');
   $('#ejWa').disabled = !E.items.some(i => i.status === 'at_dean');
 }
 function ejPaintList(){
   const rows = ejFiltered();
   if (E.sel && !rows.some(i => i.id === E.sel)) E.sel = null;
-  $('#ejList').innerHTML = rows.length ? rows.map(i => {
+  $('#ejList').innerHTML = rows.length ? rows.map((i, k) => {
     const late = i.status === 'at_dean' && ejDays(i.created_at) > 3;
     const voice = ejFilesOf(i.id, 'voice').length, att = ejFilesOf(i.id, 'attachment').length;
     const when = i.status === 'at_dean' ? i.created_at : i.status === 'done' ? (i.done_at || i.updated_at) : (i.directed_at || i.updated_at);
-    return `<div class="item ${E.sel === i.id ? 'on' : ''}" data-ejsel="${i.id}">
-      <div class="nm"><span class="lb">المعاملة:</span> ${esc(i.title)}</div>
-      <div>${ejStatus(i)}</div>
-      ${i.summary ? `<div class="sm"><span class="lb">الملخص:</span> ${esc(i.summary)}</div>` : ''}
-      <div class="mt"><span class="rf ltr">${esc(i.enjaz_no)}</span>·${i.source ? `<span class="tag">${esc(i.source)}</span>` : ''}${i.urgent ? '<span class="tag" style="background:var(--bad);color:#fff;font-weight:700">عاجلة</span>' : ''}${i.secret ? '<span class="tag" style="background:var(--bad-soft);color:var(--bad);font-weight:700">🔒 سرّية</span>' : att ? `<span class="tag">📎 ${att}</span>` : ''}·<span class="${late ? 'late' : ''}">${late ? '⚠ متأخرة · ' : ''}${ago(when)}</span></div>
+    return `<div class="item ejc st-${i.status} ${i.urgent && i.status === 'at_dean' ? 'urg' : ''} ${k % 2 ? 'alt' : ''} ${E.sel === i.id ? 'on' : ''}" data-ejsel="${i.id}">
+      <div class="ej-top"><span class="ej-no">إنجاز <b class="ltr">${esc(i.enjaz_no)}</b></span>${ejStatus(i)}</div>
+      <div class="ej-ttl">${esc(i.title)}</div>
+      ${i.source ? `<div class="ej-src">🏛️ ${esc(i.source)}</div>` : ''}
+      ${i.summary ? `<div class="ej-sm">${esc(i.summary)}</div>` : ''}
+      <div class="ej-ft">${i.urgent ? '<span class="c urg">⚡ عاجلة</span>' : ''}${i.secret ? '<span class="c sec">🔒 سرّية</span>' : att ? `<span class="c att">📎 ${att} مرفق</span>` : ''}${voice ? '<span class="c voi">🎙 صوتي</span>' : ''}<span class="sp"></span><span class="c age ${late ? 'late' : ''}">${late ? '⚠ متأخرة · ' : '🕓 '}${ago(when)}</span></div>
       ${(i.dean_text || voice || i.referred_to) && i.status !== 'at_dean' ? `<div class="dsum ${i.status === 'discuss' ? 'ds-reserved' : 'ds-directed'}">
         <div class="dl"><b>${i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'التوجيه:'}</b> ${[i.referred_to ? 'يُحال إلى ' + ejRefLabel(i.referred_to) : '', i.dean_text || ''].filter(Boolean).map(x => esc(x.replace(/\s+/g, ' '))).join(' · ')}</div>
         <div class="dm">${i.directed_at ? `<span>🗓 ${hijri(i.directed_at)}</span>` : ''}${voice ? '<span>🎙 تسجيل صوتي</span>' : ''}${i.status === 'directed' ? '<span class="wait">بانتظار النقل إلى إنجاز</span>' : ''}</div>
