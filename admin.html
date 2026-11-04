@@ -472,6 +472,31 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .nv .bd{background:var(--bad);color:#fff;border-radius:999px;min-width:22px;height:22px;padding:0 7px;font-size:12.5px;display:inline-grid;place-items:center;font-weight:800}
 .secnav.dean #btnEnjaz{order:-1}
 @media (max-width:560px){.secnav .in{padding:7px 8px;gap:5px}.nv{flex:1 1 auto;justify-content:center;padding:8px 7px;font-size:13px;gap:5px;border-radius:10px}.nv svg{display:none}.nv .bd{min-width:19px;height:19px;padding:0 5px;font-size:11.5px}}
+/* واجهة العميد: تمييز البطاقات وخطوات التوجيه */
+.ej-dcard{border-inline-start:5px solid var(--navy)}
+.ej-dcard.alt{background:#eef6f6;border-color:#cfe6e5;border-inline-start-color:var(--teal)}
+.ej-focus{border:2px solid var(--line)}
+#ejDirBlk{border-color:var(--teal);background:linear-gradient(180deg,#fff,#f3faf9)}
+#ejDirBlk.pulse{animation:ejglow 1.8s ease-in-out infinite}
+@keyframes ejglow{0%,100%{box-shadow:0 0 0 0 rgba(17,144,143,.0)}50%{box-shadow:0 0 0 6px rgba(17,144,143,.22)}}
+@media (prefers-reduced-motion:reduce){#ejDirBlk.pulse{animation:none}}
+#ejVoiceBlk{border-color:#c9d6ef;background:#f6f9fe}
+#ejRefBlk{border-color:#d9d2f4;background:#faf9ff}
+.ej-step{display:flex;gap:10px;align-items:center;margin-bottom:4px}
+.ej-step .no{width:30px;height:30px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;flex:none;font-size:15px}
+#ejVoiceBlk .ej-step .no{background:var(--navy)}
+#ejRefBlk .ej-step .no{background:var(--violet)}
+.ej-step b{display:block;font-family:"Noto Kufi Arabic";font-size:15.5px;color:var(--ink)}
+.ej-step small{display:block;color:var(--muted);font-size:12.5px;line-height:1.6}
+.ej-sub{font-size:12px;color:var(--muted);font-weight:700;margin:4px 2px 0}
+.ej-refs{grid-template-columns:1fr 1fr}
+.ej-refs .ej-pick{font-size:13.5px;padding:10px}
+.ej-refs .ej-pick.voice{grid-column:1/-1}
+.ej-pick.ref.on{border-color:var(--violet);background:var(--violet-soft)}
+.ej-pick.ref.on::before{border-color:var(--violet);background:radial-gradient(var(--violet) 45%,transparent 50%)}
+.ej-note{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13px}
+.ej-sum-line{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;margin-bottom:8px;box-shadow:var(--shadow)}
+@media (max-width:380px){.ej-refs{grid-template-columns:1fr}}
 #print{display:none}
 @media print{
   /* margin:0 removes the browser's own header/footer (date, page title, address, page number) */
@@ -1559,6 +1584,11 @@ $('#rForms').onclick = async () => {
 const EJ_BUCKET = 'enjaz-files';
 const EJ_DEAN_WA = '966530721901';
 const EJ_URL = 'https://osaamh1.github.io/exceptional-requests/admin.html#enjaz';
+const EJ_PHRASES = ['لإكمال اللازم وفق ما ينظمه', 'للإفادة بما لديكم ورأيكم', 'للمفاهمة', 'وفق الشرح', 'للعرض'];
+const EJ_REFS = ['وكالة الكلية للشؤون الطلابية', 'وكالة الكلية للشؤون التعليمية', 'قسم القرآن وعلومه', 'قسم الفقه', 'قسم أصول الفقه', 'قسم العقيدة', 'قسم السنة', 'قسم القانون'];
+const ejRefLabel = r => r === 'voice' ? 'موضّحة في التسجيل الصوتي' : r;
+// نص التوجيه كاملاً كما يُنقل إلى إنجاز: الإحالة ثم العبارة
+const ejDirText = i => [i.referred_to ? 'يُحال إلى ' + ejRefLabel(i.referred_to) : '', i.dean_text || ''].filter(Boolean).join('\n');
 const EJ_MAX_FILES = 5, EJ_MAX_MB = 15, EJ_MAX_REC_SEC = 180;
 const EJ_TABS = [
   { id:'at_dean',  l:'بانتظار العميد' },
@@ -1640,8 +1670,9 @@ function ejAttach(i){
 }
 function ejDirection(i){
   const v = ejFilesOf(i.id, 'voice').pop();
-  if (!i.dean_text && !v) return '';
+  if (!i.dean_text && !v && !i.referred_to) return '';
   return `<div class="ej-dir"><span class="lbl">${i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'توجيه سعادة العميد'}${i.directed_at ? ' · ' + hijri(i.directed_at) + ' ' + time(i.directed_at) : ''}</span>
+    ${i.referred_to ? `<div class="tx"><b>يُحال إلى:</b> ${esc(ejRefLabel(i.referred_to))}</div>` : ''}
     ${i.dean_text ? `<div class="tx">${esc(i.dean_text)}</div>` : ''}
     ${v ? `<audio class="ej-audio" controls preload="none" src="${esc(E.urls[v.path] || '')}"></audio>` : ''}</div>`;
 }
@@ -1717,8 +1748,8 @@ function ejPaintList(){
       <div>${ejStatus(i)}</div>
       ${i.summary ? `<div class="sm"><span class="lb">الملخص:</span> ${esc(i.summary)}</div>` : ''}
       <div class="mt"><span class="rf ltr">${esc(i.enjaz_no)}</span>·${i.source ? `<span class="tag">${esc(i.source)}</span>` : ''}${i.urgent ? '<span class="tag" style="background:var(--bad);color:#fff;font-weight:700">عاجلة</span>' : ''}${i.secret ? '<span class="tag" style="background:var(--bad-soft);color:var(--bad);font-weight:700">🔒 سرّية</span>' : att ? `<span class="tag">📎 ${att}</span>` : ''}·<span class="${late ? 'late' : ''}">${late ? '⚠ متأخرة · ' : ''}${ago(when)}</span></div>
-      ${(i.dean_text || voice) && i.status !== 'at_dean' ? `<div class="dsum ${i.status === 'discuss' ? 'ds-reserved' : 'ds-directed'}">
-        <div class="dl"><b>${i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'التوجيه:'}</b> ${i.dean_text ? esc(i.dean_text.replace(/\s+/g, ' ')) : ''}</div>
+      ${(i.dean_text || voice || i.referred_to) && i.status !== 'at_dean' ? `<div class="dsum ${i.status === 'discuss' ? 'ds-reserved' : 'ds-directed'}">
+        <div class="dl"><b>${i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'التوجيه:'}</b> ${[i.referred_to ? 'يُحال إلى ' + ejRefLabel(i.referred_to) : '', i.dean_text || ''].filter(Boolean).map(x => esc(x.replace(/\s+/g, ' '))).join(' · ')}</div>
         <div class="dm">${i.directed_at ? `<span>🗓 ${hijri(i.directed_at)}</span>` : ''}${voice ? '<span>🎙 تسجيل صوتي</span>' : ''}${i.status === 'directed' ? '<span class="wait">بانتظار النقل إلى إنجاز</span>' : ''}</div>
       </div>` : ''}
     </div>`;
@@ -1738,7 +1769,7 @@ function ejPaintDetail(){
   if (i.directed_at) ev.push({ t:i.directed_at, b:i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'صدر توجيه سعادة العميد', by:i.directed_by, dot:i.status === 'discuss' ? '#c07a12' : 'var(--violet)' });
   if (i.done_at) ev.push({ t:i.done_at, b:'نُقل التوجيه إلى إنجاز وأُقفلت', by:i.done_by, dot:'var(--teal)' });
   const acts = i.status === 'at_dean' ? `<button class="btn line" data-ej="edit" data-id="${i.id}">تعديل</button><button class="btn danger" data-ej="del" data-id="${i.id}">حذف</button>`
-    : i.status === 'directed' ? `${i.dean_text ? `<button class="btn line" data-ej="copy" data-id="${i.id}">نسخ التوجيه</button>` : ''}<button class="btn teal" data-ej="done" data-id="${i.id}">تم النقل إلى إنجاز</button>`
+    : i.status === 'directed' ? `${ejDirText(i) ? `<button class="btn line" data-ej="copy" data-id="${i.id}">نسخ التوجيه</button>` : ''}<button class="btn teal" data-ej="done" data-id="${i.id}">تم النقل إلى إنجاز</button>`
     : i.status === 'discuss' ? `<button class="btn teal" data-ej="result" data-id="${i.id}">تسجيل نتيجة المناقشة</button><button class="btn line" data-ej="back" data-id="${i.id}">إعادتها لسعادة العميد</button>`
     : `<button class="btn ghost" data-ej="reopen" data-id="${i.id}">إعادة فتح</button>`;
   D.dataset.id = i.id;
@@ -1761,8 +1792,9 @@ function ejPaintDetail(){
       ${i.summary ? `<div class="sec"><h3>📝 ملخص المكتب</h3><div class="txt">${esc(i.summary)}</div></div>` : ''}
       <div class="sec"><h3>📎 المرفقات${i.secret ? '' : ` (${atts.length})`}</h3>${files}</div>
       ${i.suggestions?.length ? `<div class="sec"><h3>💡 التوجيهات المقترحة</h3><div class="box office">${i.suggestions.map(s => '• ' + esc(s)).join('\n')}</div></div>` : ''}
-      ${(i.dean_text || voice) ? `<div class="sec"><h3>🖋️ ${i.status === 'discuss' ? 'طلب سعادة العميد' : 'توجيه سعادة العميد'}</h3><div class="box dean">
+      ${(i.dean_text || voice || i.referred_to) ? `<div class="sec"><h3>🖋️ ${i.status === 'discuss' ? 'طلب سعادة العميد' : 'توجيه سعادة العميد'}</h3><div class="box dean">
         ${i.status === 'discuss' ? '<div class="dc">تُناقش معي</div>' : ''}
+        ${i.referred_to ? `<div>ويُحال إلى: <b>${esc(ejRefLabel(i.referred_to))}</b></div>` : ''}
         ${i.dean_text ? `<div style="white-space:pre-wrap">${esc(i.dean_text)}</div>` : ''}
         ${voice ? `<audio class="ej-audio" controls preload="none" src="${esc(E.urls[voice.path] || '')}" style="margin-top:8px"></audio>` : ''}
         ${i.directed_at ? `<small>${hijri(i.directed_at)} ${time(i.directed_at)}</small>` : ''}</div></div>` : ''}
@@ -1798,7 +1830,7 @@ async function ejUpdate(id, patch, okMsg){
 async function ejAct(a, i, b){
   if (a === 'edit') return ejForm(i);
   if (a === 'copy') {
-    try { await navigator.clipboard.writeText(i.dean_text); b.textContent = 'نُسخ ✓'; }
+    try { await navigator.clipboard.writeText(ejDirText(i)); b.textContent = 'نُسخ ✓'; }
     catch { toast('تعذّر النسخ، انسخ النص يدوياً', 'error'); }
     return;
   }
@@ -1949,8 +1981,8 @@ function ejRenderDean(){
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
     <div class="ej-hello"><div class="hi">${h < 12 ? 'صباح الخير' : 'مساء الخير'}</div><h2>سعادة العميد</h2>
       <div class="cnt"><span><b>${w.length}</b>بانتظار توجيهكم</span>${w.filter(i => ejDays(i.created_at) > 3).length ? `<span><b>${w.filter(i => ejDays(i.created_at) > 3).length}</b>أقدم من ٣ أيام</span>` : ''}</div></div>
-    <div class="ej-list">${w.length ? w.map(i => `
-      <button class="ej-dcard" data-open="${i.id}" type="button">
+    <div class="ej-list">${w.length ? w.map((i, k) => `
+      <button class="ej-dcard ${k % 2 ? 'alt' : ''}" data-open="${i.id}" type="button">
         <div style="display:flex;gap:6px;flex-wrap:wrap">${ejPills(i)}</div>
         <h3>${esc(i.title)}</h3>${i.source ? `<div class="ej-meta"><span>${esc(i.source)}</span></div>` : ''}
       </button>`).join('') : `<div class="ej-empty"><div class="ok">✓</div><b>لا توجد معاملات بانتظاركم</b></div>`}</div>
@@ -1959,7 +1991,8 @@ function ejRenderDean(){
   </div>`;
 }
 function ejDeanDetail(i){
-  E.pick = null; E.own = ''; E.voice = null;
+  E.pick = null; E.own = ''; E.voice = null; E.ref = null;
+  const sug = (i.suggestions || []).filter(x => !EJ_PHRASES.includes(x));
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
     <button class="ej-back" id="ejClose" type="button">→ رجوع للقائمة</button>
     <div class="ej-stack">
@@ -1968,21 +2001,57 @@ function ejDeanDetail(i){
         <div class="ej-meta"><span>إنجاز: <span class="ltr">${esc(i.enjaz_no)}</span></span>${i.source ? `<span>${esc(i.source)}</span>` : ''}</div></div>
       ${i.summary ? `<div class="ej-blk"><h4>ملخص المكتب</h4><div class="ej-sum">${esc(i.summary)}</div></div>` : ''}
       ${(i.secret || ejFilesOf(i.id, 'attachment').length) ? `<div class="ej-blk"><h4>المرفق</h4>${ejAttach(i)}</div>` : ''}
-      <div class="ej-blk"><h4>توجيه سعادتكم</h4>
+
+      <div class="ej-blk ej-focus pulse" id="ejDirBlk">
+        <div class="ej-step"><span class="no">١</span><div><b>توجيه سعادتكم</b><small>اختر عبارة واحدة</small></div></div>
         <div class="ej-picks" id="ejPicks">
-          ${(i.suggestions || []).map((s, k) => `<button type="button" class="ej-pick" data-p="${k}">${esc(s)}</button>`).join('')}
-          <button type="button" class="ej-pick" data-p="own">توجيه آخر أكتبه</button>
-          <button type="button" class="ej-pick talk" data-p="talk">تُناقش معي</button>
+          ${sug.length ? `<div class="ej-sub">مقترح من المكتب لهذه المعاملة</div>${sug.map((x, k) => `<button type="button" class="ej-pick" data-p="s${k}">${esc(x)}</button>`).join('')}<div class="ej-sub">عبارات جاهزة</div>` : ''}
+          ${EJ_PHRASES.map((x, k) => `<button type="button" class="ej-pick" data-p="f${k}">${esc(x)}</button>`).join('')}
+          <button type="button" class="ej-pick" data-p="own">✍️ توجيه آخر أكتبه</button>
+          <button type="button" class="ej-pick talk" data-p="talk">💬 تُناقش معي</button>
         </div>
-        <textarea class="textarea" id="ejOwn" placeholder="اكتب التوجيه…" hidden></textarea></div>
-      <div class="ej-blk"><h4>أو اشرح بصوتك</h4><div class="ej-mic" id="ejMic"></div></div>
+        <textarea class="textarea" id="ejOwn" placeholder="اكتب التوجيه…" hidden></textarea>
+      </div>
+
+      <div class="ej-blk ej-focus" id="ejVoiceBlk">
+        <div class="ej-step"><span class="no">🎙</span><div><b>اشرح توجيهك بصوتك</b><small>اختياري — اضغط الزر وتكلّم، ثم اضغط مرة ثانية للإيقاف، وتسمعه قبل الاعتماد</small></div></div>
+        <div class="ej-mic" id="ejMic"></div>
+      </div>
+
+      <div class="ej-blk ej-focus" id="ejRefBlk">
+        <div class="ej-step"><span class="no">٢</span><div><b>الإدارة المحال إليها</b><small>اختياري — اضغط مرة ثانية لإلغاء الاختيار</small></div></div>
+        <div class="ej-picks ej-refs" id="ejRefs">
+          ${EJ_REFS.map(x => `<button type="button" class="ej-pick ref" data-r="${esc(x)}">${esc(x)}</button>`).join('')}
+          <button type="button" class="ej-pick ref voice" data-r="voice">🎙 أشرح بالصوت أين تُحال</button>
+        </div>
+        <div class="ej-note" id="ejRefNote" hidden>اذكر في التسجيل الصوتي أعلاه الجهة المحال إليها.</div>
+      </div>
     </div>
-    <div class="ej-send"><button class="btn pri" id="ejSend" type="button" disabled>اعتماد التوجيه</button></div>
+    <div class="ej-send"><div class="ej-sum-line" id="ejSumLine"></div><button class="btn pri" id="ejSend" type="button" disabled>اعتماد التوجيه</button></div>
   </div>`;
   ejPaintMic(); window.scrollTo(0, 0);
 }
-function ejCanSend(){ return (E.pick !== null && (E.pick !== 'own' || E.own.trim())) || !!E.voice; }
-function ejSync(){ const b = $('#ejSend'); if (b) b.disabled = !ejCanSend() || !!E.rec; }
+function ejPhrase(i){
+  const p = E.pick; if (p === null || p === 'talk') return '';
+  if (p === 'own') return E.own.trim();
+  const sug = (i.suggestions || []).filter(x => !EJ_PHRASES.includes(x));
+  return p[0] === 's' ? (sug[+p.slice(1)] || '') : (EJ_PHRASES[+p.slice(1)] || '');
+}
+function ejCanSend(){
+  const base = (E.pick !== null && (E.pick !== 'own' || E.own.trim())) || !!E.voice;
+  return base && !(E.ref === 'voice' && !E.voice && E.pick !== 'talk');
+}
+function ejSync(){
+  const b = $('#ejSend'); if (b) b.disabled = !ejCanSend() || !!E.rec;
+  const i = E.items.find(x => x.id === E.open), line = $('#ejSumLine'); if (!i || !line) return;
+  const talk = E.pick === 'talk';
+  $('#ejRefBlk').hidden = talk;
+  $('#ejDirBlk').classList.toggle('pulse', E.pick === null && !E.voice);
+  $('#ejRefNote').hidden = !(E.ref === 'voice' && !E.voice);
+  const parts = talk ? ['تُناقش معي'] : [E.ref ? 'يُحال إلى ' + ejRefLabel(E.ref) : '', ejPhrase(i), E.voice ? '🎙 مع تسجيل صوتي' : ''].filter(Boolean);
+  line.innerHTML = parts.length ? `<b>التوجيه:</b> ${parts.map(esc).join(' · ')}` : '';
+  line.hidden = !parts.length;
+}
 function ejPaintMic(){
   const m = $('#ejMic'); if (!m) return;
   if (E.rec) m.innerHTML = `<button class="ej-micbtn rec" id="ejMicBtn" type="button" aria-label="إيقاف التسجيل">${ICON_STOP}</button><span class="lbl" id="ejRecT">0:00 — جاري التسجيل، اضغط للإيقاف</span>`;
@@ -2032,6 +2101,11 @@ function ejStopRec(discard){
 function ejDeanClick(b){
   if (b.dataset.open) { E.open = b.dataset.open; return renderEJ(); }
   if (b.id === 'ejClose') { ejStopRec(true); E.open = null; return renderEJ(); }
+  if (b.dataset.r !== undefined) {
+    E.ref = E.ref === b.dataset.r ? null : b.dataset.r;
+    $$('#ejRefs .ej-pick').forEach(x => x.classList.toggle('on', x.dataset.r === E.ref));
+    return ejSync();
+  }
   if (b.dataset.p !== undefined) {
     $$('#ejPicks .ej-pick').forEach(x => x.classList.toggle('on', x === b));
     E.pick = b.dataset.p;
@@ -2088,7 +2162,7 @@ async function ejToMp3(blob){
 async function ejSend(btn){
   const i = E.items.find(x => x.id === E.open); if (!i || !ejCanSend()) return;
   const discuss = E.pick === 'talk';
-  const text = E.pick === 'own' || discuss ? E.own.trim() : E.pick !== null ? (i.suggestions || [])[+E.pick] || '' : '';
+  const text = discuss ? E.own.trim() : ejPhrase(i);
   btn.disabled = true; btn.textContent = 'جاري الاعتماد…'; E.busy = true;
   try {
     if (E.voice) {
@@ -2104,16 +2178,16 @@ async function ejSend(btn){
       const { error: fe } = await sb.from('enjaz_files').insert({ item_id:i.id, kind:'voice', path, name:'توجيه صوتي', mime:type, size:blob.size, duration_s:E.voice.sec });
       if (fe) throw fe;
     }
-    const { error } = await sb.rpc('enjaz_direct', { p_id:i.id, p_text:text || null, p_discuss:discuss });
+    const { error } = await sb.rpc('enjaz_direct', { p_id:i.id, p_text:text || null, p_discuss:discuss, p_referred_to:discuss ? null : E.ref });
     if (error) throw error;
     if (E.voice) URL.revokeObjectURL(E.voice.url);
-    E.open = null; E.voice = null; E.pick = null; E.own = '';
+    E.open = null; E.voice = null; E.pick = null; E.own = ''; E.ref = null;
     toast(discuss ? 'وصل لمكتبكم أنكم ترغبون مناقشتها ✓' : 'اعتُمد التوجيه، ووصل لمكتبكم ✓', 'ok');
     await loadEJ(true); renderEJ(); window.scrollTo(0, 0);
   } catch (err) {
     console.error(err);
     const m = String(err?.message || '');
-    toast(m.includes('NOT_PENDING') ? 'وُجّهت هذه المعاملة من قبل.' : m.includes('NOT_ALLOWED') ? 'التوجيه من حساب سعادة العميد فقط.' : errText(err), 'error');
+    toast(m.includes('VOICE_REQUIRED') ? 'سجّل الجهة المحال إليها بصوتك أولاً.' : m.includes('NOT_PENDING') ? 'وُجّهت هذه المعاملة من قبل.' : m.includes('NOT_ALLOWED') ? 'التوجيه من حساب سعادة العميد فقط.' : errText(err), 'error');
     btn.disabled = false; btn.textContent = 'اعتماد التوجيه';
   } finally { E.busy = false; }
 }

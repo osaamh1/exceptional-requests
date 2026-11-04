@@ -366,3 +366,4 @@ create policy "exreq staff upload" on storage.objects for insert to authenticate
 --   enjaz_items / enjaz_files + حاوية خاصة enjaz-files، كلها محمية بـ has_enjaz()
 --   enjaz_direct(p_id, p_text, p_discuss): التوجيه من حساب العميد فقط (لا يمتد له التفويض)
 --   notify_recipients.enjaz: تنبيه تلقرام بالتوجيه (والتسجيل الصوتي) لأسامة فقط
+-- e2_enjaz_referral: enjaz_items.referred_to (الإدارة المحال إليها، و'voice' = موضّحة في التسجيل)؛ enjaz_direct صار يقبل p_referred_to

@@ -103,7 +103,8 @@ async function onEnjaz(id: string) {
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   const head = t.status === "discuss" ? "💬 <b>معاملة يرغب سعادة العميد مناقشتها</b>" : "✅ <b>وجّه سعادة العميد على معاملة</b>";
   const text = [head, "", `<b>${esc(t.title)}</b>`, `رقم إنجاز: ${esc(t.enjaz_no)}${t.source ? ` · ${esc(t.source)}` : ""}`,
-    t.dean_text ? `\nالتوجيه: ${esc(t.dean_text)}` : "", voice ? "\n🎙 مع تسجيل صوتي (مرفق أدناه)" : ""].filter((x) => x !== "").join("\n");
+    t.referred_to ? `\nيُحال إلى: <b>${t.referred_to === "voice" ? "موضّحة في التسجيل الصوتي" : esc(t.referred_to)}</b>` : "",
+    t.dean_text ? `${t.referred_to ? "" : "\n"}التوجيه: ${esc(t.dean_text)}` : "", voice ? "\n🎙 مع تسجيل صوتي (مرفق أدناه)" : ""].filter((x) => x !== "").join("\n");
   const markup = { inline_keyboard: [[{ text: "فتح معاملات إنجاز", url: ADMIN_URL + "#enjaz" }]] };
   let blob: Blob | null = null;
   if (voice) {
