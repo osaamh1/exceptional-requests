@@ -1835,7 +1835,7 @@ function ejPaintDetail(){
   if (i.done_at) ev.push({ t:i.done_at, b:'نُقل التوجيه إلى إنجاز وأُقفلت', by:i.done_by, dot:'var(--teal)' });
   const acts = i.status === 'at_dean' ? `<button class="btn line" data-ej="edit" data-id="${i.id}">تعديل</button><button class="btn danger" data-ej="del" data-id="${i.id}">حذف</button>`
     : i.status === 'directed' ? `${ejDirText(i) ? `<button class="btn line" data-ej="copy" data-id="${i.id}">نسخ التوجيه</button>` : ''}<button class="btn teal" data-ej="done" data-id="${i.id}">تم النقل إلى إنجاز</button>`
-    : i.status === 'discuss' ? `<button class="btn teal" data-ej="result" data-id="${i.id}">تسجيل نتيجة المناقشة</button><button class="btn line" data-ej="back" data-id="${i.id}">إعادتها لسعادة العميد</button>`
+    : i.status === 'discuss' ? `<button class="btn teal" data-ej="result" data-id="${i.id}">✓ تمت المناقشة — إقفال المعاملة</button><button class="btn line" data-ej="back" data-id="${i.id}">إعادتها لسعادة العميد</button>`
     : `<button class="btn ghost" data-ej="reopen" data-id="${i.id}">إعادة فتح</button>`;
   D.dataset.id = i.id;
   D.innerHTML = `
@@ -1845,6 +1845,7 @@ function ejPaintDetail(){
       <span class="sp"></span><small style="color:var(--muted)">أُضيفت ${hijri(i.created_at)}</small>
     </div>
     <div class="d-body">
+      ${i.status === 'discuss' ? `<div class="atdean" style="background:var(--warn-soft);color:var(--warn)">💬 طلب سعادة العميد مناقشتها. بعد المناقشة وإحالتها في إنجاز، اضغط <b>«تمت المناقشة — إقفال المعاملة»</b> في الأسفل لتنتقل إلى «المنتهية».</div>` : ''}
       ${i.status === 'at_dean' ? `<div class="atdean">المعاملة لدى سعادة العميد للتوجيه${ejDays(i.created_at) > 3 ? ` منذ ${ejDays(i.created_at)} أيام — يمكنك تذكيره عبر واتساب` : ''}.</div>` : ''}
       <div class="sec"><h3>📄 المعاملة</h3>
         <div class="txt" style="font-weight:700;font-size:15.5px">${esc(i.title)}</div>
@@ -1907,13 +1908,31 @@ async function ejAct(a, i, b){
     return;
   }
   if (a === 'result') {
-    modal('نتيجة المناقشة مع سعادة العميد', `<div><label class="l" for="ejRes">التوجيه الذي استقر عليه (يُحفظ مع المعاملة)</label>
-      <textarea class="textarea" id="ejRes">${esc(i.dean_text || '')}</textarea></div>`,
-      `<button class="btn pri" id="mOk">حفظ وإقفال</button><button class="btn ghost" id="mNo">إلغاء</button>`);
+    let ref = i.referred_to && EJ_REFS.includes(i.referred_to) ? i.referred_to : i.referred_to ? 'other' : null;
+    modal('إقفال المعاملة بعد المناقشة', `
+      <div class="hint">بعد مناقشتها مع سعادة العميد: سجّل ما استقر عليه، ثم تُنقل المعاملة إلى «المنتهية».</div>
+      <div><label class="l">الإدارة المحال إليها (اختياري)</label>
+        <div class="picks" id="ejResRefs">${EJ_REFS.map(x => `<button type="button" class="pick ${ref === x ? 'on' : ''}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}<button type="button" class="pick ${ref === 'other' ? 'on' : ''}" data-v="other">جهة أخرى</button></div>
+        <input class="input" id="ejResOther" style="margin-top:8px" placeholder="اكتب الجهة المحال إليها" value="${ref === 'other' ? esc(i.referred_to) : ''}" ${ref === 'other' ? '' : 'hidden'}></div>
+      <div><label class="l" for="ejRes">التوجيه الذي استقر عليه</label>
+        <div class="chips">${EJ_PHRASES.map(x => `<button type="button" class="chip" data-ph="${esc(x)}">${esc(x)}</button>`).join('')}</div>
+        <textarea class="textarea" id="ejRes" style="margin-top:8px" placeholder="مثال: لإكمال اللازم وفق ما ينظمه">${esc(i.dean_text || '')}</textarea></div>`,
+      `<button class="btn teal" id="mOk">حفظ وإقفال المعاملة</button><button class="btn ghost" id="mNo">إلغاء</button>`);
+    $('#ejResRefs').onclick = e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      ref = ref === b.dataset.v ? null : b.dataset.v;
+      $$('#ejResRefs .pick').forEach(x => x.classList.toggle('on', x.dataset.v === ref));
+      $('#ejResOther').hidden = ref !== 'other'; if (ref === 'other') $('#ejResOther').focus();
+    };
+    $('#modC').querySelector('.chips').onclick = e => { const c = e.target.closest('[data-ph]'); if (c) { $('#ejRes').value = c.dataset.ph; $('#ejRes').focus(); } };
     $('#mNo').onclick = closeModal;
-    $('#mOk').onclick = async () => {
-      const t = $('#ejRes').value.trim(); if (!t) return toast('اكتب التوجيه', 'error');
-      closeModal(); ejUpdate(i.id, { dean_text:t, status:'done', done_at:new Date().toISOString(), done_by:S.me.id }, 'حُفظت النتيجة ✓');
+    $('#mOk').onclick = () => {
+      const t = $('#ejRes').value.trim();
+      const r = ref === 'other' ? $('#ejResOther').value.trim() : ref;
+      if (ref === 'other' && !r) return toast('اكتب الجهة المحال إليها', 'error');
+      if (!t && !r) return toast('اختر الجهة المحال إليها أو اكتب التوجيه', 'error');
+      closeModal();
+      ejUpdate(i.id, { dean_text:t || null, referred_to:r || null, status:'done', done_at:new Date().toISOString(), done_by:S.me.id }, 'أُقفلت المعاملة ✓');
     };
     return;
   }
