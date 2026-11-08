@@ -2060,7 +2060,6 @@ function ejWhatsapp(){
 function ejRenderDean(){
   if (E.open) { const i = E.items.find(x => x.id === E.open); if (i && i.status === 'at_dean') return ejDeanDetail(i); E.open = null; }
   const w = E.items.filter(i => i.status === 'at_dean').sort((a,b) => (b.urgent - a.urgent) || (new Date(a.created_at) - new Date(b.created_at)));
-  const hist = E.items.filter(i => i.status !== 'at_dean' && i.directed_at).sort((a,b) => new Date(b.directed_at) - new Date(a.directed_at)).slice(0, 8);
   const h = new Date().getHours();
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
     <div class="ej-hello"><div class="hi">${h < 12 ? 'صباح الخير' : 'مساء الخير'}</div><h2>سعادة العميد</h2>
@@ -2069,9 +2068,7 @@ function ejRenderDean(){
       <button class="ej-dcard ${k % 2 ? 'alt' : ''}" data-open="${i.id}" type="button">
         <div style="display:flex;gap:6px;flex-wrap:wrap">${ejPills(i)}</div>
         <h3>${esc(i.title)}</h3>${i.source ? `<div class="ej-meta"><span>${esc(i.source)}</span></div>` : ''}
-      </button>`).join('') : `<div class="ej-empty"><div class="ok">✓</div><b>لا توجد معاملات بانتظاركم</b></div>`}</div>
-    ${hist.length ? `<div class="ej-hist"><h3>ما وجّهتم عليه مؤخراً</h3><div class="ej-list">${hist.map(i => `
-      <div class="ej-card"><div class="h"><h3>${esc(i.title)}</h3>${ejPills(i)}</div>${ejDirection(i)}</div>`).join('')}</div></div>` : ''}
+      </button>`).join('') : `<div class="ej-empty"><div class="ok">✓</div><b>لا توجد معاملات بانتظاركم</b><div style="font-size:13px;margin-top:4px">جزاكم الله خيراً</div></div>`}</div>
   </div>`;
 }
 function ejDeanDetail(i){
