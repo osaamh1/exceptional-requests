@@ -543,6 +543,9 @@ main.app{max-width:1320px;margin:0 auto;padding:18px 16px 40px}
 .ej-ft .c.voi{background:var(--teal-soft);color:#0b6e6d}
 .ej-ft .c.age{background:var(--warn-soft);color:var(--warn)}
 .ej-ft .c.age.late{background:var(--bad-soft);color:var(--bad)}
+.ej-ft .c.wa1{border:0;cursor:pointer;background:#e3f6ea;color:#16803f;display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:11.5px;font-weight:700}
+.ej-ft .c.wa1 svg{width:13px;height:13px}
+.ej-ft .c.wa1:hover{background:var(--wa,#1fa855);color:#fff}
 
 .ej-home{background:linear-gradient(160deg,#fff 0%,#f3f7ff 60%,#eef8f7 100%);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:34px 20px;text-align:center}
 .ej-home .hi{width:64px;height:64px;border-radius:20px;margin:0 auto 12px;display:grid;place-items:center;font-size:30px;background:linear-gradient(135deg,#ffe9b3,#ffd27a);box-shadow:0 8px 20px rgba(192,122,18,.25)}
@@ -1671,13 +1674,19 @@ function initEnjaz(){
   $('#btnEnjaz').hidden = false;
   loadEJ(true);
   // سعادة العميد يدخل مباشرة على معاملات إنجاز، وينتقل للطلبات من شريط الأقسام
-  if (location.hash === '#enjaz' || ejDean()) openEnjaz(); else setNav();
-  addEventListener('hashchange', () => { if (location.hash === '#enjaz' && $('#vEnjaz').hidden) openEnjaz(); });
+  ejTakeLink();
+  if (location.hash.startsWith('#enjaz') || ejDean()) openEnjaz(); else setNav();
+  addEventListener('hashchange', () => { if (location.hash.startsWith('#enjaz')) { ejTakeLink(); if ($('#vEnjaz').hidden) openEnjaz(); else renderEJ(); } });
   setInterval(() => {
     if (document.hidden || $('#mod').classList.contains('on') || E.rec || E.busy) return;
     if (ejDean() && E.open) return;            // لا نغيّر الشاشة والعميد يكتب توجيهه
     loadEJ(true);
   }, CONFIG.AUTO_REFRESH_SEC * 1000);
+}
+// رابط معاملة محددة: admin.html#enjaz-<id>
+function ejTakeLink(){
+  const m = /^#enjaz-([0-9a-f-]{36})$/i.exec(location.hash); if (!m) return;
+  if (ejDean()) E.open = m[1]; else { E.sel = m[1]; E.tab = 'all'; E.kpi = null; }
 }
 function openEnjaz(){
   $('#vMain').hidden = true; $('#vReport').hidden = true; $('#vEnjaz').hidden = false;
@@ -1703,6 +1712,7 @@ async function loadEJ(silent){
     const { data: signed } = await sb.storage.from(EJ_BUCKET).createSignedUrls(need, 6 * 3600);
     (signed || []).forEach(s => { if (s.signedUrl) E.urls[s.path] = s.signedUrl; });
   }
+  E.loaded = true;
   ejBadge();
   if (!$('#vEnjaz').hidden) renderEJ();
 }
@@ -1802,7 +1812,7 @@ function ejPaintTop(){
 }
 function ejPaintList(){
   const rows = ejFiltered();
-  if (E.sel && !rows.some(i => i.id === E.sel)) E.sel = null;
+  if (E.sel && E.loaded && !rows.some(i => i.id === E.sel)) E.sel = null;
   $('#ejList').innerHTML = rows.length ? rows.map((i, k) => {
     const late = i.status === 'at_dean' && ejDays(i.created_at) > 3;
     const voice = ejFilesOf(i.id, 'voice').length, att = ejFilesOf(i.id, 'attachment').length;
@@ -1812,7 +1822,7 @@ function ejPaintList(){
       <div class="ej-ttl">${esc(i.title)}</div>
       ${i.source ? `<div class="ej-src">🏛️ ${esc(i.source)}</div>` : ''}
       ${i.summary ? `<div class="ej-sm">${esc(i.summary)}</div>` : ''}
-      <div class="ej-ft">${i.urgent ? '<span class="c urg">⚡ عاجلة</span>' : ''}${i.secret ? '<span class="c sec">🔒 سرّية</span>' : att ? `<span class="c att">📎 ${att} مرفق</span>` : ''}${voice ? '<span class="c voi">🎙 صوتي</span>' : ''}<span class="sp"></span><span class="c age ${late ? 'late' : ''}">${late ? '⚠ متأخرة · ' : '🕓 '}${ago(when)}</span></div>
+      <div class="ej-ft">${i.urgent ? '<span class="c urg">⚡ عاجلة</span>' : ''}${i.secret ? '<span class="c sec">🔒 سرّية</span>' : att ? `<span class="c att">📎 ${att} مرفق</span>` : ''}${voice ? '<span class="c voi">🎙 صوتي</span>' : ''}<span class="sp"></span>${i.status === 'at_dean' ? `<button class="c wa1" type="button" data-ej="remind" data-id="${i.id}" title="تذكير سعادة العميد بهذه المعاملة">${ICON_WA}تذكير</button>` : ''}<span class="c age ${late ? 'late' : ''}">${late ? '⚠ متأخرة · ' : '🕓 '}${ago(when)}</span></div>
       ${(i.dean_text || voice || i.referred_to) && i.status !== 'at_dean' ? `<div class="dsum ${i.status === 'discuss' ? 'ds-reserved' : 'ds-directed'}">
         <div class="dl"><b>${i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'التوجيه:'}</b> ${[i.referred_to ? 'يُحال إلى ' + ejRefLabel(i.referred_to) : '', i.dean_text || ''].filter(Boolean).map(x => esc(x.replace(/\s+/g, ' '))).join(' · ')}</div>
         <div class="dm">${i.directed_at ? `<span>🗓 ${hijri(i.directed_at)}</span>` : ''}${voice ? '<span>🎙 تسجيل صوتي</span>' : ''}${i.status === 'directed' ? '<span class="wait">بانتظار النقل إلى إنجاز</span>' : ''}</div>
@@ -1833,7 +1843,7 @@ function ejPaintDetail(){
   const ev = [{ t:i.created_at, b:'أُضيفت المعاملة وعُرضت على سعادة العميد', by:i.created_by, dot:'var(--info)' }];
   if (i.directed_at) ev.push({ t:i.directed_at, b:i.status === 'discuss' ? 'طلب سعادة العميد مناقشتها' : 'صدر توجيه سعادة العميد', by:i.directed_by, dot:i.status === 'discuss' ? '#c07a12' : 'var(--violet)' });
   if (i.done_at) ev.push({ t:i.done_at, b:'نُقل التوجيه إلى إنجاز وأُقفلت', by:i.done_by, dot:'var(--teal)' });
-  const acts = i.status === 'at_dean' ? `<button class="btn line" data-ej="edit" data-id="${i.id}">تعديل</button><button class="btn danger" data-ej="del" data-id="${i.id}">حذف</button>`
+  const acts = i.status === 'at_dean' ? `<button class="btn wa" data-ej="remind" data-id="${i.id}">${ICON_WA}تذكير سعادته بها</button><button class="btn line" data-ej="edit" data-id="${i.id}">تعديل</button><button class="btn danger" data-ej="del" data-id="${i.id}">حذف</button>`
     : i.status === 'directed' ? `${ejDirText(i) ? `<button class="btn line" data-ej="copy" data-id="${i.id}">نسخ التوجيه</button>` : ''}<button class="btn teal" data-ej="done" data-id="${i.id}">تم النقل إلى إنجاز</button>`
     : i.status === 'discuss' ? `<button class="btn teal" data-ej="result" data-id="${i.id}">✓ تمت المناقشة — إقفال المعاملة</button><button class="btn line" data-ej="back" data-id="${i.id}">إعادتها لسعادة العميد</button>`
     : `<button class="btn ghost" data-ej="reopen" data-id="${i.id}">إعادة فتح</button>`;
@@ -1895,6 +1905,7 @@ async function ejUpdate(id, patch, okMsg){
 }
 async function ejAct(a, i, b){
   if (a === 'edit') return ejForm(i);
+  if (a === 'remind') return ejWhatsapp(i);
   if (a === 'copy') {
     try { await navigator.clipboard.writeText(ejDirText(i)); b.textContent = 'نُسخ ✓'; }
     catch { toast('تعذّر النسخ، انسخ النص يدوياً', 'error'); }
@@ -2033,13 +2044,21 @@ function ejForm(i){
 }
 
 /* ---------------- تذكير العميد عبر واتساب (إرسال يدوي من رقمك) ---------------- */
-function ejWhatsapp(){
-  const w = E.items.filter(i => i.status === 'at_dean').sort((a,b) => (b.urgent - a.urgent) || (new Date(a.created_at) - new Date(b.created_at)));
-  const n = w.length, word = n === 1 ? 'معاملة واحدة' : n === 2 ? 'معاملتان' : `${n} معاملات`;
-  const msg = `السلام عليكم ورحمة الله وبركاته\nسعادة العميد، حفظكم الله\n\nلديكم ${word} بانتظار توجيهكم${w.some(i => i.urgent) ? '، منها ما هو عاجل' : ''}:\n` +
-    w.map(i => `• ${i.urgent ? '(عاجلة) ' : ''}${i.title}`).join('\n') + `\n\nللاطلاع والتوجيه:\n${EJ_URL}\n\nمكتبكم`;
-  modal('تذكير سعادة العميد عبر واتساب', `
-    <div class="hint">تُفتح محادثة سعادة العميد (<span class="ltr">0530721901</span>) بهذه الرسالة، وأنت تضغط إرسال.</div>
+function ejWhatsapp(one){
+  let msg, ttl;
+  if (one) {
+    const d = ejDays(one.created_at);
+    ttl = 'تذكير سعادة العميد بمعاملة';
+    msg = `السلام عليكم ورحمة الله وبركاته\nسعادة العميد، حفظكم الله\n\nنأمل التكرم بالتوجيه على المعاملة${one.urgent ? ' العاجلة' : ''}:\n«${one.title}»\nرقمها في إنجاز: ${one.enjaz_no}${one.source ? `\nالواردة من: ${one.source}` : ''}${d >= 2 ? `\nوهي بانتظار توجيهكم منذ ${d} أيام.` : ''}\n\nللاطلاع والتوجيه مباشرة:\n${EJ_URL}-${one.id}\n\nمكتبكم`;
+  } else {
+    const w = E.items.filter(i => i.status === 'at_dean').sort((a,b) => (b.urgent - a.urgent) || (new Date(a.created_at) - new Date(b.created_at)));
+    const n = w.length, word = n === 1 ? 'معاملة واحدة' : n === 2 ? 'معاملتان' : `${n} معاملات`;
+    ttl = 'تذكير سعادة العميد عبر واتساب';
+    msg = `السلام عليكم ورحمة الله وبركاته\nسعادة العميد، حفظكم الله\n\nلديكم ${word} بانتظار توجيهكم${w.some(i => i.urgent) ? '، منها ما هو عاجل' : ''}:\n` +
+      w.map(i => `• ${i.urgent ? '(عاجلة) ' : ''}${i.title}`).join('\n') + `\n\nللاطلاع والتوجيه:\n${EJ_URL}\n\nمكتبكم`;
+  }
+  modal(ttl, `
+    <div class="hint">تُفتح محادثة سعادة العميد (<span class="ltr">0530721901</span>) بهذه الرسالة، وأنت تضغط إرسال. يمكنك تعديل النص قبل الفتح.</div>
     <textarea class="textarea" id="ejWaMsg" style="min-height:230px">${esc(msg)}</textarea>
     <div class="wa-how"><span>الفتح عبر:</span>
       <label><input type="radio" name="ejWaMode" value="web" ${waMode()==='web'?'checked':''}> واتساب ويب</label>
@@ -2058,7 +2077,12 @@ function ejWhatsapp(){
 
 /* ================= شاشة سعادة العميد ================= */
 function ejRenderDean(){
-  if (E.open) { const i = E.items.find(x => x.id === E.open); if (i && i.status === 'at_dean') return ejDeanDetail(i); E.open = null; }
+  if (E.open) {
+    const i = E.items.find(x => x.id === E.open);
+    if (i && i.status === 'at_dean') { if (E.shown !== i.id) { E.shown = i.id; return ejDeanDetail(i); } return; }
+    if (E.loaded) { E.open = null; E.shown = null; }
+  }
+  E.shown = null;
   const w = E.items.filter(i => i.status === 'at_dean').sort((a,b) => (b.urgent - a.urgent) || (new Date(a.created_at) - new Date(b.created_at)));
   const h = new Date().getHours();
   $('#vEnjaz').innerHTML = `<div class="ej-dean">
