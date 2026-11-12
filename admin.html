@@ -847,6 +847,8 @@ async function boot(){
   $('#btnSettings').hidden = !['admin','dean'].includes(me.role);
   $('#btnReport').hidden = me.role === 'referral';
   $('#secnav').classList.toggle('dean', me.role === 'dean');
+  // الرجوع إلى صفحة طلبت الدخول (مثل تقرير معاملات إنجاز)
+  try { const back = sessionStorage.getItem('returnTo'); if (back && back.startsWith(location.origin)) { sessionStorage.removeItem('returnTo'); location.replace(back); return; } } catch (e) {}
   show('vApp'); bumpIdle();
   buildTabs();
   initEnjaz();
